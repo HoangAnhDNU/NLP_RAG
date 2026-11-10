@@ -279,11 +279,7 @@ Kết quả mẫu xem tại `app/expected_outputs.md`, hướng dẫn chi tiết
 ├── report/
 │   ├── data_quality_report.md   # chất lượng dữ liệu
 │   ├── corpus_selection.md      # lựa chọn corpus
-│   ├── ocr_audit.md             # audit OCR
-│   ├── Bao_cao_BTL.md           # báo cáo BTL 8 mục (nộp thay PDF)
-│   ├── Nhat_ky_su_dung_AI.md    # nhật ký AI theo mốc
-│   ├── Tuyen_bo_su_dung_AI.md   # tuyên bố AI
-│── └── Bang_anh_xa_minh_chung.md # bảng ánh xạ Mục 10
+│── ├── ocr_audit.md             # audit OCR
 ```
 
 ## 8. Hồ sơ nộp đã đủ và pilot nâng cao
