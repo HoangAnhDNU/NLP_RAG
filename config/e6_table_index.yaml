@@ -1,0 +1,43 @@
+# Cau hinh E6: index rieng noi dung bang, tieu de cot, don vi, gia tri so.
+# Giai thuyet: cau hoi so nam trong bang; index bang rieng giup BM25 bat
+# dung o so, tieu de cot va don vi ma index full-text bi pha loang.
+corpus:
+  chunks: data/processed/chunks.jsonl
+  chunk_unit: page
+  chunk_size: 1
+  chunk_overlap: 0
+model:
+  dense_source: config/e1_tfidf.yaml
+  dense_cache: evaluation/lsa_index_E1.npz
+  seed: 42
+retrieval:
+  method: table-index-boost-then-hybrid
+  bm25_k1: 1.5
+  bm25_b: 0.75
+  tfidf_ngram: [1, 2]
+  svd_components: 128
+  fusion_alpha: 0.5
+  candidate_k: 20
+  top_k: 5
+  metadata_bonus: 0.15
+  table_bm25_weight: 0.3
+  full_bm25_weight: 0.7
+  citation_fields: [company_id, fiscal_year, report_version, page, chunk_id]
+refusal:
+  enabled: true
+  text: "Không đủ bằng chứng trong corpus để trả lời."
+  patterns:
+    - "quý"
+    - "bán niên"
+    - "6 tháng"
+    - "kế hoạch"
+    - "dự báo"
+    - "giá đóng cửa"
+    - "vốn hóa thị trường"
+    - "thị giá"
+    - "giá bán bình quân"
+    - "tổng số cổ đông"
+query:
+  normalization: NFC-lower-strip
+  use_question_as_is: true
+date: 2026-11-10

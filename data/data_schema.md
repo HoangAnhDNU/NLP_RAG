@@ -52,6 +52,31 @@ Mỗi dòng là một trang báo cáo đã chuẩn hóa.
 | `text_chars` | int | độ dài `text` |
 | `local_path` | string | đường dẫn file OCR gốc |
 
+## 3b. `data/processed/table_records.jsonl` (29834 dòng)
+
+Mỗi dòng là một ô số trong bảng HTML đã chuẩn hóa, song song với chunk văn bản.
+
+| Trường | Kiểu | Ghi chú |
+|---|---|---|
+| `company` | string | `HPG, HSG, NKG, MSR` |
+| `year` | int | năm của cột kỳ báo cáo, suy từ `period_label`, dự phòng bằng `fiscal_year` |
+| `period_label` | string | nhãn cột gốc (`30.9.2024 VND`, `2024Nghìn VND`, `31/12/2024 VND`) |
+| `statement` | string | `balance_sheet`, `income_statement`, `cash_flow`, `other` |
+| `metric` | string | tên chỉ tiêu, giữ dấu tiếng Việt |
+| `metric_code` | string | mã số dòng (`10`, `20`, `60`, `110`), rỗng nếu bảng không có mã |
+| `value` | number | giá trị sau chuẩn hóa (`1.234,56` → `1234.56`, `(983)` → `-983`) |
+| `unit` | string | đơn vị phát hiện (`đồng`, `nghìn đồng`, `triệu đồng`, `tỷ đồng`, `nghìn tỷ đồng`, `%`) |
+| `value_raw` | string | chuỗi số gốc trong ô bảng |
+| `page` | int | trang chứa bảng |
+| `table_index` | int | thứ tự bảng trên trang, bắt đầu từ 1 |
+| `source_chunk_id` | string | khóa nối về `chunks.jsonl` |
+| `document_id` | string | khóa nối với manifest |
+| `report_version` | string | `consolidated` hoặc `separate` |
+| `fiscal_year` | int | năm báo cáo |
+| `confidence` | number | `0.93` nếu có mã số, `0.85` nếu tên dài, trừ `0.1` khi thiếu đơn vị |
+
+Tái lập: `python src/build_table_records.py`. E8 lookup trên file này trước rồi mới hybrid RAG.
+
 ## 4. Câu hỏi ViFinQA đã lọc
 
 `questions_matched.csv` (35 dòng): `question_id, question, company_id, company_name,`

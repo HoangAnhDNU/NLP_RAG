@@ -89,21 +89,32 @@ Kết quả chính: `data/processed/chunks.jsonl`,
 `data/annotations/qa_gold.jsonl` (50 câu),
 `data/data_manifest.csv`, `data/data_schema.md`, `data/README.md`.
 
-## 4. Chạy E0, E1, E2 và E3 nâng cao
+## 4. Chạy E0-E2 và E3-E8 nâng cao
 
 | Run | Phương pháp | Config | Ghi chú |
 |---|---|---|---|
 | E0 | BM25 unigram, `k1=1.5`, `b=0.75`, top 5 | `config/e0_bm25.yaml` | Baseline, không sinh văn bản |
 | E1 | Dense LSA trên TF-IDF bigram, SVD 128, seed 42 | `config/e1_tfidf.yaml` | Đối chứng dense với BM25 |
 | E2 | Hybrid `0.5 BM25 + 0.5 LSA` trên top 20, cộng 0.15 điểm metadata, 10 mẫu từ chối | `config/e2_hybrid.yaml` | Khác E1 ở chiến lược fusion và refusal |
-| E3 | Lọc cứng metadata công ty/năm/bản rồi mới fusion `0.5 BM25 + 0.5 LSA`, 10 mẫu từ chối | `config/e3_filter.yaml` | Phần nâng cao: khác E2 ở lọc cứng pool trước khi fusion |
+| E3 | Lọc cứng metadata công ty/năm/bản rồi mới fusion `0.5 BM25 + 0.5 LSA`, 10 mẫu từ chối | `config/e3_filter.yaml` | Baseline tái lập được cho lọc cứng, tách khỏi E2 cộng điểm mềm |
+| E4 | `RRF(k=60)` BM25 + LSA rồi rerank nhẹ thay cross-encoder (cover + metric + meta + bảng) | `config/e4_rerank.yaml` | Pipeline hai tầng, không tải model ngoài nên chạy offline |
+| E5 | Tách công ty/năm/chỉ tiêu, sinh tối đa 3 biến thể truy vấn, max-pooling rồi hybrid | `config/e5_query_rewrite.yaml` | Ablation cho chuẩn hóa và rewrite truy vấn |
+| E6 | Index riêng nội dung bảng (`0.7` full-text + `0.3` bảng) rồi hybrid | `config/e6_table_index.yaml` | Ablation cho bảng, tiêu đề cột, đơn vị và giá trị số |
+| E7 | Gắn header `[CTY | Năm | Bản | Trang | Đơn vị | Bảng]` vào mỗi chunk lúc truy hồi rồi hybrid | `config/e7_contextual.yaml` | Ablation cho contextual chunk |
+| E8 | Lookup có cấu trúc trên `table_records.jsonl` trước, hybrid RAG giải thích sau | `config/e8_table_lookup.yaml` | Trả lời số trực tiếp kèm chunk gốc để kiểm chứng |
 
 ```bash
 conda activate NLP
+python src/build_table_records.py
 python src/infer/e0_bm25.py
 python src/infer/e1_lsa.py
 python src/infer/e2_hybrid.py
 python src/infer/e3_filter.py
+python src/infer/e4_rerank.py
+python src/infer/e5_query_rewrite.py
+python src/infer/e6_table_index.py
+python src/infer/e7_contextual.py
+python src/infer/e8_table_lookup.py
 ```
 
 Mỗi lệnh sinh 2 file dev và test, ví dụ:
@@ -121,10 +132,15 @@ python src/evaluate/evaluate.py --run E0
 python src/evaluate/evaluate.py --run E1
 python src/evaluate/evaluate.py --run E2
 python src/evaluate/evaluate.py --run E3
+python src/evaluate/evaluate.py --run E4
+python src/evaluate/evaluate.py --run E5
+python src/evaluate/evaluate.py --run E6
+python src/evaluate/evaluate.py --run E7
+python src/evaluate/evaluate.py --run E8
 ```
 
-Mỗi lệnh ghi 2 dòng dev và test vào `evaluation/metrics_summary.csv`.
-Chạy đủ 4 run để có 8 dòng E0, E1, E2, E3 rồi sinh bảng so sánh và phân tích lỗi:
+Mỗi lệnh ghi 2 dòng dev và test vào `evaluation/metrics_summary.csv` (giữ `recall_at_k` và `mrr_at_k` để tương thích, kèm `recall_at_3`, `recall_at_10`, `mrr_at_3`, `mrr_at_10`, `context_precision_at_5`, `context_recall_at_5`, `citation_precision_top1`, `citation_recall_at_5`, `numeric_match`, `exact_match`, `period_accuracy`, `company_accuracy`, `year_accuracy`, `version_accuracy`, `page_accuracy`, `unsupported_claim_rate`, `faithfulness_heuristic`, `answer_relevancy_heuristic`, `refusal_precision`, `refusal_recall`).
+Chạy đủ 9 run để có 18 dòng E0-E8 rồi sinh bảng so sánh và phân tích lỗi:
 
 ```bash
 conda activate NLP
@@ -133,19 +149,29 @@ python src/evaluate/seed_check_e1.py
 python src/evaluate/build_error_analysis.py
 ```
 
-Số liệu test hiện tại (`evaluation/metrics_summary.csv`, k=5, test n=40):
+Số liệu test hiện tại (`evaluation/metrics_summary.csv`, test n=40, chỉ 5 câu có evidence):
 
-| run | recall@k | mrr@k | citation | numeric | refusal |
-|---|---|---|---|---|---|
-| E0 | 0.2 | 0.05 | 0.0 | 0.0 | 0.0 |
-| E1 | 0.2 | 0.0667 | 0.0 | 0.0 | 0.0 |
-| E2 | 0.4 | 0.14 | 0.0 | 0.0 | 1.0 |
-| E3 | 0.8 | 0.45 | 0.2 | 0.0 | 1.0 |
+| run | R@5 | MRR@5 | ctxR@5 | citeP@top1 | period | numeric | refP | refR |
+|---|---|---|---|---|---|---|---|---|
+| E0 | 0.2 | 0.05 | 0.2 | 0.0 | 0.4 | 0.0 | 0.0 | 0.0 |
+| E1 | 0.2 | 0.0667 | 0.2 | 0.0 | 0.4 | 0.0 | 0.0 | 0.0 |
+| E2 | 0.4 | 0.14 | 0.4 | 0.0 | 0.6 | 0.0 | 1.0 | 1.0 |
+| E3 | 0.8 | 0.45 | 0.8 | 0.2 | 1.0 | 0.0 | 1.0 | 1.0 |
+| E4 | 0.8 | 0.4167 | 0.8 | 0.2 | 0.8 | 0.0 | 1.0 | 1.0 |
+| E5 | 0.6 | 0.1467 | 0.6 | 0.0 | 0.6 | 0.0 | 1.0 | 1.0 |
+| E6 | 0.4 | 0.1167 | 0.4 | 0.0 | 0.8 | 0.0 | 1.0 | 1.0 |
+| E7 | 0.4 | 0.1667 | 0.4 | 0.0 | 0.6 | 0.0 | 1.0 | 1.0 |
+| E8 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+
+Bảng đầy đủ tách 4 nhóm retrieval, citation, answer và refusal xem tại `evaluation/comparison_E0_E1_E2.md` (do script sinh, đã gồm E3-E8).
+Giao thức chấm chi tiết tại `evaluation/evaluation_protocol.md` (v4): E0-E2 định mức, E3 là baseline lọc cứng tái lập được, E4-E7 là pipeline hai tầng và ablation, E8 là lookup bảng có cấu trúc; retrieval có R@3/R@5/R@10, MRR@3/MRR@5/MRR@10 và context precision/recall; answer có numeric match, exact match, period/company/year/version/page accuracy, unsupported-claim rate và hai heuristic thay thế faithfulness/answer_relevancy vì pipeline không gọi LLM API.
 
 Test chỉ có 5 câu có evidence nên mỗi câu đúng sai làm Recall@k nhảy 0.2,
-đọc cùng `evaluation/comparison_E0_E1_E2.md` (đã gồm E3) và
+đọc cùng `evaluation/comparison_E0_E1_E2.md` (đã gồm E3-E8) và
 `evaluation/error_analysis.md` (12 ca theo Form B) để tránh diễn giải quá mức.
 E2 vượt E0/E1 ở refusal vì điền câu từ chối đúng nguyên văn; E3 vượt tiếp nhờ lọc cứng metadata.
+E4 dùng RRF fusion rồi rerank nhẹ giữ R@5=0.8 của E3, MRR@5=0.4167 gần E3=0.45, citeP=0.2 và period=0.8; E5/E6/E7 là ablation cho rewrite, bảng và contextual chunk.
+E8 lookup bảng trước nên lần đầu numeric=1.0 và R@5=1.0; chunk gốc giữ nguyên để kiểm chứng số sau quy đổi đơn vị.
 
 ## 6. Chạy demo Streamlit
 
@@ -190,13 +216,18 @@ Kết quả mẫu xem tại `app/expected_outputs.md`, hướng dẫn chi tiết
 │   ├── e0_bm25.yaml             # baseline BM25
 │   ├── e1_tfidf.yaml            # dense LSA
 │   ├── e2_hybrid.yaml           # hybrid và refusal
-│   └── e3_filter.yaml           # lọc cứng metadata rồi fusion (nâng cao)
+│   ├── e3_filter.yaml           # lọc cứng metadata rồi fusion (nâng cao)
+│   ├── e4_rerank.yaml           # E2 + rerank nhẹ thay cross-encoder
+│   ├── e5_query_rewrite.yaml    # tách thực thể + biến thể truy vấn
+│   ├── e6_table_index.yaml      # index riêng nội dung bảng
+│   └── e7_contextual.yaml       # header CTY/Năm/Bản lúc truy hồi
+│   └── e8_table_lookup.yaml     # lookup bảng có cấu trúc rồi RAG
 ├── data/
 │   ├── README.md                # cấu trúc thư mục dữ liệu
 │   ├── data_manifest.csv        # 40 báo cáo và 50 câu gold
 │   ├── data_schema.md           # lược đồ trường
 │   ├── raw/vifinqa/            # snapshot ViFinQA, chỉ đọc
-│   ├── processed/               # chunks, matched, dropped, audit OCR
+│   ├── processed/               # chunks, table_records, matched, dropped, audit OCR
 │   ├── annotations/             # qa_gold, guideline, review log
 │   └── splits/                  # dev, test, split_meta seed 42
 ├── src/
@@ -205,18 +236,21 @@ Kết quả mẫu xem tại `app/expected_outputs.md`, hướng dẫn chi tiết
 │   ├── filter_questions.py      # lọc 35 câu khớp và 977 câu loại
 │   ├── audit_ocr.py             # audit OCR
 │   ├── build_chunks.py         # 2407 chunk theo trang
+│   ├── build_table_records.py # 29834 bản ghi số từ bảng HTML
 │   ├── build_supplement_gold.py # 15 câu bổ sung
 │   ├── build_gold.py            # 50 câu gold và split
 │   ├── build_data_docs.py       # manifest và schema
-│   ├── preprocess/              # normalize, chunking, company match, parser
-│   ├── retrieval/bm25.py        # BM25 dùng chung E0 và E2
-│   ├── infer/                   # e0_bm25, e1_lsa, e2_hybrid, e3_filter
+│   ├── preprocess/              # normalize, chunking, company match, parser, table_extract
+│   ├── retrieval/bm25.py        # BM25 dùng chung E0-E8
+│   ├── retrieval/pipeline_two_stage.py # metadata, RRF, rerank nhẹ, table/contextual
+│   ├── retrieval/table_lookup.py # lookup bảng có cấu trúc, quy đổi đơn vị (E8)
+│   ├── infer/                   # e0_bm25, e1_lsa, e2_hybrid, e3_filter, e4_rerank, e5_query_rewrite, e6_table_index, e7_contextual, e8_table_lookup
 │   └── evaluate/                # evaluate, compare, seed check, error analysis
 ├── evaluation/
 │   ├── evaluation_protocol.md   # giao thức chấm và chống rò rỉ
-│   ├── experiments.csv          # bảng tracking E0 E1 E2 E3
+│   ├── experiments.csv          # bảng tracking E0-E8
 │   ├── metrics_summary.csv      # metric dev và test
-│   ├── comparison_E0_E1_E2.md   # bảng so sánh do script sinh (đã gồm E3)
+│   ├── comparison_E0_E1_E2.md   # bảng so sánh do script sinh (đã gồm E3-E8)
 │   ├── error_analysis.md        # 12 ca lỗi Form B
 │   ├── dev_predictions_E*.csv   # dự đoán dev
 │   ├── test_predictions_E*.csv  # dự đoán test

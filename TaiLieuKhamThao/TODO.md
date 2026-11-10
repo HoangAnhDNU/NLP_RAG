@@ -133,7 +133,7 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 ### 2.3 Giao thức đánh giá và chống rò rỉ (Mục 5.4)
 
 - [x] `evaluation/evaluation_protocol.md`: định nghĩa từng metric, cách chấm, xử lý câu không đủ bằng chứng.
-  → Phiên bản v1: Recall@k, MRR@k, numeric match, citation correctness, tỷ lệ từ chối đúng trên 8 câu thiếu bằng chứng; đánh giá retrieval và answer riêng.
+  → Phiên bản v2: tách retrieval (R@3/R@5/R@10, MRR@3/MRR@5/MRR@10, context precision/recall), citation (precision top1, recall@5, page accuracy), answer số và nghiệp vụ (numeric, exact, period/company/year/version, unsupported-claim, faithfulness/relevancy heuristic), refusal precision/recall; đánh giá retrieval và answer riêng.
 - [x] Rule bất biến: chọn tham số/prompt/mô hình bằng **dev**; chỉ dùng **test** để công bố kết quả cuối. Nếu đã nhìn test để tuning thì phải khai báo và thiết kế lại tập test độc lập.
 - [x] Split dev/test theo câu hỏi; không đưa paraphrase gần trùng vào cả hai. Công bố rõ cùng báo cáo có thể xuất hiện ở cả dev và test.
   → Kiểm tra trùng câu hỏi sau chuẩn hóa chữ thường trong `src/build_gold.py`: 50 câu không trùng khớp.
@@ -195,7 +195,7 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 ### 5.1 Metric bắt buộc cho đề tài 6 (Mục 4.6.5)
 
 - [x] Retrieval: **Recall@k**, **MRR@k** (k cố định, ghi rõ giá trị k).
-  → k bằng 5, cùng test 40 câu và cùng `src/evaluate/evaluate.py`; test E0 R@5 bằng 0,2 MRR@5 bằng 0,05; E1 R@5 bằng 0,2 MRR@5 bằng 0,0667; E2 R@5 bằng 0,4 MRR@5 bằng 0,14.
+  → k bằng 5, cùng test 40 câu và cùng `src/evaluate/evaluate.py`; test E0 R@5 bằng 0,2 MRR@5 bằng 0,05 ctxR@5 bằng 0,2; E1 R@5 bằng 0,2 MRR@5 bằng 0,0667; E2 R@5 bằng 0,4 MRR@5 bằng 0,14; E3 R@5 bằng 0,8 MRR@5 bằng 0,45 ctxR@5 bằng 0,8 period bằng 1,0.
 - [x] Answer: **numeric/normalized match** (so khớp số và đơn vị; có quy tắc làm tròn và chuyển đơn vị).
   → Cả 3 runs không sinh văn bản nên numeric match bằng 0,0 theo thiết kế; đã tách riêng retrieval và answer trong `evaluation_protocol.md` và `error_analysis.md` mục 5.
 - [x] **Citation correctness**: trích dẫn đúng báo cáo/năm/trang/bảng.
@@ -246,7 +246,7 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 - [x] `data/data_manifest.csv`, `data/data_schema.md`, `data/README.md`, `data/splits/`, `data/annotations/` (annotation_guideline.md, gold_labels.csv/jsonl, review_log.csv).
   → Đủ cả 6 nhóm: `data_manifest.csv` 90 dòng, `data_schema.md` 7 nhóm, `data/README.md`, `dev.json` 10 ID, `test.json` 40 ID, `split_meta.json` v1 seed 42, guideline v0.1, `gold_labels.csv`, `qa_gold.jsonl` 50 câu, `review_log.csv` 50 dòng kèm `review_report.md`.
 - [x] `evaluation/`: evaluation_protocol.md, experiments.csv, metrics_summary.csv, test_predictions_E0/E1/E2, error_analysis.md.
-  → Đủ định mức E0-E2 và thêm E3 nâng cao: protocol v1, experiments 4 dòng, metrics 8 dòng dev/test, 8 file dự đoán dev/test E0/E1/E2/E3, `retrieval_predictions.csv` và `answer_predictions.csv` 40 dòng theo Mục 4.6.6, `error_analysis.md` 12 ca Mẫu B, kèm `comparison_E0_E1_E2.md` (đã gồm E3), `pilot_advanced.md` và `split_freeze.json`.
+  → Đủ định mức E0-E2 và thêm E3 nâng cao: protocol v2, experiments 4 dòng, metrics 8 dòng dev/test 32 cột, 8 file dự đoán dev/test E0/E1/E2/E3, `retrieval_predictions.csv` và `answer_predictions.csv` 40 dòng theo Mục 4.6.6, `error_analysis.md` 12 ca Mẫu B, kèm `comparison_E0_E1_E2.md` (đã gồm E3), `pilot_advanced.md` và `split_freeze.json`.
 - [x] `report/data_quality_report.md`, `report/Bao_cao_BTL.md` (bỏ bước PDF theo yêu cầu ngày 2026-11-10).
   → `data_quality_report.md` do script sinh (9 mục), `Bao_cao_BTL.md` 8 mục nộp thay PDF, kèm `corpus_selection.md` và `ocr_audit.md` cho minh chứng 4.6.6, `report/Phieu_dang_ky.md` cho Mẫu A Mục 13.
 - [x] `report/Nhat_ky_su_dung_AI.md` và `report/Tuyen_bo_su_dung_AI.md`.
@@ -284,7 +284,17 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 ## 7. Phần nâng cao (tự chọn, làm sau khi đạt hết yêu cầu cơ bản)
 
 - [x] E3 lọc cứng metadata công ty/năm/bản báo cáo rồi mới fusion BM25 + LSA (đối chứng chiến lược với E2 cộng điểm mềm).
-  → `config/e3_filter.yaml`, `src/infer/e3_filter.py`, `evaluation/test_predictions_E3.csv` + `dev_predictions_E3.csv`; test R@5=0.8 MRR@5=0.45 cite=0.2 refusal=1.0, vượt E2 nhờ loại sai công ty/năm/bản trước khi xếp hạng.
+  → `config/e3_filter.yaml`, `src/infer/e3_filter.py`, `evaluation/test_predictions_E3.csv` + `dev_predictions_E3.csv`; test R@5=0.8 MRR@5=0.45 ctxR@5=0.8 citeP=0.2 period=1.0 refP=refR=1.0, vượt E2 nhờ loại sai công ty/năm/bản trước khi xếp hạng.
+- [x] E4 pipeline hai tầng: BM25 + LSA → RRF fusion (k=60) → reranker nhẹ thay cross-encoder (cover + metric + meta + bảng).
+  → `config/e4_rerank.yaml`, `src/infer/e4_rerank.py`, `src/retrieval/pipeline_two_stage.py`; test R@5=0.8 ctxR@5=0.8 MRR@5=0.4167 citeP=0.2 period=0.8 page_acc=0.2 refP=refR=1.0, giữ R@5 của E3, MRR gần E3; chạy offline, không tải model ngoài.
+- [x] E5 query rewrite: tách công ty/năm/chỉ tiêu, sinh tối đa 3 biến thể truy vấn, max-pooling rồi hybrid.
+  → `config/e5_query_rewrite.yaml`, `src/infer/e5_query_rewrite.py`; test R@5=0.6 MRR@5=0.1467 period=0.6, hơn E2 nhưng thua E3/E4.
+- [x] E6 table index: index riêng nội dung bảng (`0.7` full-text + `0.3` bảng) rồi hybrid.
+  → `config/e6_table_index.yaml`, `src/infer/e6_table_index.py`; test R@5=0.4 period=0.8, period cao nhì sau E3 nhờ bắt đúng ô số.
+- [x] E7 contextual chunk: gắn header `[CTY | Năm | Bản | Trang | Đơn vị | Bảng]` vào mỗi chunk lúc truy hồi rồi hybrid.
+  → `config/e7_contextual.yaml`, `src/infer/e7_contextual.py`; test R@5=0.4 MRR@5=0.1667, hơn E2 về MRR nhưng không vượt E3.
+- [x] E8 bảng số tài chính: trích hàng bảng có cấu trúc rồi lookup trước, RAG giải thích sau.
+  → `src/preprocess/table_extract.py`, `src/build_table_records.py`, `data/processed/table_records.jsonl` (29834 bản ghi, 2585 bảng), `src/retrieval/table_lookup.py`, `config/e8_table_lookup.yaml`, `src/infer/e8_table_lookup.py`; test R@5=1.0 MRR@5=1.0 citeP=1.0 numeric=1.0 exact=1.0 period=1.0 page=1.0 refP=refR=1.0, lần đầu trả lời số đúng hết 7 câu bổ sung có đáp án (kể cả biên 10.8568% từ mã 20/10) và giữ chunk gốc để kiểm chứng.
 - [x] Câu hỏi đa bước qua nhiều bảng/báo cáo (multi-hop QA), có nhãn từng bước.
   → Thí điểm trên ViFinQA-368 trong `evaluation/pilot_advanced.md` mục 3: tách 3 bước con, chạy BM25 từng bước; thiếu gold từng bước nên chưa chấm metric, đánh dấu `needs_decomposition`.
 - [x] Cross-report QA (so sánh nhiều doanh nghiệp/năm).

@@ -1,0 +1,45 @@
+# Cau hinh E4: giu E2, chi them reranker nhe thay cross-encoder.
+# Giai thuyet: hybrid BM25+LSA tim du ung vien, reranker nhe (cover + metric + meta)
+# day dung chunk co bang va chi tieu len top, cai thien R@5 va MRR@3.
+corpus:
+  chunks: data/processed/chunks.jsonl
+  chunk_unit: page
+  chunk_size: 1
+  chunk_overlap: 0
+model:
+  dense_source: config/e1_tfidf.yaml
+  dense_cache: evaluation/lsa_index_E1.npz
+  seed: 42
+retrieval:
+  method: hybrid-bm25-lsa-rrf-plus-light-rerank
+  bm25_k1: 1.5
+  bm25_b: 0.75
+  tfidf_ngram: [1, 2]
+  svd_components: 128
+  rrf_k: 60
+  candidate_k: 20
+  top_k: 5
+  metadata_bonus: 0.15
+  rerank_w_fused: 0.5
+  rerank_w_cover: 0.3
+  rerank_w_metric: 0.1
+  rerank_w_meta: 0.1
+  citation_fields: [company_id, fiscal_year, report_version, page, chunk_id]
+refusal:
+  enabled: true
+  text: "Không đủ bằng chứng trong corpus để trả lời."
+  patterns:
+    - "quý"
+    - "bán niên"
+    - "6 tháng"
+    - "kế hoạch"
+    - "dự báo"
+    - "giá đóng cửa"
+    - "vốn hóa thị trường"
+    - "thị giá"
+    - "giá bán bình quân"
+    - "tổng số cổ đông"
+query:
+  normalization: NFC-lower-strip
+  use_question_as_is: true
+date: 2026-11-10
