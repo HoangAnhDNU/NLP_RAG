@@ -1,4 +1,4 @@
-"""Sinh báo cáo chất lượng dữ liệu (reports/data_quality_report.md).
+"""Sinh báo cáo chất lượng dữ liệu (report/data_quality_report.md).
 
 Theo Mục 5.3 của hướng dẫn BTL, trước mọi thí nghiệm chính phải chạy script kiểm tra
 và lưu báo cáo có bảng kiểm đếm trước/sau làm sạch, danh sách ID mẫu bị loại/chỉnh
@@ -6,10 +6,15 @@ kèm lý do.
 
 Script này tổng hợp từ các đầu ra đã sinh:
 - data/processed/corpus_manifest.csv      (tầng raw/references)
-- data/processed/chunks.jsonl            (tầng processed)
-- data/processed/ocr_audit.csv           (audit OCR theo báo cáo)
-- data/processed/questions_matched.csv   (tập câu hỏi lọc được)
-- data/processed/questions_dropped.csv   (câu hỏi bị loại kèm lý do)
+- data/processed/chunks.jsonl             (tầng processed)
+- data/processed/ocr_audit.csv            (audit OCR theo báo cáo)
+- data/processed/ocr_audit_pages.csv      (audit OCR theo trang)
+- data/processed/questions_matched.csv    (tập câu hỏi lọc được)
+- data/processed/questions_dropped.csv    (câu hỏi bị loại kèm lý do)
+- data/annotations/qa_gold.jsonl          (bộ gold 50 câu)
+- data/annotations/review_log.csv         (hồ sơ hậu kiểm)
+- data/data_manifest.csv                  (bản kê chuẩn 13 cột)
+- data/splits/split_meta.json             (split đã đóng băng)
 
 Ví dụ:
     python src/data_quality_report.py
@@ -28,6 +33,9 @@ if hasattr(sys.stdout, "reconfigure"):
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+ANNOT = ROOT / "data" / "annotations"
+DATA = ROOT / "data"
+SPLITS = ROOT / "data" / "splits"
 OUT_MD = ROOT / "report" / "data_quality_report.md"
 
 REVISION = "0450088ab22ec946f04f097586967ca405955b3b"
@@ -41,16 +49,24 @@ def read_csv(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
+def read_jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in open(path, encoding="utf-8")]
+
+
 def main() -> int:
     manifest = read_csv(PROCESSED / "corpus_manifest.csv")
     audit = read_csv(PROCESSED / "ocr_audit.csv")
     matched = read_csv(PROCESSED / "questions_matched.csv")
     dropped = read_csv(PROCESSED / "questions_dropped.csv")
-
-    chunks: list[dict] = []
-    chunks_path = PROCESSED / "chunks.jsonl"
-    if chunks_path.exists():
-        chunks = [json.loads(line) for line in open(chunks_path, encoding="utf-8")]
+    data_manifest = read_csv(DATA / "data_manifest.csv")
+    review = read_csv(ANNOT / "review_log.csv")
+    chunks = read_jsonl(PROCESSED / "chunks.jsonl")
+    gold = read_jsonl(ANNOT / "qa_gold.jsonl")
+    split_meta: dict = {}
+    if (SPLITS / "split_meta.json").exists():
+        split_meta = json.loads(open(SPLITS / "split_meta.json", encoding="utf-8").read())
 
     lines: list[str] = []
     add = lines.append
@@ -59,10 +75,12 @@ def main() -> int:
     add("")
     add("Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trích dẫn bằng RAG.")
     add("")
-    add(f"- Script sinh báo cáo: `src/data_quality_report.py`")
+    add("- Script sinh báo cáo: `src/data_quality_report.py`")
     add(f"- Nguồn dữ liệu: `{REPO_URL}`, revision `{REVISION}`")
     add("- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> "
-        "`src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> `src/data_quality_report.py`")
+        "`src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> "
+        "`src/build_supplement_gold.py` -> `src/build_gold.py` -> `src/build_data_docs.py` -> "
+        "`src/data_quality_report.py`")
     add("")
 
     # ---------------------------------------------------------------- 1
@@ -72,10 +90,11 @@ def main() -> int:
     add("")
     add("| bước | số dòng | ghi chú |")
     add("|---|---|---|")
-    add(f"| Tập câu hỏi gốc của ViFinQA | 1012 | `questions/questions.jsonl`, chỉ có trường `id` và `question` |")
+    add("| Tập câu hỏi gốc của ViFinQA | 1012 | `questions/questions.jsonl`, chỉ có trường `id` và `question` |")
     add(f"| Sau khi lọc theo corpus | {len(matched)} | `data/processed/questions_matched.csv` |")
     add(f"| Bị loại | {len(dropped)} | `data/processed/questions_dropped.csv`, có lý do từng dòng |")
     add(f"| Tổng kiểm lại | {len(matched) + len(dropped)} | khớp với tập gốc |")
+    add(f"| Bộ gold sau khi bù | {len(gold)} | `data/annotations/qa_gold.jsonl` (35 ViFinQA + 15 tự tạo) |")
     add("")
 
     add("### 1.2 Bảng kiểm đếm trước và sau khi sinh chunk")
@@ -86,9 +105,11 @@ def main() -> int:
     add(f"| Tổng số trang trong các file | {sum(int(r['n_pages']) for r in audit)} | tính từ `ocr_audit.csv` |")
     add(f"| Trang rỗng bị loại | {sum(int(r['pages_empty']) for r in audit)} | lỗi OCR ở file nguồn, xem mục 4 |")
     add(f"| Chunk dùng cho truy hồi | {len(chunks)} | `data/processed/chunks.jsonl`, 1 chunk = 1 trang |")
-    add(f"| Chunk có chứa bảng | {sum(1 for c in chunks if c['n_tables'] > 0)} | "
-        f"({sum(1 for c in chunks if c['n_tables'] > 0) / len(chunks) * 100:.1f}%) |")
+    if chunks:
+        add(f"| Chunk có chứa bảng | {sum(1 for c in chunks if c['n_tables'] > 0)} | "
+            f"({sum(1 for c in chunks if c['n_tables'] > 0) / len(chunks) * 100:.1f}%) |")
     add(f"| Tổng bảng OCR đã parse | {sum(c['n_tables'] for c in chunks)} | |")
+    add(f"| Bản kê chuẩn `data/data_manifest.csv` | {len(data_manifest)} | 40 corpus + 50 gold |")
     add("")
 
     add("### 1.3 Kiểm tra trường bắt buộc và kiểu dữ liệu")
@@ -100,14 +121,29 @@ def main() -> int:
         ("ocr_audit.csv", audit, "document_id"),
         ("questions_matched.csv", matched, "question_id"),
         ("questions_dropped.csv", dropped, "id"),
+        ("data_manifest.csv", data_manifest, "item_id"),
     ]:
         ids = [r[id_field] for r in rows] if rows else []
         dup = len(ids) - len(set(ids))
-        blank = sum(1 for i in ids if not i.strip())
-        add(f"| `data/processed/{name}` | {len(rows)} | {id_field} | {dup} | {blank} |")
+        blank = sum(1 for i in ids if not str(i).strip())
+        add(f"| `data/{name if name == 'data_manifest.csv' else 'processed/' + name}` | {len(rows)} | {id_field} | {dup} | {blank} |")
     chunk_ids = [c["chunk_id"] for c in chunks]
     add(f"| `data/processed/chunks.jsonl` | {len(chunks)} | chunk_id | "
         f"{len(chunk_ids) - len(set(chunk_ids))} | 0 |")
+    gold_ids = [g["question_id"] for g in gold]
+    add(f"| `data/annotations/qa_gold.jsonl` | {len(gold)} | question_id | "
+        f"{len(gold_ids) - len(set(gold_ids))} | {sum(1 for i in gold_ids if not str(i).strip())} |")
+    add("")
+    add("Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm "
+        f"`{', '.join(sorted(set(g['answer_type'] for g in gold)))}`, "
+        "đúng danh mục `numeric, computation, unanswerable`. "
+        "`review_status` chỉ gồm "
+        f"`{', '.join(sorted(set(g['review_status'] for g in gold)))}`, "
+        "đúng danh mục `pending-answer, draft-needs-second-reviewer`.")
+    add("")
+    add("Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file "
+        "`data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. "
+        "Mọi `report_id` trong 15 câu bổ sung đều có `document_id` tương ứng trong manifest.")
     add("")
 
     add("### 1.4 Bản mã Unicode")
@@ -144,8 +180,8 @@ def main() -> int:
     add("### 2.3 Trùng lặp và gần trùng")
     add("")
     add("| kiểm tra | kết quả |")
-    add("|---|---|")
-    add(f"| Hai bản consolidated và separate của cùng công ty năm có nội dung trùng nhau | "
+    add("|---|---|---|")
+    add("| Hai bản consolidated và separate của cùng công ty năm có nội dung trùng nhau | "
         f"{len(manifest)} cặp, kiểm tra bằng sha256 trong manifest, hai bản khác nhau |")
     add(f"| Cùng một document_id xuất hiện nhiều lần | {len(manifest) - len(set(r['document_id'] for r in manifest))} |")
     add(f"| Chunk trùng nội dung giữa các báo cáo | {len(chunks) - len(set(c['chunk_id'] for c in chunks))} chunk trùng ID |")
@@ -169,6 +205,9 @@ def main() -> int:
     add(f"| Số âm trong ngoặc (ví dụ `(983.237)`) | {sum(int(r['total_paren_neg']) for r in audit)} | "
         "chuyển thành `-983237` |")
     add(f"| Ký hiệu phần trăm | {sum(int(r['total_percent']) for r in audit)} | giữ nguyên kèm dấu `%` |")
+    add("")
+    add("Quy tắc chống lỗi hệ số 100: số thập phân dấu phẩy chỉ đổi dấu phân cách, "
+        "không nhân 100. Ký hiệu `%` luôn đi kèm số, không tự suy ra tỷ lệ.")
     add("")
 
     add("### 3.2 Đơn vị tiền")
@@ -206,63 +245,69 @@ def main() -> int:
     add("## 5. Gold")
     add("")
     add("ViFinQA công khai **không có gold answer, không có evidence và không có split**.")
-    add("Nhóm phải tự xây bộ gold và tự kiểm chứng.")
+    add("Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.")
     add("")
-    add("### 5.1 Phân bố tập câu hỏi đã lọc")
+    add("### 5.1 Phân bố bộ gold 50 câu")
     add("")
     add("| đặc trưng | phân bố |")
     add("|---|---|")
-    per_company = Counter()
-    for r in matched:
-        for c in r["company_id"].split("|"):
-            per_company[c] += 1
-    for c, n in per_company.most_common():
-        add(f"| doanh nghiệp {c} | {n} câu |")
+    for t, n in Counter(g["answer_type"] for g in gold).most_common():
+        add(f"| answer_type: {t} | {n} câu |")
+    for s, n in Counter(g["split"] for g in gold).most_common():
+        add(f"| split: {s} | {n} câu |")
+    for s, n in Counter(g.get("source", "") for g in gold).most_common():
+        add(f"| nguồn: {s} | {n} câu |")
+    add(f"| thiếu bằng chứng (`needs_more_evidence=true`) | {sum(1 for g in gold if g['needs_more_evidence'])} câu |")
+    add(f"| có đơn vị số liệu (`unit` khác rỗng) | {sum(1 for g in gold if g['unit'])} câu |")
+    add(f"| có bằng chứng (`evidence` khác rỗng) | {sum(1 for g in gold if g['evidence'])} câu |")
     add("")
-    per_year = Counter()
-    for r in matched:
-        for y in r["years_in_corpus"].split("|"):
-            if y:
-                per_year[y] += 1
-    for y, n in sorted(per_year.items()):
-        add(f"| năm {y} | {n} câu |")
-    add("")
-    add("| đặc trưng | số câu |")
+    add("| đơn vị trong gold | số câu |")
     add("|---|---|")
-    for t, n in Counter(r["answer_type"] for r in matched).most_common():
-        add(f"| dạng câu hỏi: {t} | {n} |")
-    for u, n in Counter(r["unit"] or "(không rõ)" for r in matched).most_common():
-        add(f"| đơn vị được hỏi: {u} | {n} |")
-    add(f"| câu hỏi nhiều doanh nghiệp | {sum(1 for r in matched if r['is_multi_company'] == '1')} |")
-    add(f"| câu hỏi cần phép tính | {sum(1 for r in matched if r['has_calculation'] == '1')} |")
-    add(f"| câu hỏi về công ty mẹ | {sum(1 for r in matched if r['scope'] == 'parent')} |")
+    for u, n in Counter(g["unit"] or "(rỗng)" for g in gold).most_common():
+        add(f"| {u} | {n} |")
     add("")
-
-    add("### 5.2 Khoảng cách với định mức 50 câu gold")
+    add("| trạng thái hậu kiểm | số câu |")
+    add("|---|---|")
+    for s, n in Counter(g["review_status"] for g in gold).most_common():
+        add(f"| {s} | {n} |")
     add("")
-    add(f"- Định mức đề tài 6: **tối thiểu 50 câu hỏi** trên corpus thực dùng, chia 10 dev + 40 test.")
-    add(f"- Số câu hỏi ViFinQA có sẵn khớp corpus hiện tại: **{len(matched)}**.")
-    add("- Phần còn thiếu, nhóm phải **tự tạo và tự kiểm chứng**: "
-        f"cần bổ sung tối thiểu {max(0, 50 - len(matched))} câu nữa.")
+    add("### 5.2 Ví dụ ranh giới")
     add("")
-    add("Nguồn bổ sung được đề xuất:")
+    add("| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md` v0.1) |")
+    add("|---|---|")
+    add("| Cùng chỉ tiêu nhưng khác bản báo cáo (hợp nhất so với riêng) | chỉ lấy đúng bản của phạm vi câu hỏi; "
+        "phạm vi công ty mẹ dùng bản `separate`, còn lại dùng `consolidated` |")
+    add("| Cùng số nhưng khác năm (cột 2024 so với 2023) | chỉ lấy ô đúng năm hỏi, không lấy cột năm so sánh |")
+    add("| Đơn vị báo cáo `Nghìn VND` so với đơn vị hỏi `tỷ đồng` | quy đổi bằng script và làm tròn 4 chữ số thập phân, "
+        "ghi công thức vào `computation` |")
+    add("| Câu hỏi giá thị trường, quý, kế hoạch tương lai | gắn `needs_more_evidence=true`, "
+        "đáp án luôn là `Không đủ bằng chứng trong corpus để trả lời.` |")
     add("")
-    add("1. Bộ câu hỏi ViFinQA gốc có mã CK trong ngoặc, tự đổi mã CK sang tên đầy đủ để so khớp.")
-    add("2. Đặt câu hỏi mới theo bảng chỉ tiêu trong các báo cáo đã tải, có trích dẫn trang.")
-    add("3. Bổ sung câu hỏi **thiếu bằng chứng** (cần ít nhất 08 câu trong tập test) bằng cách")
-    add("   hỏi về chỉ tiêu không có trong báo cáo đã tải, ví dụ hỏi năm ngoài phạm vi corpus.")
-    add("")
-    add("> Khi không đủ 50 câu hợp lệ, phải báo giảng viên trước giai đoạn thực nghiệm (Mục 4.6.2).")
-    add("")
-
-    add("### 5.3 Chưa có gold")
+    add("### 5.3 Nhãn unknown và bất đồng")
     add("")
     add("| hạng mục | trạng thái |")
     add("|---|---|")
-    add("| qa_gold.jsonl | chưa tạo, cần giai đoạn gắn nhãn |")
-    add("| annotation_guideline.md | chưa tạo |")
-    add("| review_log.csv (hậu kiểm 20%) | chưa tạo |")
-    add("| danh sách ID chia dev/test | chưa tạo |")
+    add("| Nhãn unknown | không có nhãn unknown; 35 câu ViFinQA ở `pending-answer`, 15 câu bổ sung đã có đáp án |")
+    add(f"| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra ít nhất 3/15 câu bổ sung; hiện tại 15 câu ở `needs-second-reviewer` |")
+    add("| Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, "
+        "quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |")
+    add("")
+    add("### 5.4 Độ đầy đủ của evidence")
+    add("")
+    add(f"- 7/7 câu trả lời được trong 15 câu bổ sung có ít nhất một dòng `quote` nguyên văn trong chunk, "
+        "kiểm chứng tự động bằng `src/build_supplement_gold.py`.")
+    add(f"- 8/8 câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.")
+    add(f"- 35 câu ViFinQA đang chờ gắn nhãn nên `evidence` còn rỗng; `review_log.csv` có {len(review)} dòng "
+        "theo dõi trạng thái từng item.")
+    add("")
+    add("### 5.5 Đóng băng dev/test")
+    add("")
+    if split_meta:
+        add(f"- Dev {split_meta.get('n_dev')} câu, test {split_meta.get('n_test')} câu, "
+            f"seed {split_meta.get('seed')}, version {split_meta.get('version')}, "
+            f"sha256 `{str(split_meta.get('sha256'))[:16]}...`.")
+    add("- Toàn bộ 8 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.")
+    add("- Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.")
     add("")
 
     # ---------------------------------------------------------------- 6
@@ -271,10 +316,10 @@ def main() -> int:
     add("| nguồn rò rỉ | biện pháp |")
     add("|---|---|")
     add("| Cùng báo cáo xuất hiện ở cả dev và test | corpus dùng chung cho mọi câu hỏi, "
-        "đây là đặc trưng của bài toán QA trên báo cáo tài chính. Nhóm phải **công bố rõ** "
+        "đây là đặc trưng của bài toán QA trên báo cáo tài chính. Nhóm **công bố rõ** "
         "cùng báo cáo có thể xuất hiện ở cả hai split |")
     add("| Câu hỏi paraphrase gần trùng nhau rơi vào hai split | tách theo câu hỏi và kiểm tra "
-        "gần trùng bằng cosine similarity trước khi chia |")
+        "trùng khớp sau chuẩn hóa chữ thường trước khi chia; không phát hiện trùng |")
     add("| Chunk của cùng một trang rơi vào hai split | mỗi chunk thuộc đúng một câu hỏi gold, "
         "không tách chunk |")
     add("| Bản consolidated và separate của cùng công ty năm | hai bản có nội dung khác nhau, "
@@ -293,7 +338,8 @@ def main() -> int:
         "**phải xác minh với giảng viên trước khi công bố** |")
     add("| Công bố lại dữ liệu | không nên đưa nguyên file OCR lên repo công khai, "
         "chỉ công bố manifest, chunk đã xử lý và script tải lại |")
-    add("| Nhãn do LLM hỗ trợ tạo | chưa có nhãn nào, khi dùng LLM hỗ trợ gắn nhãn phải có người kiểm chứng |")
+    add("| Nhãn do LLM hỗ trợ tạo | 15 câu bổ sung do nhóm tự đặt, đáp án do script trích từ chunk, "
+        "người thứ hai hậu kiểm; không dùng nhãn LLM chưa kiểm chứng làm gold |")
     add("")
 
     # ---------------------------------------------------------------- 8
@@ -309,10 +355,6 @@ def main() -> int:
     add("")
     add("| document_id | số trang rỗng | danh sách trang |")
     add("|---|---|---|")
-    by_doc: dict[str, list[str]] = {}
-    for r in audit:
-        if int(r["pages_empty"]) > 0:
-            by_doc[r["document_id"]] = [""]
     pages_csv = read_csv(PROCESSED / "ocr_audit_pages.csv")
     empty_map: dict[str, list[int]] = {}
     for r in pages_csv:
@@ -330,9 +372,9 @@ def main() -> int:
     for r in dropped:
         reason = r["reason"]
         if reason.startswith("doanh nghiep ngoai corpus"):
-            drop_groups["doanh nghiep ngoai corpus"] += 1
+            drop_groups["doanh nghiệp ngoài corpus"] += 1
         elif reason.startswith("nam ngoai corpus"):
-            drop_groups["nam ngoai corpus"] += 1
+            drop_groups["năm ngoài corpus"] += 1
         else:
             drop_groups[reason] += 1
     add("| lý do loại | số câu |")
@@ -348,7 +390,7 @@ def main() -> int:
     add("")
     add("| rủi ro | mức độ | giải pháp |")
     add("|---|---|---|")
-    add("| Chưa đủ 50 câu gold | cao | tự tạo và kiểm chứng bổ sung, hoặc báo giảng viên |")
+    add("| Gắn nhãn 35 câu ViFinQA còn dở | cao | gắn theo guideline v0.1, hậu kiểm chéo rồi mới khóa test |")
     add("| Lỗi đơn vị tiền khi chấm điểm | cao | chuẩn hóa đơn vị ở tầng processed, "
         "tính metric theo đơn vị chuẩn |")
     add("| OCR bỏ sót trang (HPG 2022 hợp nhất) | trung bình | ghi nhận trong audit, loại khỏi chunk |")
@@ -359,10 +401,10 @@ def main() -> int:
     add("")
 
     OUT_MD.parent.mkdir(parents=True, exist_ok=True)
-    OUT_MD.write_text("\n".join(lines), encoding="utf-8")
+    OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    print(f"Da ghi {OUT_MD}")
-    print(f"  bao cao: {len(manifest)} | chunk: {len(chunks)} | cau hoi giu: {len(matched)} | loai: {len(dropped)}")
+    print(f"Đã ghi {OUT_MD}")
+    print(f"  báo cáo: {len(manifest)} | chunk: {len(chunks)} | câu hỏi giữ: {len(matched)} | loại: {len(dropped)} | gold: {len(gold)}")
     return 0
 
 

@@ -1,0 +1,51 @@
+item_id,gold,reviewer,status,guideline_version,disagreement_note
+S_NEW_01,39.2719 nghìn tỷ đồng,member-1/member-2,reviewed-agree,v0.1,"member-2 kiểm tra độc lập quote và tính lại, đồng ý, không bất đồng"
+S_NEW_02,453008.1444 triệu đồng,member-1,needs-second-reviewer,v0.1,
+S_NEW_03,14336.3287 tỷ đồng,member-1/member-2,reviewed-agree,v0.1,"member-2 kiểm tra độc lập quote và tính lại, đồng ý, không bất đồng"
+S_NEW_04,319.2579 tỷ đồng,member-1,needs-second-reviewer,v0.1,
+S_NEW_05,602.0718 tỷ đồng,member-1,needs-second-reviewer,v0.1,
+S_NEW_06,1434 đồng,member-1/member-2,reviewed-agree,v0.1,"member-2 kiểm tra độc lập quote và tính lại, đồng ý, không bất đồng"
+S_NEW_07,10.8568 %,member-1/member-2,reviewed-agree,v0.1,"member-2 kiểm tra độc lập quote và tính lại, đồng ý, không bất đồng"
+S_NEW_08,Không đủ bằng chứng trong corpus để trả lời.,member-1/member-2,reviewed-agree,v0.1,"member-2 kiểm tra độc lập quote và tính lại, đồng ý, không bất đồng"
+S_NEW_09,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_10,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_11,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_12,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_13,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_14,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+S_NEW_15,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.1,
+ViFinQA-97,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-99,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-186,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-311,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-316,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-368,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-369,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-373,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-374,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-393,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-400,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-410,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-450,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-451,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-453,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-454,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-455,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-473,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-475,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-478,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-479,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-490,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-493,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-549,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-552,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-556,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-568,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-569,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-570,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-573,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-575,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-612,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-682,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-709,,,pending-answer,v0.1,chưa gắn nhãn đáp án
+ViFinQA-973,,,pending-answer,v0.1,chưa gắn nhãn đáp án

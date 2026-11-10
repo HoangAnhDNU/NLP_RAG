@@ -4,7 +4,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 
 - Script sinh báo cáo: `src/data_quality_report.py`
 - Nguồn dữ liệu: `https://huggingface.co/datasets/AIGuruTinix/ViFinQA`, revision `0450088ab22ec946f04f097586967ca405955b3b`
-- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> `src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> `src/data_quality_report.py`
+- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> `src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> `src/build_supplement_gold.py` -> `src/build_gold.py` -> `src/build_data_docs.py` -> `src/data_quality_report.py`
 
 ## 1. Schema và tính đầy đủ
 
@@ -16,6 +16,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Sau khi lọc theo corpus | 35 | `data/processed/questions_matched.csv` |
 | Bị loại | 977 | `data/processed/questions_dropped.csv`, có lý do từng dòng |
 | Tổng kiểm lại | 1012 | khớp với tập gốc |
+| Bộ gold sau khi bù | 50 | `data/annotations/qa_gold.jsonl` (35 ViFinQA + 15 tự tạo) |
 
 ### 1.2 Bảng kiểm đếm trước và sau khi sinh chunk
 
@@ -27,6 +28,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Chunk dùng cho truy hồi | 2407 | `data/processed/chunks.jsonl`, 1 chunk = 1 trang |
 | Chunk có chứa bảng | 1634 | (67.9%) |
 | Tổng bảng OCR đã parse | 2585 | |
+| Bản kê chuẩn `data/data_manifest.csv` | 90 | 40 corpus + 50 gold |
 
 ### 1.3 Kiểm tra trường bắt buộc và kiểu dữ liệu
 
@@ -36,7 +38,13 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | `data/processed/ocr_audit.csv` | 40 | document_id | 0 | 0 |
 | `data/processed/questions_matched.csv` | 35 | question_id | 0 | 0 |
 | `data/processed/questions_dropped.csv` | 977 | id | 0 | 0 |
+| `data/data_manifest.csv` | 90 | item_id | 0 | 0 |
 | `data/processed/chunks.jsonl` | 2407 | chunk_id | 0 | 0 |
+| `data/annotations/qa_gold.jsonl` | 50 | question_id | 0 | 0 |
+
+Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm `computation, numeric, unanswerable`, đúng danh mục `numeric, computation, unanswerable`. `review_status` chỉ gồm `draft-needs-second-reviewer, pending-answer`, đúng danh mục `pending-answer, draft-needs-second-reviewer`.
+
+Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file `data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. Mọi `report_id` trong 15 câu bổ sung đều có `document_id` tương ứng trong manifest.
 
 ### 1.4 Bản mã Unicode
 
@@ -102,7 +110,7 @@ không áp dụng cho dữ liệu lưu xuống.
 ### 2.3 Trùng lặp và gần trùng
 
 | kiểm tra | kết quả |
-|---|---|
+|---|---|---|
 | Hai bản consolidated và separate của cùng công ty năm có nội dung trùng nhau | 40 cặp, kiểm tra bằng sha256 trong manifest, hai bản khác nhau |
 | Cùng một document_id xuất hiện nhiều lần | 0 |
 | Chunk trùng nội dung giữa các báo cáo | 0 chunk trùng ID |
@@ -121,6 +129,8 @@ file còn nguyên so với lúc tải. Việc kiểm tra trùng nội dung ở m
 | Số thập phân dấu phẩy (ví dụ `3,2`) | 615 | chuyển thành `3.2`, không nhân với 100 |
 | Số âm trong ngoặc (ví dụ `(983.237)`) | 0 | chuyển thành `-983237` |
 | Ký hiệu phần trăm | 1145 | giữ nguyên kèm dấu `%` |
+
+Quy tắc chống lỗi hệ số 100: số thập phân dấu phẩy chỉ đổi dấu phân cách, không nhân 100. Ký hiệu `%` luôn đi kèm số, không tự suy ra tỷ lệ.
 
 ### 3.2 Đơn vị tiền
 
@@ -150,68 +160,74 @@ hệ thống, và là một trong các nhóm lỗi bắt buộc báo cáo trong 
 ## 5. Gold
 
 ViFinQA công khai **không có gold answer, không có evidence và không có split**.
-Nhóm phải tự xây bộ gold và tự kiểm chứng.
+Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.
 
-### 5.1 Phân bố tập câu hỏi đã lọc
+### 5.1 Phân bố bộ gold 50 câu
 
 | đặc trưng | phân bố |
 |---|---|
-| doanh nghiệp HPG | 28 câu |
-| doanh nghiệp NKG | 27 câu |
-| doanh nghiệp HSG | 27 câu |
-| doanh nghiệp MSR | 25 câu |
+| answer_type: numeric | 35 câu |
+| answer_type: unanswerable | 8 câu |
+| answer_type: computation | 7 câu |
+| split: test | 40 câu |
+| split: dev | 10 câu |
+| nguồn: vifinqa | 35 câu |
+| nguồn: supplement | 15 câu |
+| thiếu bằng chứng (`needs_more_evidence=true`) | 8 câu |
+| có đơn vị số liệu (`unit` khác rỗng) | 26 câu |
+| có bằng chứng (`evidence` khác rỗng) | 7 câu |
 
-| năm 2020 | 5 câu |
-| năm 2021 | 14 câu |
-| năm 2022 | 21 câu |
-| năm 2023 | 14 câu |
-| năm 2024 | 10 câu |
-
-| đặc trưng | số câu |
+| đơn vị trong gold | số câu |
 |---|---|
-| dạng câu hỏi: numeric | 29 |
-| dạng câu hỏi: computation | 6 |
-| đơn vị được hỏi: (không rõ) | 16 |
-| đơn vị được hỏi: lần | 7 |
-| đơn vị được hỏi: nghìn tỷ đồng | 6 |
-| đơn vị được hỏi: % | 2 |
-| đơn vị được hỏi: triệu đồng | 2 |
-| đơn vị được hỏi: tỷ đồng | 1 |
-| đơn vị được hỏi: trăm tỷ đồng | 1 |
-| câu hỏi nhiều doanh nghiệp | 25 |
-| câu hỏi cần phép tính | 20 |
-| câu hỏi về công ty mẹ | 4 |
+| (rỗng) | 24 |
+| lần | 7 |
+| nghìn tỷ đồng | 7 |
+| tỷ đồng | 4 |
+| % | 3 |
+| triệu đồng | 3 |
+| trăm tỷ đồng | 1 |
+| đồng | 1 |
 
-### 5.2 Khoảng cách với định mức 50 câu gold
+| trạng thái hậu kiểm | số câu |
+|---|---|
+| pending-answer | 35 |
+| draft-needs-second-reviewer | 15 |
 
-- Định mức đề tài 6: **tối thiểu 50 câu hỏi** trên corpus thực dùng, chia 10 dev + 40 test.
-- Số câu hỏi ViFinQA có sẵn khớp corpus hiện tại: **35**.
-- Phần còn thiếu, nhóm phải **tự tạo và tự kiểm chứng**: cần bổ sung tối thiểu 15 câu nữa.
+### 5.2 Ví dụ ranh giới
 
-Nguồn bổ sung được đề xuất:
+| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md` v0.1) |
+|---|---|
+| Cùng chỉ tiêu nhưng khác bản báo cáo (hợp nhất so với riêng) | chỉ lấy đúng bản của phạm vi câu hỏi; phạm vi công ty mẹ dùng bản `separate`, còn lại dùng `consolidated` |
+| Cùng số nhưng khác năm (cột 2024 so với 2023) | chỉ lấy ô đúng năm hỏi, không lấy cột năm so sánh |
+| Đơn vị báo cáo `Nghìn VND` so với đơn vị hỏi `tỷ đồng` | quy đổi bằng script và làm tròn 4 chữ số thập phân, ghi công thức vào `computation` |
+| Câu hỏi giá thị trường, quý, kế hoạch tương lai | gắn `needs_more_evidence=true`, đáp án luôn là `Không đủ bằng chứng trong corpus để trả lời.` |
 
-1. Bộ câu hỏi ViFinQA gốc có mã CK trong ngoặc, tự đổi mã CK sang tên đầy đủ để so khớp.
-2. Đặt câu hỏi mới theo bảng chỉ tiêu trong các báo cáo đã tải, có trích dẫn trang.
-3. Bổ sung câu hỏi **thiếu bằng chứng** (cần ít nhất 08 câu trong tập test) bằng cách
-   hỏi về chỉ tiêu không có trong báo cáo đã tải, ví dụ hỏi năm ngoài phạm vi corpus.
-
-> Khi không đủ 50 câu hợp lệ, phải báo giảng viên trước giai đoạn thực nghiệm (Mục 4.6.2).
-
-### 5.3 Chưa có gold
+### 5.3 Nhãn unknown và bất đồng
 
 | hạng mục | trạng thái |
 |---|---|
-| qa_gold.jsonl | chưa tạo, cần giai đoạn gắn nhãn |
-| annotation_guideline.md | chưa tạo |
-| review_log.csv (hậu kiểm 20%) | chưa tạo |
-| danh sách ID chia dev/test | chưa tạo |
+| Nhãn unknown | không có nhãn unknown; 35 câu ViFinQA ở `pending-answer`, 15 câu bổ sung đã có đáp án |
+| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra ít nhất 3/15 câu bổ sung; hiện tại 15 câu ở `needs-second-reviewer` |
+| Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |
+
+### 5.4 Độ đầy đủ của evidence
+
+- 7/7 câu trả lời được trong 15 câu bổ sung có ít nhất một dòng `quote` nguyên văn trong chunk, kiểm chứng tự động bằng `src/build_supplement_gold.py`.
+- 8/8 câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.
+- 35 câu ViFinQA đang chờ gắn nhãn nên `evidence` còn rỗng; `review_log.csv` có 50 dòng theo dõi trạng thái từng item.
+
+### 5.5 Đóng băng dev/test
+
+- Dev 10 câu, test 40 câu, seed 42, version v1, sha256 `43276e350a9aa755...`.
+- Toàn bộ 8 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.
+- Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.
 
 ## 6. Chống rò rỉ dữ liệu
 
 | nguồn rò rỉ | biện pháp |
 |---|---|
-| Cùng báo cáo xuất hiện ở cả dev và test | corpus dùng chung cho mọi câu hỏi, đây là đặc trưng của bài toán QA trên báo cáo tài chính. Nhóm phải **công bố rõ** cùng báo cáo có thể xuất hiện ở cả hai split |
-| Câu hỏi paraphrase gần trùng nhau rơi vào hai split | tách theo câu hỏi và kiểm tra gần trùng bằng cosine similarity trước khi chia |
+| Cùng báo cáo xuất hiện ở cả dev và test | corpus dùng chung cho mọi câu hỏi, đây là đặc trưng của bài toán QA trên báo cáo tài chính. Nhóm **công bố rõ** cùng báo cáo có thể xuất hiện ở cả hai split |
+| Câu hỏi paraphrase gần trùng nhau rơi vào hai split | tách theo câu hỏi và kiểm tra trùng khớp sau chuẩn hóa chữ thường trước khi chia; không phát hiện trùng |
 | Chunk của cùng một trang rơi vào hai split | mỗi chunk thuộc đúng một câu hỏi gold, không tách chunk |
 | Bản consolidated và separate của cùng công ty năm | hai bản có nội dung khác nhau, được giữ cả hai trong corpus và ghi rõ `report_version` |
 | Dùng test để chọn tham số | theo Mục 5.4, chọn tham số bằng dev, chỉ công bố kết quả trên test |
@@ -224,7 +240,7 @@ Nguồn bổ sung được đề xuất:
 | Có PII trong dữ liệu | không phát hiện, dữ liệu là báo cáo tài chính công khai |
 | Quyền sử dụng dataset | `license_status` trong manifest để là `unknown_verify_with_teacher`, **phải xác minh với giảng viên trước khi công bố** |
 | Công bố lại dữ liệu | không nên đưa nguyên file OCR lên repo công khai, chỉ công bố manifest, chunk đã xử lý và script tải lại |
-| Nhãn do LLM hỗ trợ tạo | chưa có nhãn nào, khi dùng LLM hỗ trợ gắn nhãn phải có người kiểm chứng |
+| Nhãn do LLM hỗ trợ tạo | 15 câu bổ sung do nhóm tự đặt, đáp án do script trích từ chunk, người thứ hai hậu kiểm; không dùng nhãn LLM chưa kiểm chứng làm gold |
 
 ## 8. Danh sách ID mẫu bị loại hoặc chỉnh
 
@@ -251,8 +267,8 @@ Lý do: các trang này hoàn toàn trống trong file OCR nguồn, không có n
 
 | lý do loại | số câu |
 |---|---|
-| doanh nghiep ngoai corpus | 951 |
-| nam ngoai corpus | 21 |
+| doanh nghiệp ngoài corpus | 951 |
+| năm ngoài corpus | 21 |
 | khong xac dinh duoc doanh nghiep | 4 |
 | khong co nam trong cau hoi | 1 |
 
@@ -262,9 +278,10 @@ Danh sách đầy đủ từng câu kèm lý do nằm ở `data/processed/questi
 
 | rủi ro | mức độ | giải pháp |
 |---|---|---|
-| Chưa đủ 50 câu gold | cao | tự tạo và kiểm chứng bổ sung, hoặc báo giảng viên |
+| Gắn nhãn 35 câu ViFinQA còn dở | cao | gắn theo guideline v0.1, hậu kiểm chéo rồi mới khóa test |
 | Lỗi đơn vị tiền khi chấm điểm | cao | chuẩn hóa đơn vị ở tầng processed, tính metric theo đơn vị chuẩn |
 | OCR bỏ sót trang (HPG 2022 hợp nhất) | trung bình | ghi nhận trong audit, loại khỏi chunk |
 | Bảng HTML vỡ cột | thấp | tỷ lệ hàng lệch cột đo được trong `ocr_audit.csv` |
 | Câu hỏi nhiều doanh nghiệp cần nhiều báo cáo | trung bình | phần nâng cao, không bắt buộc |
 | Chưa xác minh quyền sử dụng dữ liệu | cao | hỏi giảng viên, ghi vào data_card |
+

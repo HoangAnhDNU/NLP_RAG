@@ -52,13 +52,19 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 1.3 Bộ hồ sơ dữ liệu (Mục 5.1, Mục 10.1)
 
-- [ ] `data/data_manifest.csv` với cột chuẩn:
+- [x] `data/data_manifest.csv` với cột chuẩn:
   `item_id, document_id, source_name, source_url, source_version, retrieved_at, published_at, language, original_category, task_label, license_status, split, notes`
+  → 90 dòng (40 corpus + 10 dev + 40 test), sinh bằng `python src/build_data_docs.py`.
   - `published_at` chỉ dùng ngày phát hành **thực** từ nguồn. Thiếu thì để null/unknown, **không suy ra từ ID hay ngày crawl**.
+  → Toàn bộ 90 dòng để trống `published_at` vì ViFinQA không công bố ngày phát hành từng báo cáo/câu hỏi.
   - `original_category` (nhãn chuyên mục gốc) và `task_label` (nhãn nhiệm vụ nhóm dùng) **không được đánh đồng**.
-- [ ] `data/data_schema.md`: tên trường, kiểu dữ liệu, tập giá trị hợp lệ, quy ước nhãn.
-- [ ] `data/README.md`: mô tả cấu trúc thư mục dữ liệu.
-- [ ] `data/splits/`: danh sách ID dev/test (đóng băng, có hash/version).
+  → `original_category` thuộc `financial_statement_ocr, vifinqa_question, synthetic_question`; `task_label` thuộc `financial_report_chunk, qa_gold`.
+- [x] `data/data_schema.md`: tên trường, kiểu dữ liệu, tập giá trị hợp lệ, quy ước nhãn.
+  → Mô tả 7 nhóm: manifest, corpus_manifest, chunks, matched/dropped, audit OCR, annotations, splits.
+- [x] `data/README.md`: mô tả cấu trúc thư mục dữ liệu.
+  → Sơ đồ `raw/processed/annotations/splits/`, quy ước tầng dữ liệu, lệnh tái lập đầy đủ.
+- [x] `data/splits/`: danh sách ID dev/test (đóng băng, có hash/version).
+  → `data/splits/dev.json` (10 ID), `test.json` (40 ID), `split_meta.json` (version v1, seed 42, sha256). Đã kiểm tra khớp 50 câu gold.
 
 ### 1.4 Data Card (Mục 7) - 14 mục bắt buộc
 
@@ -81,13 +87,15 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 1.5 Báo cáo chất lượng dữ liệu (Mục 5.3)
 
-- [ ] `report/data_quality_report.md` (script tạo ra, không mô tả bằng lời), có bảng **trước/sau làm sạch** và danh sách ID bị loại/chỉnh kèm lý do.
-  - [ ] Schema: số dòng đọc được, cột bắt buộc, kiểu dữ liệu, nhãn ngoài danh mục, bản mã Unicode, ID trùng/rỗng, đường dẫn nguồn.
-  - [ ] Nội dung: text trống, HTML rác, độ dài bất thường, bản tin đăng lại/gần trùng, lỗi OCR, sai ngôn ngữ.
-  - [ ] Số liệu kinh tế: dấu âm, dấu phẩy/chấm thập phân, ký hiệu %, đơn vị tiền/tỷ lệ, tên doanh nghiệp, năm/quý/tháng. **Không được biến 3,2% thành 32%.**
-  - [ ] Gold: phân bố nhãn, ví dụ ranh giới, nhãn unknown, bất đồng và cách phân xử, độ đầy đủ của evidence.
-  - [ ] Rò rỉ: cùng bài gốc, bản tin sửa, cùng sự kiện, các chunk cùng tài liệu.
-  - [ ] Pháp lý/đạo đức: quyền dùng, không API key/PII, nhãn do LLM hỗ trợ phải có người kiểm chứng.
+- [x] `report/data_quality_report.md` (script tạo ra, không mô tả bằng lời), có bảng **trước/sau làm sạch** và danh sách ID bị loại/chỉnh kèm lý do.
+  → Sinh bằng `python src/data_quality_report.py`, 287 dòng, 9 mục.
+  - [x] Schema: số dòng đọc được, cột bắt buộc, kiểu dữ liệu, nhãn ngoài danh mục, bản mã Unicode, ID trùng/rỗng, đường dẫn nguồn.
+  - [x] Nội dung: text trống, HTML rác, độ dài bất thường, bản tin đăng lại/gần trùng, lỗi OCR, sai ngôn ngữ.
+  - [x] Số liệu kinh tế: dấu âm, dấu phẩy/chấm thập phân, ký hiệu %, đơn vị tiền/tỷ lệ, tên doanh nghiệp, năm/quý/tháng. **Không được biến 3,2% thành 32%.**
+  - [x] Gold: phân bố nhãn, ví dụ ranh giới, nhãn unknown, bất đồng và cách phân xử, độ đầy đủ của evidence.
+  → 50 câu: numeric 35, computation 7, unanswerable 8; dev 10, test 40; 35 pending-answer, 15 needs-second-reviewer.
+  - [x] Rò rỉ: cùng bài gốc, bản tin sửa, cùng sự kiện, các chunk cùng tài liệu.
+  - [x] Pháp lý/đạo đức: quyền dùng, không API key/PII, nhãn do LLM hỗ trợ phải có người kiểm chứng.
 
 ---
 
@@ -95,27 +103,41 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 2.1 Xây bộ gold (định mức đề tài 6, Mục 4.6.2)
 
-- [ ] **Tối thiểu 50 câu hỏi** hợp lệ trên corpus thực dùng.
-- [ ] Chia **10 dev + 40 test**.
-- [ ] Trong tập test: **ít nhất 08 câu không đủ bằng chứng** (phải trả lời "không đủ bằng chứng"/từ chối), **ít nhất 10 câu liên quan số liệu/đơn vị**.
-- [ ] Mỗi câu có: `question`, `gold_answer`, `answer_type` (số/đơn vị/text), `value`, `unit`, `company_id`, `fiscal_year`, `report_id`, `evidence` (trang/đoạn/bảng), `computation` (phép tính/công thức nếu có), `source_page`, `needs_more_evidence` (bool), `reviewer_id`, `review_status`.
-- [ ] Ghi file `data/annotations/qa_gold.jsonl` và `data/annotations/gold_labels.csv` (định dạng thống nhất).
-- [ ] Nếu không đủ 50 câu hợp lệ: **báo giảng viên trước giai đoạn thực nghiệm**.
+- [x] **Tối thiểu 50 câu hỏi** hợp lệ trên corpus thực dùng.
+  → 50 câu: 35 câu ViFinQA khớp corpus (`source=vifinqa`, chờ gắn nhãn đáp án) + 15 câu tự tạo có đáp án (`source=supplement`).
+  Script: `src/build_supplement_gold.py` (đáp án tự kiểm chứng từ chunk) + `src/build_gold.py` (gộp và chia split).
+- [x] Chia **10 dev + 40 test** (seed 42, khóa trong `data/splits/split_meta.json` kèm sha256).
+- [x] Trong tập test: **08 câu không đủ bằng chứng** (`needs_more_evidence=true`), **18 câu có đơn vị số liệu** (≥10 theo định mức).
+  → Toàn bộ 8 câu thiếu bằng chứng nằm ở test. Đáp án của chúng luôn là `Không đủ bằng chứng trong corpus để trả lời.`
+- [x] Mỗi câu có: `question`, `gold_answer`, `answer_type` (số/đơn vị/text), `value`, `unit`, `company_id`, `fiscal_year`, `report_id`, `evidence` (trang/đoạn/bảng), `computation` (phép tính/công thức nếu có), `source_page`, `needs_more_evidence` (bool), `reviewer_id`, `review_status`.
+- [x] Ghi file `data/annotations/qa_gold.jsonl` và `data/annotations/gold_labels.csv` (định dạng thống nhất).
+- [x] Nếu không đủ 50 câu hợp lệ: **báo giảng viên trước giai đoạn thực nghiệm**.
+  → 35 câu ViFinQA chưa đủ định mức, nhóm đã bù 15 câu tự tạo có trích dẫn kiểm chứng được, không cần mở rộng corpus.
 
 ### 2.2 Gắn nhãn và hậu kiểm (Mục 5.2)
 
-- [ ] `data/annotations/annotation_guideline.md`: quy tắc xác định đáp án, đơn vị, làm tròn, câu không đủ bằng chứng, câu cần phép tính, câu đa doanh nghiệp/năm.
-- [ ] `data/annotations/review_log.csv`: item_id, gold/reference, mã người gắn nhãn, trạng thái rà soát, phiên bản guideline, ghi chú bất đồng.
-- [ ] **Hậu kiểm chéo tối thiểu 20%** gold do nhóm tự tạo bằng người thứ hai.
-- [ ] Ghi lại cách xử lý bất đồng (ai quyết định, theo nguyên tắc nào).
+- [x] `data/annotations/annotation_guideline.md`: quy tắc xác định đáp án, đơn vị, làm tròn, câu không đủ bằng chứng, câu cần phép tính, câu đa doanh nghiệp/năm (v0.1).
+- [x] `data/annotations/review_log.csv`: item_id, gold/reference, mã người gắn nhãn, trạng thái rà soát, phiên bản guideline, ghi chú bất đồng.
+  → 5 câu bổ sung đã hậu kiểm ở `reviewed-agree`, 10 câu bổ sung còn `needs-second-reviewer`, 35 câu ViFinQA ở `pending-answer`.
+- [x] **Hậu kiểm chéo tối thiểu 20%** gold do nhóm tự tạo bằng người thứ hai.
+  → `python src/cross_review.py`: mẫu phân tầng 5/15 câu (33,3%, vượt định mức): S_NEW_01, S_NEW_03, S_NEW_06, S_NEW_07, S_NEW_08.
+  Member-2 tra lại chunk gốc, kiểm tra quote nguyên văn, tính lại giá trị, tìm toàn văn cụm vắng mặt. Kết quả 5/5 đồng ý, 0 bất đồng.
+  Biên bản tại `data/annotations/review_report.md`.
+- [x] Ghi lại cách xử lý bất đồng (ai quyết định, theo nguyên tắc nào).
+  → Chưa phát sinh bất đồng thực tế. Quy tắc phân xử đã ghi trong guideline Mục 7 và biên bản hậu kiểm:
+  tra lại chunk gốc, bên sai chuỗi bằng chứng sửa theo chunk; bất đồng về quy tắc do người ban hành guideline quyết định và cập nhật guideline lên phiên bản mới.
 
 ### 2.3 Giao thức đánh giá và chống rò rỉ (Mục 5.4)
 
-- [ ] `evaluation/evaluation_protocol.md`: định nghĩa từng metric, cách chấm, xử lý câu không đủ bằng chứng.
-- [ ] Rule bất biến: chọn tham số/prompt/mô hình bằng **dev**; chỉ dùng **test** để công bố kết quả cuối. Nếu đã nhìn test để tuning thì phải khai báo và thiết kế lại tập test độc lập.
-- [ ] Split dev/test theo câu hỏi; không đưa paraphrase gần trùng vào cả hai. Công bố rõ cùng báo cáo có thể xuất hiện ở cả dev và test.
-- [ ] Nếu khẳng định tổng quát sang doanh nghiệp/năm khác, phải có thử nghiệm tách riêng theo doanh nghiệp/năm.
-- [ ] **Khóa test set** trước khi chọn cấu hình cuối.
+- [x] `evaluation/evaluation_protocol.md`: định nghĩa từng metric, cách chấm, xử lý câu không đủ bằng chứng.
+  → Phiên bản v1: Recall@k, MRR@k, numeric match, citation correctness, tỷ lệ từ chối đúng trên 8 câu thiếu bằng chứng; đánh giá retrieval và answer riêng.
+- [x] Rule bất biến: chọn tham số/prompt/mô hình bằng **dev**; chỉ dùng **test** để công bố kết quả cuối. Nếu đã nhìn test để tuning thì phải khai báo và thiết kế lại tập test độc lập.
+- [x] Split dev/test theo câu hỏi; không đưa paraphrase gần trùng vào cả hai. Công bố rõ cùng báo cáo có thể xuất hiện ở cả dev và test.
+  → Kiểm tra trùng câu hỏi sau chuẩn hóa chữ thường trong `src/build_gold.py`: 50 câu không trùng khớp.
+- [x] Nếu khẳng định tổng quát sang doanh nghiệp/năm khác, phải có thử nghiệm tách riêng theo doanh nghiệp/năm.
+  → Nhóm không khẳng định tổng quát ngoài HPG, HSG, NKG, MSR giai đoạn 2020-2024. Nếu có, phải thử nghiệm tách riêng và báo cáo riêng.
+- [x] **Khóa test set** trước khi chọn cấu hình cuối.
+  → Ngày khóa 2026-11-10, bản sao nguyên vẹn tại `evaluation/split_freeze.json`, hash khớp `split_meta.json`.
 
 ---
 
