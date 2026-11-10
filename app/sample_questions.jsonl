@@ -1,0 +1,13 @@
+{"label": "Có đáp án kiểm chứng - HSG doanh thu thuần", "qid": "S_NEW_01", "question": "Doanh thu thuần về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Tập đoàn Hoa Sen trong năm tài chính kết thúc ngày 30/09/2024 là bao nhiêu nghìn tỷ đồng?"}
+{"label": "Có đáp án kiểm chứng - NKG lợi nhuận sau thuế", "qid": "S_NEW_02", "question": "Lợi nhuận sau thuế TNDN hợp nhất của CTCP Thép Nam Kim năm 2024 là bao nhiêu triệu đồng?"}
+{"label": "Có đáp án kiểm chứng - MSR doanh thu thuần", "qid": "S_NEW_03", "question": "Doanh thu thuần về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Masan High-Tech Materials năm 2024 là bao nhiêu tỷ đồng?"}
+{"label": "Có đáp án kiểm chứng - HPG tiền công ty mẹ", "qid": "S_NEW_04", "question": "Tiền và các khoản tương đương tiền của công ty mẹ CTCP Tập đoàn Hòa Phát tại ngày 31/12/2024 là bao nhiêu tỷ đồng?"}
+{"label": "Có đáp án kiểm chứng - HSG tiền hợp nhất", "qid": "S_NEW_05", "question": "Tiền và các khoản tương đương tiền hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 30/09/2024 là bao nhiêu tỷ đồng?"}
+{"label": "Có đáp án kiểm chứng - NKG lãi cơ bản trên cổ phiếu", "qid": "S_NEW_06", "question": "Lãi cơ bản trên cổ phiếu hợp nhất của CTCP Thép Nam Kim năm 2024 là bao nhiêu đồng?"}
+{"label": "Có đáp án kiểm chứng - HSG biên lợi nhuận gộp", "qid": "S_NEW_07", "question": "Biên lợi nhuận gộp về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Tập đoàn Hoa Sen trong năm tài chính kết thúc ngày 30/09/2024 là bao nhiêu phần trăm?"}
+{"label": "Thiếu bằng chứng - giá đóng cửa HPG", "qid": "S_NEW_08", "question": "Giá đóng cửa cổ phiếu HPG ngày 31/12/2024 là bao nhiêu đồng?"}
+{"label": "Thiếu bằng chứng - vốn hóa Hoa Sen", "qid": "S_NEW_09", "question": "Vốn hóa thị trường của CTCP Tập đoàn Hoa Sen tại ngày 30/09/2024 là bao nhiêu tỷ đồng?"}
+{"label": "Thiếu bằng chứng - doanh thu quý 1 HPG", "qid": "S_NEW_10", "question": "Doanh thu thuần quý 1 năm 2024 của CTCP Tập đoàn Hòa Phát là bao nhiêu tỷ đồng?"}
+{"label": "Diễn đạt lại - biên gộp HSG", "qid": "PARA_01", "question": "Biên lợi nhuận gộp của Hoa Sen năm 2024 bao nhiêu phần trăm?"}
+{"label": "ViFinQA - tỷ lệ sở hữu Gang thép Hòa Phát", "qid": "ViFinQA-97", "question": "Tỷ lệ sở hữu Công ty CP Gang thép Hòa Phát của HPG đến ngày 31/12/2023 là bao nhiêu %?"}
+{"label": "ViFinQA - tiền của NKG 2022", "qid": "ViFinQA-99", "question": "Tiền của NKG cuối năm 2022 là bao nhiêu tỷ đồng?"}

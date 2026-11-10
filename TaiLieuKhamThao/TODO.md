@@ -223,10 +223,14 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 6.1 Demo (Mục 6.5)
 
-- [ ] Demo trong `app/`: CLI, notebook có cấu trúc, Streamlit hoặc Gradio.
-- [ ] Kịch bản demo: hỏi - đáp, hiển thị **nguồn, doanh nghiệp, năm, trang/đoạn**, và cơ chế **không đủ dữ liệu**.
-- [ ] Có dữ liệu mẫu hợp lệ trong repo và một ca kiểm tra đầu vào/đầu ra.
-- [ ] README mô tả lệnh cài đặt và chạy lại. Nếu môi trường chấm không chạy được: nộp video kèm lệnh cài đặt, phiên bản phụ thuộc, dữ liệu mẫu.
+- [x] Demo trong `app/`: Streamlit tương tác.
+  → `app/streamlit_app.py` (Streamlit) dùng chung `app/qa_engine.py`, kèm `app/check_demo.py`, dữ liệu trong repo, không cần mô hình ngoài.
+- [x] Kịch bản demo: hỏi - đáp, hiển thị **nguồn, doanh nghiệp, năm, trang/đoạn**, và cơ chế **không đủ dữ liệu**.
+  → Kết quả hiển thị đáp án, phép tính (nếu có), công ty, năm, phiên bản báo cáo, trang, `chunk_id`, điểm số và đoạn liên quan; câu ngoài corpus trả đúng nguyên văn `Không đủ bằng chứng trong corpus để trả lời.`
+- [x] Có dữ liệu mẫu hợp lệ trong repo và một ca kiểm tra đầu vào/đầu ra.
+  → `app/sample_questions.jsonl` (13 câu: 7 trả lời được, 3 thiếu bằng chứng, 1 diễn đạt lại, 2 ViFinQA), `app/expected_outputs.md` (kết quả chạy ngày 2026-11-10), `python app/check_demo.py` (4 ca đều đạt).
+- [x] README mô tả lệnh cài đặt và chạy lại. Nếu môi trường chấm không chạy được: nộp video kèm lệnh cài đặt, phiên bản phụ thuộc, dữ liệu mẫu.
+  → `app/README.md` ghi lệnh `conda activate NLP` và cách chạy Streamlit; demo đọc `data/processed/chunks.jsonl` có sẵn trong repo nên chạy lại được.
 
 ### 6.2 Hồ sơ nộp (Mục 10)
 
