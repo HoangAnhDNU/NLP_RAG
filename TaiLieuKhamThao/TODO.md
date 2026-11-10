@@ -143,13 +143,21 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ## 3. Mốc M2 (tiếp) - Baseline E0
 
-- [ ] `config/e0_bm25.yaml`: corpus, chunk size/overlap, analyzer, stopwords tiếng Việt, top-k, cách chuẩn hóa query.
-- [ ] `src/retrieval/bm25.py` (rank_bm25 hoặc cài đặt tay): index trên corpus cố định, tái lập được.
-- [ ] `src/preprocess/chunking.py` + `src/preprocess/normalize.py` (NFC, giữ dấu).
-- [ ] `src/infer/e0_*.py`: trả về đoạn/bảng nguồn + chỉ số trích dẫn (company, year, page, table). **Baseline không bắt buộc sinh văn bản** (Mục 4.6.3).
-- [ ] `src/evaluate/evaluate.py`: tính metric trên dev và test bằng cùng script.
-- [ ] `evaluation/test_predictions_E0.csv` có: id, gold/reference, dự đoán, đủ thông tin để **tính lại metric từ file**.
-- [ ] Ghi dòng E0 vào `evaluation/experiments.csv`.
+- [x] `config/e0_bm25.yaml`: corpus, chunk size/overlap, analyzer, stopwords tiếng Việt, top-k, cách chuẩn hóa query.
+  → k1=1.5, b=0.75, top_k=5, chunk 1 trang overlap 0, giữ dấu tiếng Việt.
+- [x] `src/retrieval/bm25.py` (rank_bm25 hoặc cài đặt tay): index trên corpus cố định, tái lập được.
+  → Tự cài đặt BM25 (không phụ thuộc rank_bm25), tokenize bằng `normalize.py`, index 2407 chunk cố định.
+- [x] `src/preprocess/chunking.py` + `src/preprocess/normalize.py` (NFC, giữ dấu).
+  → Quy ước 1 chunk = 1 trang, overlap 0, `chunk_id` dạng `<document_id>#p<NNN>`; chuẩn hóa NFC, chữ thường, giữ dấu.
+- [x] `src/infer/e0_*.py`: trả về đoạn/bảng nguồn + chỉ số trích dẫn (company, year, page, table). **Baseline không bắt buộc sinh văn bản** (Mục 4.6.3).
+  → `src/infer/e0_bm25.py`: top-5 chunk kèm company, year, report_version, page, n_tables, chunk_id, điểm BM25; `predicted_answer` để trống.
+- [x] `src/evaluate/evaluate.py`: tính metric trên dev và test bằng cùng script.
+  → `python src/evaluate/evaluate.py --run E0`: Recall@k, MRR@k, citation, numeric match, refusal.
+- [x] `evaluation/test_predictions_E0.csv` có: id, gold/reference, dự đoán, đủ thông tin để **tính lại metric từ file**.
+  → 10 dòng dev tại `evaluation/dev_predictions_E0.csv`, 40 dòng test tại `evaluation/test_predictions_E0.csv`, gồm gold_chunk_ids và predicted_chunk_ids.
+  → Kết quả E0: dev R@5=0.5 MRR@5=0.1, test R@5=0.2 MRR@5=0.05, citation=0.0, refusal=0.0.
+  Hạn chế: recall hiện chỉ tính trên 7 câu bổ sung có evidence; 35 câu ViFinQA chờ gắn nhãn nên E0 chưa phản ánh toàn bộ gold.
+- [x] Ghi dòng E0 vào `evaluation/experiments.csv`.
 
 ---
 

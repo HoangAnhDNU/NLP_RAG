@@ -1,0 +1,42 @@
+# Cấu hình baseline E0: BM25 + trích đoạn nguồn (không sinh văn bản).
+corpus:
+  chunks: data/processed/chunks.jsonl
+  chunk_unit: page
+  chunk_size: 1
+  chunk_overlap: 0
+analyzer:
+  normalize: NFC
+  lowercase: true
+  keep_diacritics: true
+  token_pattern: "[a-zà-ỹ0-9_%.,/+-]+"
+stopwords:
+  - và
+  - của
+  - các
+  - là
+  - trong
+  - với
+  - cho
+  - năm
+  - công
+  - ty
+  - cổ
+  - phần
+  - tập
+  - đoàn
+  - bao
+  - nhiêu
+  - có
+  - không
+  - được
+  - đến
+  - ngày
+retrieval:
+  method: bm25
+  k1: 1.5
+  b: 0.75
+  top_k: 5
+  citation_fields: [company_id, fiscal_year, report_version, page, chunk_id]
+query:
+  normalization: NFC-lower-strip
+  use_question_as_is: true

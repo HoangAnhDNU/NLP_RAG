@@ -1,0 +1,2 @@
+run_id,method,dataset_version,split_version,config_path,seed_or_prompt_version,dev_metric,test_metric,prediction_file,notes
+E0,BM25 top-5 + trich doan nguon (khong sinh van ban),0450088ab22ec946f04f097586967ca405955b3b,v1,config/e0_bm25.yaml,k1=1.5 b=0.75 top_k=5 stopwords-TV,recall@5=0.5 MRR@5=0.1 cite=0.0,recall@5=0.2 MRR@5=0.05 cite=0.0 refusal=0.0,test_predictions_E0.csv,"baseline truy hoi; predicted_answer de trong theo 4.6.3; recall chi tinh tren cau co evidence (7 cau bo sung)"
