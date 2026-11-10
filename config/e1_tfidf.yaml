@@ -1,0 +1,37 @@
+# Cấu hình E1: dense retrieval LSA trên TF-IDF bigram tiếng Việt.
+# Giả thuyết: dense LSA bắt đồng nghĩa tài chính
+# (ví dụ "doanh thu thuần" gần "doanh thu bán hàng") tốt hơn BM25 unigram,
+# nên Recall@k cao hơn trên chunk tiếng Việt giữ dấu.
+corpus:
+  chunks: data/processed/chunks.jsonl
+  chunk_unit: page
+  chunk_size: 1
+  chunk_overlap: 0
+model:
+  name: sklearn-TfidfVectorizer-plus-TruncatedSVD
+  sklearn_version: 1.7.2
+  analyzer: custom-tokenize-vi
+  ngram_range: [1, 2]
+  sublinear_tf: true
+  min_df: 2
+  norm: l2
+  svd_components: 128
+  svd_random_state: 42
+  svd_algorithm: randomized
+  stopwords_source: config/e0_bm25.yaml
+  cache_dense_index: evaluation/lsa_index_E1.npz
+  cache_vocab: evaluation/lsa_vocab_E1.json
+  seed: 42
+analyzer:
+  normalize: NFC
+  lowercase: true
+  keep_diacritics: true
+  token_pattern: "[a-zà-ỹ0-9_%.,/+-]+"
+retrieval:
+  method: lsa-dense-cosine
+  top_k: 5
+  citation_fields: [company_id, fiscal_year, report_version, page, chunk_id]
+query:
+  normalization: NFC-lower-strip
+  use_question_as_is: true
+date: 2026-11-10

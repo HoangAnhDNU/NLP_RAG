@@ -163,18 +163,27 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ## 4. Mốc M3 - E1, E2 và log thí nghiệm (Mục 6)
 
-- [ ] **E1 - dense hoặc hybrid retrieval** (giả thuyết rõ ràng): ví dụ "dense retrieval bằng sentence-transformers đa ngữ trên chunk tiếng Việt cho Recall@k cao hơn BM25".
-  - [ ] Model + version, cache, lưu lại vector index hoặc seed.
-  - [ ] `config/e1_*.yaml`, `src/infer/e1_*.py`, `evaluation/test_predictions_E1.csv`.
-- [ ] **E2 - đối chứng/cải tiến khác E1** (lý do kỳ vọng khác E1): ví dụ "hybrid fusion (BM25 + dense) rồi rerank cross-encoder, cải thiện MRR và citation correctness".
-  - [ ] `config/e2_*.yaml`, `src/infer/e2_*.py`, `evaluation/test_predictions_E2.csv`.
-- [ ] **E2 không được chỉ là đổi tên file hay chạy lại cùng tham số.**
-- [ ] Cả 3 cấu hình dùng **cùng test và cùng cách tính metric**. Báo cáo dev để giải thích quyết định chọn phương án trước khi đánh giá test.
-- [ ] `evaluation/experiments.csv` (bắt buộc), cột:
+- [x] **E1 - dense hoặc hybrid retrieval** (giả thuyết rõ ràng): "dense LSA trên TF-IDF bigram tiếng Việt bắt cụm danh từ tài chính tốt hơn BM25 unigram nên Recall@k cao hơn".
+  - [x] Model + version, cache, lưu lại vector index hoặc seed.
+    → `sklearn` 1.7.2 `TfidfVectorizer(1,2) + TruncatedSVD(128, seed 42)`, cache tại `evaluation/lsa_index_E1.npz` + `evaluation/lsa_vocab_E1.json`.
+  - [x] `config/e1_*.yaml`, `src/infer/e1_*.py`, `evaluation/test_predictions_E1.csv`.
+    → `config/e1_tfidf.yaml`, `src/infer/e1_lsa.py`, `evaluation/test_predictions_E1.csv` (40 test) + `dev_predictions_E1.csv` (10 dev).
+- [x] **E2 - đối chứng/cải tiến khác E1** (lý do kỳ vọng khác E1): "hybrid fusion (BM25 + dense LSA, alpha=0.5) rồi cộng điểm metadata công ty/năm và từ chối theo mẫu ngoài corpus, cải thiện MRR, citation và refusal".
+  - [x] `config/e2_*.yaml`, `src/infer/e2_*.py`, `evaluation/test_predictions_E2.csv`.
+    → `config/e2_hybrid.yaml`, `src/infer/e2_hybrid.py`, `evaluation/test_predictions_E2.csv` (40 test) + `dev_predictions_E2.csv` (10 dev).
+- [x] **E2 không được chỉ là đổi tên file hay chạy lại cùng tham số.**
+  → E2 khác chiến lược: fusion chuẩn hóa min-max trên top-20 ứng viên, cộng điểm metadata, quy tắc từ chối 10 mẫu.
+- [x] Cả 3 cấu hình dùng **cùng test và cùng cách tính metric**. Báo cáo dev để giải thích quyết định chọn phương án trước khi đánh giá test.
+  → Cùng 40 test ID (khớp `evaluation/split_freeze.json`), cùng `src/evaluate/evaluate.py`. Dev chỉ có 2 câu có evidence nên kém ổn định, xem `evaluation/comparison_E0_E1_E2.md`.
+- [x] `evaluation/experiments.csv` (bắt buộc), cột:
   `run_id, method, dataset_version, split_version, config_path, seed_or_prompt_version, dev_metric, test_metric, prediction_file, notes`
-- [ ] `evaluation/metrics_summary.csv` và bảng so sánh E0/E1/E2 trong báo cáo. **Giá trị phải do script sinh ra, không chụp màn hình hay tự gõ tay.**
-- [ ] Nếu có biến thể prompt (E1/E2): lưu prompt template, few-shot (nếu có), model/version, tham số suy luận, ngày chạy, mẫu output. Biến thể phải khác rõ về **chiến lược**, không chỉ khác câu chữ.
-- [ ] Nếu thí nghiệm ngẫu nhiên: nhiều seed và báo cáo dao động.
+  → Đủ 3 dòng E0/E1/E2, dataset_version `0450088ab22ec946f04f097586967ca405955b3b`, split `v1`.
+- [x] `evaluation/metrics_summary.csv` và bảng so sánh E0/E1/E2 trong báo cáo. **Giá trị phải do script sinh ra, không chụp màn hình hay tự gõ tay.**
+  → `metrics_summary.csv` do `src/evaluate/evaluate.py` sinh (6 dòng dev/test). Bảng `evaluation/comparison_E0_E1_E2.md` do `src/evaluate/compare_runs.py` sinh.
+- [x] Nếu có biến thể prompt (E1/E2): lưu prompt template, few-shot (nếu có), model/version, tham số suy luận, ngày chạy, mẫu output. Biến thể phải khác rõ về **chiến lược**, không chỉ khác câu chữ.
+  → Không áp dụng: cả 3 runs chỉ truy hồi, không sinh văn bản bằng LLM nên không có prompt template. E1/E2 khác nhau về chiến lược truy hồi, đã ghi trong config.
+- [x] Nếu thí nghiệm ngẫu nhiên: nhiều seed và báo cáo dao động.
+  → `python src/evaluate/seed_check_e1.py`: LSA ổn định qua 3 seed (42, 7, 123) đều recall@5=1/7=0.1429 trên 7 câu có evidence; lấy seed 42 làm chính.
 
 ---
 
@@ -182,24 +191,31 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 5.1 Metric bắt buộc cho đề tài 6 (Mục 4.6.5)
 
-- [ ] Retrieval: **Recall@k**, **MRR@k** (k cố định, ghi rõ giá trị k).
-- [ ] Answer: **numeric/normalized match** (so khớp số và đơn vị; có quy tắc làm tròn và chuyển đơn vị).
-- [ ] **Citation correctness**: trích dẫn đúng báo cáo/năm/trang/bảng.
-- [ ] **Tỷ lệ từ chối đúng** khi thiếu chứng cứ (tính riêng trên nhóm 08+ câu thiếu bằng chứng).
-- [ ] Báo cáo lỗi theo nhóm: **OCR, sai năm, sai đơn vị, sai phép tính**.
-- [ ] Đánh giá **riêng retrieval và answer**, không chỉ câu trả lời cuối.
+- [x] Retrieval: **Recall@k**, **MRR@k** (k cố định, ghi rõ giá trị k).
+  → k bằng 5, cùng test 40 câu và cùng `src/evaluate/evaluate.py`; test E0 R@5 bằng 0,2 MRR@5 bằng 0,05; E1 R@5 bằng 0,2 MRR@5 bằng 0,0667; E2 R@5 bằng 0,4 MRR@5 bằng 0,14.
+- [x] Answer: **numeric/normalized match** (so khớp số và đơn vị; có quy tắc làm tròn và chuyển đơn vị).
+  → Cả 3 runs không sinh văn bản nên numeric match bằng 0,0 theo thiết kế; đã tách riêng retrieval và answer trong `evaluation_protocol.md` và `error_analysis.md` mục 5.
+- [x] **Citation correctness**: trích dẫn đúng báo cáo/năm/trang/bảng.
+  → Top-1 chunk khớp evidence: cả 3 runs bằng 0,0 vì chưa lần nào top-1 rơi đúng trang gold; có 1 ca retrieval trúng nhưng citation sai ở `S_NEW_07`.
+- [x] **Tỷ lệ từ chối đúng** khi thiếu chứng cứ (tính riêng trên nhóm 08+ câu thiếu bằng chứng).
+  → 8 câu `S_NEW_08` đến `S_NEW_15`; E0 bằng 0,0, E1 bằng 0,0, E2 bằng 1,0 nhờ 10 mẫu trong `config/e2_hybrid.yaml`.
+- [x] Báo cáo lỗi theo nhóm: **OCR, sai năm, sai đơn vị, sai phép tính**.
+  → Đủ 4 nhóm trong `evaluation/error_analysis.md` 12 mục: OCR mục 12, sai năm mục 2/4/6/7, sai đơn vị mục 2/12, sai phép tính mục 5.
+- [x] Đánh giá **riêng retrieval và answer**, không chỉ câu trả lời cuối.
 
 ### 5.2 Phân tích lỗi
 
-- [ ] `evaluation/error_analysis.md`: **ít nhất 10 mẫu lỗi khác nhau**, mỗi mục có đủ 7 trường (Mẫu B):
-  - [ ] item_id và loại lỗi
-  - [ ] Đầu vào / nguồn / chứng cứ hợp lệ
-  - [ ] Gold hoặc đáp án tham chiếu
-  - [ ] Prediction E0 / E1 / E2
-  - [ ] Nguyên nhân khả dĩ (nhãn, OCR, số, model, retrieval, prompt)
-  - [ ] Ảnh hưởng của lỗi đến người dùng
-  - [ ] Đề xuất thay đổi và phép thử kế tiếp
-- [ ] Không chọn tay mẫu "đẹp". Kết quả thấp hơn baseline vẫn được chấp nhận nếu protocol đúng và chỉ ra được nguyên nhân.
+- [x] `evaluation/error_analysis.md`: **12 mẫu lỗi khác nhau**, mỗi mục có đủ 7 trường (Mẫu B).
+  o `python src/evaluate/build_error_analysis.py` sinh từ prediction và gold, không chọn tay.
+  - [x] item_id và loại lỗi
+  - [x] Đầu vào / nguồn / chứng cứ hợp lệ
+  - [x] Gold hoặc đáp án tham chiếu
+  - [x] Prediction E0 / E1 / E2
+  - [x] Nguyên nhân khả dĩ (nhãn, OCR, số, model, retrieval, prompt)
+  - [x] Ảnh hưởng của lỗi đến người dùng
+  - [x] Đề xuất thay đổi và phép thử kế tiếp
+- [x] Không chọn tay mẫu "đẹp". Kết quả thấp hơn baseline vẫn được chấp nhận nếu protocol đúng và chỉ ra được nguyên nhân.
+  → E1 hòa và thua E0, E2 chỉ hơn 1 câu; đã giữ nguyên số và giải thích trong báo cáo.
 
 ---
 
