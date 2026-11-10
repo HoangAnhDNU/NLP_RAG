@@ -5,7 +5,7 @@
 ```text
 data/
 ├── README.md              # file này: mô tả cấu trúc thư mục dữ liệu
-├── data_manifest.csv      # bản kê chuẩn 13 cột (Mục 5.1, 10.1): 40 báo cáo + 50 câu gold
+├── data_manifest.csv      # bản kê chuẩn 13 cột (Mục 5.1, 10.1): 40 báo cáo + 200 câu gold
 ├── data_schema.md         # lược đồ: tên trường, kiểu, tập giá trị, quy ước nhãn
 ├── raw/
 │   └── vifinqa/           # snapshot ViFinQA, chỉ đọc, không sửa
@@ -24,15 +24,15 @@ data/
 │   ├── ocr_audit.csv            # audit OCR theo file
 │   └── ocr_audit_pages.csv      # audit OCR theo trang
 ├── annotations/           # gold và hồ sơ gắn nhãn
-│   ├── annotation_guideline.md  # guideline v0.1
+│   ├── annotation_guideline.md  # guideline v0.2
 │   ├── qa_gold_supplement.jsonl # 15 câu tự tạo có đáp án kiểm chứng
-│   ├── qa_gold.jsonl            # 50 câu gold thống nhất (35 ViFinQA + 15 bổ sung)
+│   ├── qa_gold.jsonl            # 200 câu gold thống nhất (35 ViFinQA + 15 bổ sung + 150 sạch)
 │   ├── gold_labels.csv          # bản CSV gọn để chấm thủ công
 │   └── review_log.csv           # trạng thái hậu kiểm từng item
 └── splits/                # split đã đóng băng
-    ├── dev.json           # 10 ID dev
-    ├── test.json          # 40 ID test
-    └── split_meta.json    # seed 42, version v1, hash sha256
+    ├── dev.json           # 40 ID dev
+    ├── test.json          # 160 ID test
+    └── split_meta.json    # seed 42, version v2, hash sha256
 ```
 
 ## Quy ước tầng dữ liệu
@@ -41,10 +41,10 @@ data/
   revision `0450088ab22ec946f04f097586967ca405955b3b`). Không sửa tay.
 - `processed/`: kết quả của `src/select_corpus.py`, `src/filter_questions.py`,
   `src/audit_ocr.py`, `src/build_chunks.py`, `src/build_table_records.py`. Chạy lại được, ghi đè toàn bộ.
-- `annotations/`: kết quả của `src/build_supplement_gold.py` và `src/build_gold.py`.
-  35 câu ViFinQA đang ở trạng thái `pending-answer`, 15 câu bổ sung đã có đáp án
+- `annotations/`: kết quả của `src/build_supplement_gold.py`, `src/build_gold.py` (giữ bản v1) và `src/build_expanded_gold_v2.py` (sinh bản v2 127 câu) và `src/build_expanded_gold_v3.py` (sinh bản v3 200 câu).
+  35 câu ViFinQA đang ở trạng thái `pending-answer`, 15 câu bổ sung và 77 câu sạch đã có đáp án
   và chờ người thứ hai hậu kiểm.
-- `splits/`: bản đóng băng theo Mục 10.1. Toàn bộ 8 câu thiếu bằng chứng nằm ở
+- `splits/`: bản đóng băng v2 theo Mục 10.1. Toàn bộ 16 câu thiếu bằng chứng nằm ở
   test. Không dùng test để chọn prompt hay siêu tham số.
 
 ## Tái lập
@@ -58,8 +58,9 @@ python src/build_chunks.py
 python src/build_table_records.py
 python src/build_supplement_gold.py
 python src/build_gold.py
+python src/build_expanded_gold_v2.py
 python src/build_data_docs.py
 ```
 
-`src/build_data_docs.py` sinh `data/data_manifest.csv` (90 dòng: 40 corpus + 50 gold)
-và kiểm tra `data/splits/` khớp 50 câu gold.
+`src/build_data_docs.py` sinh `data/data_manifest.csv` (240 dòng: 40 corpus + 200 gold)
+và kiểm tra `data/splits/` khớp 200 câu gold (split v3).

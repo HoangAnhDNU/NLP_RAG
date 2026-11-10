@@ -1,0 +1,20 @@
+# Chinh sach tra loi va trich dan dung chung cho E0-E8 va demo.
+# Moi cau tra loi co mot trang thai: answered, partial_answer, refused, ambiguous.
+answer_status:
+  answered: "Co bang chung du va ro, so lieu khop mot gia tri duy nhat."
+  partial_answer: "Co bang chung nhung thieu mot phan thong tin (ky, ban bao cao, don vi)."
+  refused: "Khong tim thay bang chung du tin cay, tra cau tu choi chuan."
+  ambiguous: "Co nhieu gia tri mau thuan, can lam ro ky, cong ty hoac don vi."
+generation_prompt:
+  rules:
+    - "Chi dung thong tin tu cac chunk duoc cap."
+    - "Trich chunk_id, page, company, year cho moi con so."
+    - "Khong suy dien ngoai context."
+    - 'Neu thieu du lieu, tra loi dung nguyen van: "Không đủ bằng chứng trong corpus để trả lời."'
+    - "Neu nhieu gia tri mau thuan, danh dau ambiguous va neu ro can lam ro gi."
+refusal:
+  text: "Không đủ bằng chứng trong corpus để trả lời."
+  alt_text: "Không tìm thấy đủ bằng chứng trong các báo cáo được cung cấp."
+citation:
+  required_fields: [chunk_id, page, company_id, fiscal_year]
+  top1_must_be_complete: true

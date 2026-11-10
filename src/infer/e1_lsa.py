@@ -5,8 +5,8 @@ nên Recall@k cao hơn trên chunk tiếng Việt giữ dấu.
 Không sinh văn bản, predicted_answer để trống như E0 để so sánh công bằng.
 
 Đầu ra:
-- evaluation/dev_predictions_E1.csv
-- evaluation/test_predictions_E1.csv
+- evaluation/dev_predictions/dev_predictions_E1.csv
+- evaluation/test_predictions/test_predictions_E1.csv
 - evaluation/lsa_index_E1.npz + evaluation/lsa_vocab_E1.json (cache index)
 
 Ví dụ:
@@ -121,7 +121,9 @@ def main() -> int:
         by_split.setdefault(g.get("split", "test"), []).append(row)
 
     for split in ("dev", "test"):
-        out = outdir / f"{split}_predictions_E1.csv"
+        subdir = outdir / ("dev_predictions" if split == "dev" else "test_predictions")
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{split}_predictions_E1.csv"
         with open(out, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()

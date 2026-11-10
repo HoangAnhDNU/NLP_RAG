@@ -1,10 +1,10 @@
 """Demo Streamlit hỏi đáp báo cáo tài chính có trích dẫn (Mục 6.1).
 
-Dùng chung engine trong `app/qa_engine.py`:
-- 7 câu bổ sung có kiểm chứng: trả đáp án kèm phép tính.
-- Câu ngoài corpus: từ chối đúng nguyên văn.
-- Câu còn lại: truy hồi BM25 cộng điểm metadata, đoạn liên quan 1200 ký tự
-  quanh từ khóa kèm nút mở rộng toàn văn chunk.
+Pipeline RAG thuần, không đọc thuộc gold: nhận câu hỏi -> trích metadata
+-> BM25 cộng điểm metadata trên 40 báo cáo -> lookup có cấu trúc trên
+`table_records.jsonl` -> ghép top-k chunks thành CONTEXT có citation
+-> bộ sinh đáp án offline chỉ dùng CONTEXT theo `config/answer_policy.yaml`
+-> hiển thị đáp án kèm nguồn. Gold chỉ dùng offline để chấm điểm.
 
 Chạy:
     conda activate NLP
@@ -30,10 +30,10 @@ except ModuleNotFoundError:  # pragma: no cover
 from qa_engine import load_engine, answer  # noqa: E402
 
 GROUP_TITLES = {
-    "verified": "Câu có đáp án kiểm chứng (7 câu S_NEW_01 đến S_NEW_07)",
+    "verified": "Câu sinh đáp án từ pipeline RAG (7 câu S_NEW_01 đến S_NEW_07)",
     "refusal": "Câu thiếu bằng chứng (3 câu S_NEW_08 đến S_NEW_10)",
-    "paraphrase": "Câu diễn đạt lại (thử gợi ý)",
-    "vifinqa": "Câu ViFinQA chưa có gold",
+    "paraphrase": "Câu diễn đạt lại (sinh trực tiếp từ pipeline)",
+    "vifinqa": "Câu ViFinQA (sinh từ bảng nếu khớp)",
 }
 
 
@@ -57,7 +57,7 @@ def load_samples() -> list[dict]:
 
 st.set_page_config(page_title="RAG báo cáo tài chính HPG HSG NKG MSR", layout="wide")
 st.title("Hỏi đáp báo cáo tài chính có trích dẫn")
-st.caption("Corpus: HPG, HSG, NKG, MSR giai đoạn 2020-2024, 2407 chunk (1 chunk bằng 1 trang). 7 câu bổ sung có đáp án kiểm chứng, câu ngoài corpus bị từ chối.")
+st.caption("Corpus: HPG, HSG, NKG, MSR giai đoạn 2020-2024, 2407 chunk (1 chunk bằng 1 trang). Đáp án sinh từ pipeline RAG (không đọc thuộc gold), câu ngoài corpus bị từ chối.")
 
 chunks, _, _, _, _, _ = load_engine()
 with st.sidebar:
@@ -88,9 +88,37 @@ ask = st.button("Hỏi", type="primary")
 if ask and question.strip():
     with st.spinner("Đang truy hồi..."):
         result = answer(question.strip(), top_k)
-    if result.get("refused"):
+    status = result.get("answer_status", "refused" if result.get("refused") else "answered")
+    cite_ok = result.get("citation_complete", False)
+    entities = result.get("entities", {})
+
+    st.subheader("1. Câu hỏi người dùng")
+    st.write(result.get("question", question.strip()))
+
+    st.subheader("2. Thực thể đã trích")
+    ent_cols = st.columns(4)
+    ent_cols[0].metric("Công ty", ", ".join(entities.get("companies", [])) or "chưa rõ")
+    ent_cols[1].metric("Năm", ", ".join(entities.get("years", [])) or "chưa rõ")
+    ent_cols[2].metric("Bản báo cáo", entities.get("report_version", "") or "chưa rõ")
+    ent_cols[3].metric("Đơn vị hỏi", entities.get("target_unit", "") or "chưa rõ")
+    if entities.get("company_names"):
+        st.caption("Tên đầy đủ: " + "; ".join(entities.get("company_names", [])))
+    if entities.get("indicator_guess"):
+        st.caption(f"Chỉ tiêu đoán từ bảng: `{entities.get('indicator_guess', '')}`")
+
+    st.subheader("3. Trạng thái refusal và quyết định")
+    st.caption(f"Trạng thái: `{status}` (lý do: {result.get('status_reason', '')}) | Trích dẫn đầy đủ: {cite_ok} | Nguồn đáp án: `{result.get('answer_source', '')}`")
+    st.caption("Pipeline: câu hỏi -> trích metadata -> BM25 + điểm metadata -> lookup bảng -> ghép CONTEXT -> sinh đáp án chỉ từ CONTEXT theo `config/answer_policy.yaml` (không đọc thuộc gold).")
+    if result.get("context"):
+        with st.expander("Xem CONTEXT đã ghép (citation gửi cho bộ sinh đáp án)", expanded=False):
+            st.code(result.get("context", ""), language="text")
+    if result.get("refused") or status == "refused":
         st.warning(result["answer"])
         st.info("Hệ thống từ chối vì câu hỏi thuộc nhóm ngoài corpus: quý, bán niên, kế hoạch, dự báo, giá thị trường.")
+    elif status == "ambiguous":
+        st.warning("Trạng thái ambiguous: có nhiều giá trị mâu thuẫn, cần làm rõ kỳ, công ty hoặc đơn vị.")
+        if result.get("answer"):
+            st.success(f"Trả lời: {result['answer']}")
     else:
         if result.get("answer"):
             st.success(f"Trả lời: {result['answer']}")
@@ -98,28 +126,69 @@ if ask and question.strip():
                 st.write(f"**Phép tính:** {result['computation']}")
             if result.get("evidence"):
                 st.write("**Chunk chứng cứ:** " + "; ".join(f"`{c}`" for c in result["evidence"]))
-            if result.get("matched_qid"):
-                st.caption(f"Mã câu khớp: {result['matched_qid']} (đáp án đã kiểm chứng).")
         else:
-            st.warning("Trả lời: (chưa có đáp án kiểm chứng cho câu này)")
+            st.warning("Trả lời: (pipeline chưa sinh được đáp án chắc chắn)")
             if result.get("candidates"):
                 st.write("**Số ứng viên trong đoạn liên quan nhất:** " + "; ".join(result["candidates"]))
             if result.get("note"):
                 st.caption(result["note"])
             if result.get("suggestions"):
-                st.write("**Có phải bạn muốn hỏi một trong các câu sau:**")
+                st.write("**Có phải bạn muốn hỏi một trong các câu sau (bấm để chạy lại pipeline):**")
                 for s in result["suggestions"]:
-                    tag = "có đáp án" if s.get("has_answer") else ("từ chối" if s.get("refusal") else "chưa có đáp án")
-                    if st.button(f"[{s['question_id']}, {tag}, khớp {s['score']}] {s['question'][:80]}...", key=f"sug_{s['question_id']}"):
+                    if st.button(f"[{s['question_id']}, khớp {s['score']}] {s['question'][:80]}...", key=f"sug_{s['question_id']}"):
                         st.session_state["question"] = s["question"]
                         st.rerun()
-        st.subheader(f"Top {len(result['hits'])} nguồn trích dẫn")
-        for i, h in enumerate(result["hits"], 1):
-            title = f"{i}. {h['company_id']} {h['fiscal_year']} {h['report_version']} trang {h['page']} [{h['chunk_id']}] (điểm {h['score']})"
-            with st.expander(title, expanded=(i == 1)):
-                st.write(f"**Doanh nghiệp:** {h['company_id']} | **Năm:** {h['fiscal_year']} | **Bản:** {h['report_version']} | **Trang:** {h['page']} | **Chunk:** `{h['chunk_id']}` | **Độ dài:** {h['full_len']} ký tự")
-                st.write(f"**Đoạn liên quan:** {h['snippet']}")
-                if show_full:
-                    st.text_area("Toàn văn chunk", value=h["full_text"], height=300, key=f"full_{h['chunk_id']}_{i}")
+
+    if result.get("conflict_warning"):
+        st.subheader("6. Cảnh báo mâu thuẫn")
+        st.warning(result["conflict_warning"])
+
+    st.subheader(f"4. Top {len(result['hits'])} evidence chunks (kiểm chứng số liệu)")
+    st.caption("Số liệu và từ khóa câu hỏi được in đậm. Đối chiếu con số trong đáp án với đoạn highlight bên dưới.")
+    for i, h in enumerate(result["hits"], 1):
+        title = f"{i}. {h['company_id']} {h['fiscal_year']} {h['report_version']} trang {h['page']} [{h['chunk_id']}] (điểm {h['score']})"
+        with st.expander(title, expanded=(i == 1)):
+            st.write(f"**5. Đường dẫn tài liệu gốc:** `{h.get('source_path', h.get('chunk_id', ''))}`")
+            st.write(f"**Doanh nghiệp:** {h['company_id']} | **Năm:** {h['fiscal_year']} | **Bản:** {h['report_version']} | **Trang:** {h['page']} | **Chunk:** `{h['chunk_id']}` | **Đơn vị trang:** `{h.get('unit', '')}` | **Số bảng:** {h.get('n_tables', '')} | **Độ dài:** {h['full_len']} ký tự")
+            st.markdown(f"**Đoạn liên quan (highlight):** {h.get('snippet_highlight', h.get('snippet', ''))}")
+            rows = h.get("table_rows", [])
+            if rows:
+                st.write("**7. Bảng gốc của chunk này (từ `table_records.jsonl`):**")
+                st.dataframe(
+                    [
+                        {
+                            "metric": r.get("metric", ""),
+                            "mã": r.get("metric_code", ""),
+                            "kỳ": r.get("period_label", ""),
+                            "năm": r.get("year", ""),
+                            "giá trị thô": r.get("value_raw", ""),
+                            "đơn vị": r.get("unit", ""),
+                            "trang": r.get("page", ""),
+                        }
+                        for r in rows[:5]
+                    ]
+                )
+                if st.button("Xem bảng gốc đầy đủ", key=f"tbl_{h['chunk_id']}_{i}"):
+                    st.session_state[f"show_tbl_{h['chunk_id']}_{i}"] = not st.session_state.get(f"show_tbl_{h['chunk_id']}_{i}", False)
+                if st.session_state.get(f"show_tbl_{h['chunk_id']}_{i}", False):
+                    st.dataframe(
+                        [
+                            {
+                                "metric": r.get("metric", ""),
+                                "mã": r.get("metric_code", ""),
+                                "kỳ": r.get("period_label", ""),
+                                "năm": r.get("year", ""),
+                                "value": r.get("value", ""),
+                                "giá trị thô": r.get("value_raw", ""),
+                                "đơn vị": r.get("unit", ""),
+                                "bảng": r.get("table_index", ""),
+                                "trang": r.get("page", ""),
+                                "chunk": r.get("source_chunk_id", ""),
+                            }
+                            for r in rows
+                        ]
+                    )
+            if show_full:
+                st.text_area("Toàn văn chunk", value=h["full_text"], height=300, key=f"full_{h['chunk_id']}_{i}")
 elif ask:
     st.error("Vui lòng nhập câu hỏi trước khi bấm Hỏi.")

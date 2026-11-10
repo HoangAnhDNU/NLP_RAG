@@ -1,4 +1,4 @@
-"""Chấm metric E0/E1/E2/E3 bằng cùng một script, tách retrieval và answer (Mục 4.6.5, RAGAS).
+"""Chấm metric E0-E8, tách retrieval, citation, answer và refusal (Mục 4.6.5, RAGAS).
 
 Đọc prediction CSV của một run và `qa_gold.jsonl`, tính trên dev và test:
 - Retrieval (chỉ trên câu có evidence): recall@3, recall@5, recall@10,
@@ -6,7 +6,18 @@
   Ghi chú: file prediction hiện chỉ lưu top-5 nên recall@10 và mrr@10
   được tính trên top-5 đã lưu, bằng với @5.
 - Citation: citation_precision_top1 (top-1 nằm trong evidence),
-  citation_recall@5 (gold lọt top-5).
+  citation_recall@5, citation_complete_rate (top-1 đủ chunk_id/page/company/year).
+- Answer số (chỉ trên câu có gold_answer và không thiếu bằng chứng):
+  numeric_match sau chuẩn hóa đơn vị, exact_match sau chuẩn hóa chuỗi.
+- Answer status: answered / partial_answer / refused / ambiguous theo
+  `src/retrieval/answer_policy.py` và `config/answer_policy.yaml`.
+- Period (nghiệp vụ tài chính): company_accuracy, year_accuracy,
+  version_accuracy, period_accuracy (cả 3 đúng), page_accuracy.
+- Refusal: refusal_precision, refusal_recall, refusal_rate, false_answer_rate
+  = 1 - (numeric đúng + từ chối đúng) / tổng số câu, kèm nhãn
+  true_refusal / missed_refusal / false_refusal / true_answer.
+- Unsupported_claim_rate: tỷ lệ câu trả lời có khẳng định số không tìm thấy
+  trong top-5 chunk.
 - Answer số (chỉ trên câu có gold_answer và không thiếu bằng chứng):
   numeric_match sau chuẩn hóa đơn vị, exact_match sau chuẩn hóa chuỗi.
 - Period (nghiệp vụ tài chính): company_accuracy, year_accuracy,
@@ -22,7 +33,7 @@
 
 Ví dụ:
     python src/evaluate/evaluate.py --run E0
-    python src/evaluate/evaluate.py --run E3 --pred evaluation/test_predictions_E3.csv
+    python src/evaluate/evaluate.py --run E3 --pred evaluation/test_predictions/test_predictions_E3.csv
 """
 
 from __future__ import annotations
@@ -40,8 +51,18 @@ if hasattr(sys.stdout, "reconfigure"):
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from src.retrieval.answer_policy import (  # noqa: E402
+    citation_complete,
+    decide_status,
+    detect_retrieval_conflict,
+    is_refusal,
+    refusal_label,
+)
+from src.retrieval.table_lookup import resolve_tickers  # noqa: E402
+
 REFUSAL_TEXT = "Không đủ bằng chứng trong corpus để trả lời."
 NUM_RE = re.compile(r"\(?-?\d[\d.\s,]*\d-?\)?%?")
+YEAR_RE = re.compile(r"\b(20[0-2]\d)\b")
 
 
 def norm_answer(text: str) -> str:
@@ -124,6 +145,24 @@ def load_chunks() -> dict:
     return idx
 
 
+def load_chunks_full() -> dict:
+    path = ROOT / "data" / "processed" / "chunks.jsonl"
+    idx: dict = {}
+    if not path.exists():
+        return idx
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            idx[r.get("chunk_id", "")] = r
+    return idx
+
+
 def numbers_in_context(pred_answer: str, context: str) -> bool:
     toks = [norm_num_token(t) for t in NUM_RE.findall(pred_answer or "")]
     toks = [t for t in toks if t]
@@ -154,14 +193,26 @@ def main() -> int:
     p.add_argument("--pred", default=None)
     p.add_argument("--gold", default=str(ROOT / "data" / "annotations" / "qa_gold.jsonl"))
     p.add_argument("--out", default=str(ROOT / "evaluation" / "metrics_summary.csv"))
+    p.add_argument("--test-dir", default=str(ROOT / "evaluation" / "test_predictions"))
+    p.add_argument("--dev-dir", default=str(ROOT / "evaluation" / "dev_predictions"))
+    p.add_argument("--refusal-dir", default=str(ROOT / "evaluation" / "refusal_labels"))
     args = p.parse_args()
 
     gold = {json.loads(line)["question_id"]: json.loads(line) for line in open(args.gold, encoding="utf-8")}
-    pred_path = Path(args.pred) if args.pred else ROOT / "evaluation" / f"test_predictions_{args.run}.csv"
+    if args.pred:
+        pred_path = Path(args.pred)
+    else:
+        pred_path = Path(args.test_dir) / f"test_predictions_{args.run}.csv"
+        legacy = ROOT / "evaluation" / f"test_predictions_{args.run}.csv"
+        if not pred_path.exists() and legacy.exists():
+            pred_path = legacy
     rows = list(csv.DictReader(open(pred_path, encoding="utf-8")))
 
     by_split: dict[str, list[dict]] = {"dev": [], "test": []}
-    dev_path = pred_path.parent / pred_path.name.replace("test_", "dev_")
+    dev_path = Path(args.dev_dir) / pred_path.name.replace("test_", "dev_")
+    legacy_dev = pred_path.parent / pred_path.name.replace("test_", "dev_")
+    if not dev_path.exists() and legacy_dev.exists() and legacy_dev != pred_path:
+        dev_path = legacy_dev
     all_rows = rows
     if dev_path.exists() and dev_path != pred_path:
         all_rows = list(csv.DictReader(open(dev_path, encoding="utf-8"))) + rows
@@ -169,14 +220,17 @@ def main() -> int:
         by_split.setdefault(r.get("split", "test"), []).append(r)
 
     chunks = load_chunks()
+    chunks_full = load_chunks_full()
 
     summary: list[dict] = []
+    detail_rows: list[dict] = []
     for split in ("dev", "test"):
         items = by_split.get(split, [])
         n = len(items)
         r3, r5, m3, m5 = [], [], [], []
         ctx_p, ctx_r = [], []
         cit_p_hit, cit_p_den = 0, 0
+        cit_complete_hit, cit_complete_den = 0, 0
         ans_num_hit, ans_num_den = 0, 0
         ans_em_hit, ans_em_den = 0, 0
         comp_hit, comp_den = 0, 0
@@ -188,6 +242,8 @@ def main() -> int:
         ref_den = 0
         unsup_bad, unsup_den = 0, 0
         relev_hit = 0
+        status_counts = {"answered": 0, "partial_answer": 0, "refused": 0, "ambiguous": 0}
+        label_counts = {"true_refusal": 0, "missed_refusal": 0, "false_refusal": 0, "true_answer": 0}
 
         for r in items:
             g = gold.get(r["question_id"], {})
@@ -210,7 +266,7 @@ def main() -> int:
                     cit_p_hit += 1
 
             needs_ref = bool(g.get("needs_more_evidence"))
-            pred_is_ref = norm_answer(r.get("predicted_answer", "")) == norm_answer(REFUSAL_TEXT)
+            pred_is_ref = is_refusal(r.get("predicted_answer", ""))
             if needs_ref:
                 ref_den += 1
                 if pred_is_ref:
@@ -218,6 +274,50 @@ def main() -> int:
                     relev_hit += 1
             if pred_is_ref:
                 ref_pred_pos += 1
+
+            top_full = [chunks_full.get(c, {}) for c in pred_chunks[:5] if c in chunks_full]
+            if top_full:
+                cit_complete_den += 1
+                if citation_complete(top_full):
+                    cit_complete_hit += 1
+            _qtext = g.get("question", "") or r.get("question", "")
+            mtickers = resolve_tickers(_qtext)
+            myears = YEAR_RE.findall(_qtext)
+            top_for_status = [
+                {
+                    "chunk_id": c.get("chunk_id", ""),
+                    "page": c.get("page", ""),
+                    "company_id": c.get("company_id", ""),
+                    "fiscal_year": c.get("fiscal_year", ""),
+                }
+                for c in top_full
+            ]
+            decided = decide_status(
+                g.get("question", "") or r.get("question", ""),
+                r.get("predicted_answer", ""),
+                top_for_status,
+                tickers=mtickers if len(mtickers) == 1 else None,
+                years=myears if len(set(myears)) == 1 else None,
+                conflict=detect_retrieval_conflict(mtickers, myears, top_for_status),
+                refused_by_rule=pred_is_ref,
+            )
+            status_counts[decided["status"]] = status_counts.get(decided["status"], 0) + 1
+            rlabel = refusal_label(r.get("predicted_answer", ""), needs_ref)
+            label_counts[rlabel] = label_counts.get(rlabel, 0) + 1
+            detail_rows.append(
+                {
+                    "run": args.run,
+                    "split": split,
+                    "question_id": r.get("question_id", ""),
+                    "answer_status": decided["status"],
+                    "status_reason": decided.get("reason", ""),
+                    "refusal_label": rlabel,
+                    "needs_more_evidence": needs_ref,
+                    "citation_complete_top1": bool(top_for_status and citation_complete(top_for_status)),
+                    "predicted_answer": r.get("predicted_answer", ""),
+                    "predicted_top1_chunk_id": r.get("predicted_top1_chunk_id", ""),
+                }
+            )
 
             if needs_ref:
                 pass
@@ -273,6 +373,9 @@ def main() -> int:
         unsup_rate = round(unsup_bad / unsup_den, 4) if unsup_den else 0.0
         r5v = round(sum(r5) / len(r5), 4) if r5 else 0.0
         m5v = round(sum(m5) / len(m5), 4) if m5 else 0.0
+        cit_complete_rate = round(cit_complete_hit / cit_complete_den, 4) if cit_complete_den else 0.0
+        relev = round(relev_hit / n, 4) if n else 0.0
+        false_answer_rate = round(1.0 - relev, 4) if n else 0.0
         summary.append(
             {
                 "run": args.run,
@@ -292,6 +395,8 @@ def main() -> int:
                 "citation_precision_top1": round(cit_p_hit / cit_p_den, 4) if cit_p_den else 0.0,
                 "citation_recall_at_5": r5v,
                 "citation_correctness": round(cit_p_hit / cit_p_den, 4) if cit_p_den else 0.0,
+                "citation_complete_rate": cit_complete_rate,
+                "citation_complete_den": cit_complete_den,
                 "numeric_match": round(ans_num_hit / ans_num_den, 4) if ans_num_den else 0.0,
                 "exact_match": round(ans_em_hit / ans_em_den, 4) if ans_em_den else 0.0,
                 "period_accuracy": round(period_hit / period_den, 4) if period_den else 0.0,
@@ -302,7 +407,16 @@ def main() -> int:
                 "evidence_den": ev_den,
                 "unsupported_claim_rate": unsup_rate,
                 "faithfulness_heuristic": round(1.0 - unsup_rate, 4) if unsup_den else 0.0,
-                "answer_relevancy_heuristic": round(relev_hit / n, 4) if n else 0.0,
+                "answer_relevancy_heuristic": relev,
+                "false_answer_rate": false_answer_rate,
+                "status_answered": status_counts.get("answered", 0),
+                "status_partial": status_counts.get("partial_answer", 0),
+                "status_refused": status_counts.get("refused", 0),
+                "status_ambiguous": status_counts.get("ambiguous", 0),
+                "true_refusal": label_counts.get("true_refusal", 0),
+                "missed_refusal": label_counts.get("missed_refusal", 0),
+                "false_refusal": label_counts.get("false_refusal", 0),
+                "true_answer": label_counts.get("true_answer", 0),
                 "refusal_precision": round(ref_tp / ref_pred_pos, 4) if ref_pred_pos else 0.0,
                 "refusal_recall": round(ref_tp / ref_den, 4) if ref_den else 0.0,
                 "refusal_rate": round(ref_tp / ref_den, 4) if ref_den else 0.0,
@@ -332,12 +446,23 @@ def main() -> int:
         print(
             f"{s['run']}/{s['split']}: n={s['n']} R@3={s['recall_at_3']} R@5={s['recall_at_5']} "
             f"MRR@5={s['mrr_at_5']} ctxP={s['context_precision_at_5']} ctxR={s['context_recall_at_5']} "
-            f"citeP={s['citation_precision_top1']} num={s['numeric_match']} em={s['exact_match']} "
+            f"citeP={s['citation_precision_top1']} citeFull={s['citation_complete_rate']} "
+            f"num={s['numeric_match']} em={s['exact_match']} "
             f"period={s['period_accuracy']} page={s['page_accuracy']} unsup={s['unsupported_claim_rate']} "
             f"faith={s['faithfulness_heuristic']} relev={s['answer_relevancy_heuristic']} "
-            f"refP={s['refusal_precision']} refR={s['refusal_recall']}({s['refusal_den']})"
+            f"falseAns={s['false_answer_rate']} refP={s['refusal_precision']} refR={s['refusal_recall']}({s['refusal_den']}) "
+            f"status=[ans={s['status_answered']}/part={s['status_partial']}/ref={s['status_refused']}/amb={s['status_ambiguous']}] "
+            f"labels=[TR={s['true_refusal']}/MR={s['missed_refusal']}/FR={s['false_refusal']}/TA={s['true_answer']}]"
         )
     print(f"Đã ghi -> {out}")
+    detail_path = Path(args.refusal_dir) / f"refusal_labels_{args.run}.csv"
+    detail_path.parent.mkdir(parents=True, exist_ok=True)
+    if detail_rows:
+        with open(detail_path, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(detail_rows[0].keys()))
+            w.writeheader()
+            w.writerows(detail_rows)
+        print(f"Đã ghi nhãn chi tiết -> {detail_path} ({len(detail_rows)} dòng)")
     return 0
 
 

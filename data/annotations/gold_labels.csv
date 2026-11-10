@@ -49,3 +49,153 @@ S_NEW_12,Kế hoạch doanh thu năm 2025 của CTCP Tập đoàn Hoa Sen là ba
 S_NEW_13,Dự báo lợi nhuận sau thuế năm 2025 của CTCP Masan High-Tech Materials là bao nhiêu tỷ đồng?,MSR,2025,,unanswerable,supplement
 S_NEW_14,Giá bán bình quân thép HRC của CTCP Tập đoàn Hòa Phát năm 2024 là bao nhiêu đồng một tấn?,HPG,2024,,unanswerable,supplement
 S_NEW_15,Tổng số cổ đông của CTCP Thép Nam Kim tại ngày 31/12/2024 là bao nhiêu người?,NKG,2024,,unanswerable,supplement
+CLEAN-T1-HPG-2020-01,Cổ đông của công ty mẹ hợp nhất của CTCP Tập đoàn Hòa Phát năm 2020 là bao nhiêu nghìn tỷ đồng?,HPG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-02,Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hoa Sen năm 2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-03,Cổ đông của Công ty hợp nhất của CTCP Masan High-Tech Materials năm 2020 là bao nhiêu tỷ đồng?,MSR,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2021-04,Cổ đông của Công ty hợp nhất của CTCP Thép Nam Kim năm 2021 là bao nhiêu nghìn tỷ đồng?,NKG,2021,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2024-05,Chi phí trả trước dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2024 là bao nhiêu tỷ đồng?,HSG,2024,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-06,Nợ dài hạn hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2024-07,Chi phí trả trước ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2024 là bao nhiêu tỷ đồng?,HSG,2024,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-08,Cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hòa Phát năm 2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-09,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-10,Cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials năm 2020 là bao nhiêu tỷ đồng?,MSR,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-11,Nợ ngắn hạn hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,NKG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-12,Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hòa Phát năm 2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-13,Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-14,Giá vốn hàng bán hợp nhất của CTCP Masan High-Tech Materials năm 2020 là bao nhiêu nghìn tỷ đồng?,MSR,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-15,Phải trả dài hạn khác hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu triệu đồng?,NKG,2020,triệu đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-16,Bất động sản đầu tư hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-17,Nợ dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,HSG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-18,Phải trả người bán ngắn hạn hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,NKG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-19,Kết quả từ các hoạt động khác hợp nhất của CTCP Masan High-Tech Materials năm 2020 là bao nhiêu nghìn tỷ đồng?,MSR,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2024-20,Chi phí trả trước ngắn hạn hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2024 là bao nhiêu tỷ đồng?,HPG,2024,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-21,Phải trả ngắn hạn khác hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-22,Chênh lệch tỷ giá hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-23,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,HSG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2021-24,Bất động sản đầu tư hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2021 là bao nhiêu tỷ đồng?,MSR,2021,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-25,Thặng dư vốn cổ phần hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2021-26,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2021 là bao nhiêu tỷ đồng?,HPG,2021,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-27,Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu triệu đồng?,HSG,2020,triệu đồng,numeric,table-clean
+CLEAN-T1-MSR-2022-28,Chi phí phải trả ngắn hạn hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2022 là bao nhiêu tỷ đồng?,MSR,2022,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-29,Chênh lệch tỷ giá hối đoái hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,MSR,2020,tỷ đồng,numeric,table-clean
+CLEAN-T2-HPG-2020-2021-01,Cổ đông của công ty mẹ hợp nhất của CTCP Tập đoàn Hòa Phát năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,HPG,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2023-2024-02,Chi phí trả trước dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,HSG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2020-2021-03,Cổ đông của Công ty hợp nhất của CTCP Masan High-Tech Materials năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,MSR,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2020-2021-04,Cổ đông của Công ty hợp nhất của CTCP Thép Nam Kim năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,NKG,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-HPG-2021-2022-05,Cổ đông của công ty mẹ hợp nhất của CTCP Tập đoàn Hòa Phát năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HPG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2023-2024-06,Chi phí trả trước ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,HSG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2021-2022-07,Cổ đông của Công ty hợp nhất của CTCP Masan High-Tech Materials năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,MSR,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2023-2024-08,Cổ đông của Công ty hợp nhất của CTCP Thép Nam Kim năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-HPG-2022-2023-09,Cổ đông của công ty mẹ hợp nhất của CTCP Tập đoàn Hòa Phát năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,HPG,2022|2023,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2020-2021-10,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,HSG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2022-2023-11,Cổ đông của Công ty hợp nhất của CTCP Masan High-Tech Materials năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,MSR,2022|2023,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2021-2022-12,Nợ dài hạn hợp nhất của CTCP Thép Nam Kim năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,NKG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-HPG-2020-2021-13,Cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hòa Phát năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,HPG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2021-2022-14,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HSG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2023-2024-15,Cổ đông của Công ty hợp nhất của CTCP Masan High-Tech Materials năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,MSR,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2022-2023-16,Nợ dài hạn hợp nhất của CTCP Thép Nam Kim năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,NKG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-HPG-2021-2022-17,Cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hòa Phát năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HPG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2022-2023-18,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,HSG,2022|2023,triệu đồng,computation,table-clean
+CLEAN-T2-MSR-2020-2021-19,Cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,MSR,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2023-2024-20,Nợ dài hạn hợp nhất của CTCP Thép Nam Kim năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-HPG-2022-2023-21,Cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hòa Phát năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,HPG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2023-2024-22,Dự phòng phải trả dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,HSG,2023|2024,triệu đồng,computation,table-clean
+CLEAN-T3-HPG-2020-2021-01,Chênh lệch Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hòa Phát giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HPG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-02,Chênh lệch Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-MSR-2021-2022-03,Chênh lệch Cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,MSR,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2021-2022-04,Chênh lệch Nợ ngắn hạn hợp nhất của CTCP Thép Nam Kim giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,NKG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-HPG-2021-2022-05,Chênh lệch Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hòa Phát giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,HPG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-06,Chênh lệch Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-MSR-2022-2023-07,Chênh lệch Cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,MSR,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2022-2023-08,Chênh lệch Nợ ngắn hạn hợp nhất của CTCP Thép Nam Kim giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,NKG,2022|2023,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-HPG-2022-2023-09,Chênh lệch Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hòa Phát giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,HPG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2021-2022-10,Chênh lệch Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,HSG,2021|2022,triệu đồng,computation,table-clean
+CLEAN-T3-MSR-2023-2024-11,Chênh lệch Cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,MSR,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2023-2024-12,Chênh lệch Nợ ngắn hạn hợp nhất của CTCP Thép Nam Kim giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-HPG-2023-2024-13,Chênh lệch Kết quả từ hoạt động khác hợp nhất của CTCP Tập đoàn Hòa Phát giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,HPG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2022-2023-14,Chênh lệch Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,HSG,2022|2023,triệu đồng,computation,table-clean
+CLEAN-T3-MSR-2020-2021-15,Chênh lệch Giá vốn hàng bán hợp nhất của CTCP Masan High-Tech Materials giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,MSR,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2021-2022-16,Chênh lệch Phải trả dài hạn khác hợp nhất của CTCP Thép Nam Kim giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,NKG,2021|2022,đồng,computation,table-clean
+CLEAN-T3-HSG-2023-2024-17,Chênh lệch Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,HSG,2023|2024,triệu đồng,computation,table-clean
+CLEAN-T3-MSR-2021-2022-18,Chênh lệch Giá vốn hàng bán hợp nhất của CTCP Masan High-Tech Materials giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,MSR,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2022-2023-19,Chênh lệch Phải trả dài hạn khác hợp nhất của CTCP Thép Nam Kim giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,NKG,2022|2023,đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-20,Chênh lệch Nợ dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-MSR-2022-2023-21,Chênh lệch Giá vốn hàng bán hợp nhất của CTCP Masan High-Tech Materials giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,MSR,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2023-2024-22,Chênh lệch Phải trả dài hạn khác hợp nhất của CTCP Thép Nam Kim giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,NKG,2023|2024,đồng,computation,table-clean
+CLEAN-T5-HPG-2024-01,Cổ tức tiền mặt năm 2024 của CTCP Tập đoàn Hòa Phát là bao nhiêu đồng một cổ phiếu?,HPG,2024,,unanswerable,table-clean
+CLEAN-T5-HSG-2024-02,Báo cáo quý 3 năm 2024 của CTCP Tập đoàn Hoa Sen ghi nhận doanh thu thuần bao nhiêu tỷ đồng?,HSG,2024,,unanswerable,table-clean
+CLEAN-T5-NKG-2024-03,Xếp hạng tín nhiệm năm 2024 của CTCP Thép Nam Kim là mức nào?,NKG,2024,,unanswerable,table-clean
+CLEAN-T5-MSR-2024-04,Giá vonfram bình quân năm 2024 của CTCP Masan High-Tech Materials là bao nhiêu USD một tấn?,MSR,2024,,unanswerable,table-clean
+CLEAN-T1-HPG-2021-B01,Dự phòng phải trả ngắn hạn hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2021 là bao nhiêu tỷ đồng?,HPG,2021,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B02,Phải trả người bán hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,HSG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B03,Dự phòng phải trả dài hạn hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,MSR,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B04,Tiền hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-B05,Lợi thế thương mại hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2024-B06,Phải trả người bán ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2024 là bao nhiêu nghìn tỷ đồng?,HSG,2024,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B07,Phải trả ngắn hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B08,Dự phòng phải trả ngắn hạn hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,MSR,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B09,Tài sản cố định hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,NKG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-B10,Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B11,Thặng dư vốn cổ phần hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B12,Lợi ích cổ đông không kiểm soát hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,MSR,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B13,Tài sản cố định hữu hình hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,NKG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2020-B14,Nhà nước hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HPG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B15,Tiền hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,HSG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B16,Nợ dài hạn hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,MSR,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B17,Tài sản cố định vô hình hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2021-B18,Nợ dài hạn hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2021 là bao nhiêu nghìn tỷ đồng?,HPG,2021,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2021-B19,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2021 là bao nhiêu nghìn tỷ đồng?,HPG,2021,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B20,Tài sản cố định hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,HSG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B21,Nợ ngắn hạn hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,MSR,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B22,Tài sản dài hạn khác hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T1-HPG-2021-B23,Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hòa Phát tại ngày 31/12/2021 là bao nhiêu tỷ đồng?,HPG,2021,tỷ đồng,numeric,table-clean
+CLEAN-T1-HSG-2020-B24,Tài sản cố định hữu hình hợp nhất của CTCP Tập đoàn Hoa Sen tại ngày 31/12/2020 là bao nhiêu nghìn tỷ đồng?,HSG,2020,nghìn tỷ đồng,numeric,table-clean
+CLEAN-T1-MSR-2020-B25,Phải trả dài hạn khác hợp nhất của CTCP Masan High-Tech Materials tại ngày 31/12/2020 là bao nhiêu triệu đồng?,MSR,2020,triệu đồng,numeric,table-clean
+CLEAN-T1-NKG-2020-B26,Tài sản ngắn hạn khác hợp nhất của CTCP Thép Nam Kim tại ngày 31/12/2020 là bao nhiêu tỷ đồng?,NKG,2020,tỷ đồng,numeric,table-clean
+CLEAN-T2-HSG-2021-2022-B01,Nợ dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HSG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2023-2024-B02,Giá vốn hàng bán hợp nhất của CTCP Masan High-Tech Materials năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,MSR,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2021-2022-B03,Phải trả người bán ngắn hạn hợp nhất của CTCP Thép Nam Kim năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,NKG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2022-2023-B04,Nợ dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,HSG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2020-2021-B05,Kết quả từ các hoạt động khác hợp nhất của CTCP Masan High-Tech Materials năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,MSR,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2022-2023-B06,Phải trả người bán ngắn hạn hợp nhất của CTCP Thép Nam Kim năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,NKG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2023-2024-B07,Nợ dài hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,HSG,2023|2024,triệu đồng,computation,table-clean
+CLEAN-T2-MSR-2021-2022-B08,Kết quả từ các hoạt động khác hợp nhất của CTCP Masan High-Tech Materials năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,MSR,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2023-2024-B09,Phải trả người bán ngắn hạn hợp nhất của CTCP Thép Nam Kim năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2020-2021-B10,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,HSG,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2022-2023-B11,Kết quả từ các hoạt động khác hợp nhất của CTCP Masan High-Tech Materials năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,MSR,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2021-2022-B12,Phải trả ngắn hạn khác hợp nhất của CTCP Thép Nam Kim năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,NKG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2021-2022-B13,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HSG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-MSR-2023-2024-B14,Kết quả từ các hoạt động khác hợp nhất của CTCP Masan High-Tech Materials năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,MSR,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2022-2023-B15,Phải trả ngắn hạn khác hợp nhất của CTCP Thép Nam Kim năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,NKG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2022-2023-B16,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,HSG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2023-2024-B17,Phải trả ngắn hạn khác hợp nhất của CTCP Thép Nam Kim năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T2-HSG-2023-2024-B18,Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?,HSG,2023|2024,nghìn tỷ đồng,computation,table-clean
+CLEAN-T2-NKG-2021-2022-B19,Thặng dư vốn cổ phần hợp nhất của CTCP Thép Nam Kim năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,NKG,2021|2022,đồng,computation,table-clean
+CLEAN-T2-HSG-2020-2021-B20,Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen năm 2021 tăng hay giảm bao nhiêu so với năm 2020 (cùng đơn vị báo cáo)?,HSG,2020|2021,đồng,computation,table-clean
+CLEAN-T2-NKG-2022-2023-B21,Thặng dư vốn cổ phần hợp nhất của CTCP Thép Nam Kim năm 2023 tăng hay giảm bao nhiêu so với năm 2022 (cùng đơn vị báo cáo)?,NKG,2022|2023,đồng,computation,table-clean
+CLEAN-T2-HSG-2021-2022-B22,Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen năm 2022 tăng hay giảm bao nhiêu so với năm 2021 (cùng đơn vị báo cáo)?,HSG,2021|2022,đồng,computation,table-clean
+CLEAN-T3-HSG-2022-2023-B01,Chênh lệch Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,HSG,2022|2023,đồng,computation,table-clean
+CLEAN-T3-NKG-2023-2024-B02,Chênh lệch Thặng dư vốn cổ phần hợp nhất của CTCP Thép Nam Kim giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2023-2024-B03,Chênh lệch Phải trả dài hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,HSG,2023|2024,đồng,computation,table-clean
+CLEAN-T3-NKG-2020-2021-B04,Chênh lệch Tiền hợp nhất của CTCP Thép Nam Kim giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,NKG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-B05,Chênh lệch Phải trả người bán hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2021-2022-B06,Chênh lệch Tiền hợp nhất của CTCP Thép Nam Kim giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,NKG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2021-2022-B07,Chênh lệch Phải trả người bán hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,HSG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2022-2023-B08,Chênh lệch Tiền hợp nhất của CTCP Thép Nam Kim giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,NKG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2022-2023-B09,Chênh lệch Phải trả người bán hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,HSG,2022|2023,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2023-2024-B10,Chênh lệch Tiền hợp nhất của CTCP Thép Nam Kim giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2023-2024-B11,Chênh lệch Phải trả người bán ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,HSG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2020-2021-B12,Chênh lệch Tài sản cố định hợp nhất của CTCP Thép Nam Kim giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,NKG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-B13,Chênh lệch Phải trả ngắn hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2021-2022-B14,Chênh lệch Tài sản cố định hợp nhất của CTCP Thép Nam Kim giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,NKG,2021|2022,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2021-2022-B15,Chênh lệch Phải trả ngắn hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2022 và năm 2021 là bao nhiêu (quy về cùng đơn vị)?,HSG,2021|2022,nghìn tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2022-2023-B16,Chênh lệch Tài sản cố định hợp nhất của CTCP Thép Nam Kim giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,NKG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2022-2023-B17,Chênh lệch Phải trả ngắn hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2023 và năm 2022 là bao nhiêu (quy về cùng đơn vị)?,HSG,2022|2023,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2023-2024-B18,Chênh lệch Tài sản cố định hợp nhất của CTCP Thép Nam Kim giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,NKG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2023-2024-B19,Chênh lệch Phải trả ngắn hạn khác hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2024 và năm 2023 là bao nhiêu (quy về cùng đơn vị)?,HSG,2023|2024,tỷ đồng,computation,table-clean
+CLEAN-T3-NKG-2020-2021-B20,Chênh lệch Tài sản cố định hữu hình hợp nhất của CTCP Thép Nam Kim giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,NKG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T3-HSG-2020-2021-B21,Chênh lệch Thặng dư vốn cổ phần hợp nhất của CTCP Tập đoàn Hoa Sen giữa năm 2021 và năm 2020 là bao nhiêu (quy về cùng đơn vị)?,HSG,2020|2021,tỷ đồng,computation,table-clean
+CLEAN-T5-HPG-2025-05,Kế hoạch doanh thu năm 2025 của CTCP Tập đoàn Hòa Phát là bao nhiêu nghìn tỷ đồng?,HPG,2025,,unanswerable,table-clean
+CLEAN-T5-HSG-2025-06,Cổ tức năm 2024 của CTCP Tập đoàn Hoa Sen là bao nhiêu đồng một cổ phiếu?,HSG,2024,,unanswerable,table-clean
+CLEAN-T5-NKG-2024-07,Báo cáo quý 1 năm 2024 của CTCP Thép Nam Kim ghi nhận lợi nhuận sau thuế bao nhiêu tỷ đồng?,NKG,2024,,unanswerable,table-clean
+CLEAN-T5-MSR-2025-08,Dự báo giá đồng năm 2025 của CTCP Masan High-Tech Materials là bao nhiêu USD một tấn?,MSR,2025,,unanswerable,table-clean

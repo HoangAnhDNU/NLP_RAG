@@ -27,12 +27,17 @@ def load_pred(path: Path) -> dict:
 
 def main() -> int:
     gold = {json.loads(line)["question_id"]: json.loads(line) for line in open(ROOT / "data" / "annotations" / "qa_gold.jsonl", encoding="utf-8")}
-    t0 = load_pred(ROOT / "evaluation/test_predictions_E0.csv")
-    t1 = load_pred(ROOT / "evaluation/test_predictions_E1.csv")
-    t2 = load_pred(ROOT / "evaluation/test_predictions_E2.csv")
-    d0 = load_pred(ROOT / "evaluation/dev_predictions_E0.csv")
-    d1 = load_pred(ROOT / "evaluation/dev_predictions_E1.csv")
-    d2 = load_pred(ROOT / "evaluation/dev_predictions_E2.csv")
+    meta = json.loads(open(ROOT / "data" / "splits" / "split_meta.json", encoding="utf-8").read())
+    n_test = int(meta.get("n_test", 102))
+    n_dev = int(meta.get("n_dev", 25))
+    n_ev_test = sum(1 for g in gold.values() if g.get("split") == "test" and g.get("evidence"))
+    n_ev_dev = sum(1 for g in gold.values() if g.get("split") == "dev" and g.get("evidence"))
+    t0 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E0.csv")
+    t1 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E1.csv")
+    t2 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E2.csv")
+    d0 = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E0.csv")
+    d1 = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E1.csv")
+    d2 = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E2.csv")
 
     def pred_line(qid: str, src) -> str:
         parts = []
@@ -147,8 +152,8 @@ def main() -> int:
         "input": (gold["ViFinQA-368"]["question"][:220] + "... (cần lọc nhóm theo trung vị rồi tính bình quân trên nhiều công ty và năm)"),
         "gold": f"Gold: `{(gold['ViFinQA-368'].get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-368')}`, split: {gold['ViFinQA-368'].get('split')}",
         "pred": pred_line("ViFinQA-368", [("E0", t0), ("E1", t1), ("E2", t2)]),
-        "cause": "Nhãn và truy hồi: 35 câu ViFinQA đang ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.",
-        "impact": "Metric chính chỉ phản ánh 7 trên 50 câu bổ sung, không đại diện gold. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ.",
+        "cause": "Nhãn và truy hồi: 35 câu ViFinQA vẫn ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được trên nhóm này. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.",
+        "impact": "Metric retrieval chỉ tính trên câu có evidence (test 64 câu, dev 16 câu), nhóm ViFinQA pending không đóng góp vào R@5. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ với chunk một trang.",
         "next": "Gán nhãn evidence theo từng bước (đa bước): mỗi bước một chunk kèm công thức. Trước mắt đánh dấu nhóm này là needs_decomposition để không trộn vào metric hiện tại. Phép thử: thử nghiệm trên 3 câu 368, 369, 373 với pipeline 2 bước.",
     })
     cases.append({
@@ -158,7 +163,7 @@ def main() -> int:
         "gold": f"Gold: `{(gold['ViFinQA-97'].get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-97')}`, split: {gold['ViFinQA-97'].get('split')}",
         "pred": pred_line("ViFinQA-97", [("E0", t0), ("E1", t1), ("E2", t2)]),
         "cause": "Nhãn: câu đơn công ty (tỷ lệ sở hữu Gang thép Hòa Phát của HPG 2023) vẫn chưa được gán evidence. Dù truy hồi trả về chunk đúng vùng (`HPG_2023_separate#p027` ở E0 và E2) thì script chấm vẫn bỏ qua vì gold_chunk_ids rỗng.",
-        "impact": "Hệ thống có thể làm đúng nhưng không được cộng điểm, gây lệch đánh giá thấp hơn năng lực thật. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình.",
+        "impact": "Hệ thống có thể làm đúng nhưng không được cộng điểm trên 35 câu pending này, gây lệch đánh giá thấp hơn năng lực thật ở nhóm ViFinQA. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình nếu chỉ nhìn R@5.",
         "next": "Ưu tiên gán nhãn 35 câu ViFinQA đơn thực thể trước, câu đa bước sau. Phép thử: gán thêm 10 câu đơn rồi chạy lại metric để kiểm tra độ nhạy R@5.",
     })
     cases.append({
@@ -175,9 +180,15 @@ def main() -> int:
     lines = []
     lines.append("# Phân tích lỗi E0/E1/E2 (do script sinh, không chọn tay mẫu đẹp)")
     lines.append("")
-    lines.append("Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `test_predictions_E*.csv` cùng `dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test 40 câu, khớp `evaluation/split_freeze.json`, k bằng 5.")
+    lines.append("Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `evaluation/test_predictions/test_predictions_E*.csv` cùng `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test %d câu, khớp `evaluation/split_freeze.json`, k bằng 5." % n_test)
     lines.append("")
-    lines.append("Bảng chính (test): E0 R@5 bằng 0,2 MRR@5 bằng 0,05 cite bằng 0,0 refusal bằng 0,0; E1 R@5 bằng 0,2 MRR@5 bằng 0,0667 cite bằng 0,0 refusal bằng 0,0; E2 R@5 bằng 0,4 MRR@5 bằng 0,14 cite bằng 0,0 refusal bằng 1,0. Dev chỉ có 2 câu có evidence (S_NEW_03, S_NEW_05) nên kém ổn định: E0 bằng 0,5, E1 bằng 0,0, E2 bằng 0,0. Cả 3 runs không sinh văn bản nên numeric match bằng 0,0 theo thiết kế; citation top-1 bằng 0,0 vì chưa lần nào top-1 rơi đúng trang gold.")
+    rows = list(csv.DictReader(open(ROOT / "evaluation" / "metrics_summary.csv", encoding="utf-8")))
+    def fmt(run, split):
+        for r in rows:
+            if r["run"] == run and r["split"] == split:
+                return "R@5 bằng %s MRR@5 bằng %s cite bằng %s refusal P/R bằng %s/%s" % (r["recall_at_5"], r["mrr_at_5"], r["citation_precision_top1"], r["refusal_precision"], r["refusal_recall"])
+        return ""
+    lines.append("Bảng chính (test n=%d, %d câu có evidence; dev n=%d, %d câu có evidence): E0 %s; E1 %s; E2 %s. E0-E2 không sinh đáp án số nên numeric match bằng 0,0 theo thiết kế." % (n_test, n_ev_test, n_dev, n_ev_dev, fmt("E0", "test"), fmt("E1", "test"), fmt("E2", "test")))
     lines.append("")
     lines.append("Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu từ vựng, sai đơn vị, sai phép tính, thiếu từ chối, nhãn chưa đủ. Đánh giá retrieval và answer riêng: retrieval đúng (Recall@5 bằng 1 ở S_NEW_07) nhưng citation và answer vẫn sai.")
     lines.append("")

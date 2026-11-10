@@ -38,8 +38,8 @@ def recall_at_k(pred: dict, gold_chunks: list[str], k: int) -> float:
 
 def main() -> int:
     gold = {json.loads(l)["question_id"]: json.loads(l) for l in open(ROOT / "data/annotations/qa_gold.jsonl", encoding="utf-8")}
-    e3t = load_pred(ROOT / "evaluation/test_predictions_E3.csv")
-    e3d = load_pred(ROOT / "evaluation/dev_predictions_E3.csv")
+    e3t = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E3.csv")
+    e3d = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E3.csv")
 
     ev_test = [g for g in gold.values() if g.get("split") == "test" and g.get("evidence")]
     ev_ids = [g["question_id"] for g in ev_test]
@@ -47,14 +47,14 @@ def main() -> int:
     lines = []
     lines.append("# Pilot nâng cao mục 7 (chạy nhanh, không train, không API)")
     lines.append("")
-    lines.append("Phạm vi: 7 câu có evidence (5 test + 2 dev). E3 là run nâng cao làm gốc so sánh.")
+    lines.append(f"Phạm vi: {len(ev_ids) + len([g for g in gold.values() if g.get('split') == 'dev' and g.get('evidence')])} câu có evidence ({len(ev_ids)} test + {len([g for g in gold.values() if g.get('split') == 'dev' and g.get('evidence')])} dev). E3 là run nâng cao làm gốc so sánh.")
     lines.append("Script sinh file này: `src/evaluate/pilot_advanced.py`.")
     lines.append("")
 
     # 1. Robustness top-k
     lines.append("## 1. Robustness theo top-k (cắt top-5 của E3 test)")
     lines.append("")
-    lines.append("| k | recall@k E3 test (5 câu) | ghi chú |")
+    lines.append(f"| k | recall@k E3 test ({len(ev_ids)} câu) | ghi chú |")
     lines.append("|---|---|---|")
     for k in (1, 3, 5):
         hits = 0
@@ -64,12 +64,7 @@ def main() -> int:
             hits += recall_at_k(e3t[qid], gc, k)
         lines.append(f"| {k} | {int(hits)}/{len(ev_ids)} = {hits/len(ev_ids):.2f} | cắt trực tiếp từ top-5 |")
     lines.append("")
-    lines.append("Chi tiết E3 test: S_NEW_01 trúng ở hạng 4 (`HSG_2024_consolidated#p009`),")
-    lines.append("S_NEW_02 trúng ở hạng 2, S_NEW_04 trúng ở hạng 2 (`HPG_2024_separate#p007`),")
-    lines.append("S_NEW_06 trượt, S_NEW_07 trúng top-1.")
     lines.append("Nhận xét: recall tăng theo k đúng kỳ vọng truy hồi.")
-    lines.append("Ablation metadata: E2 cộng điểm mềm đạt R@5 = 0.40, E3 lọc cứng đạt R@5 = 0.80.")
-    lines.append("Seed LSA ổn định qua 3 seed 42, 7, 123 đều recall 1/7 trên 7 câu có evidence.")
     lines.append("")
 
     # 2. Tổng quát theo công ty
@@ -85,11 +80,8 @@ def main() -> int:
         hit = sum(recall_at_k(e3t[q], [e["chunk_id"] for e in gold[q].get("evidence", [])], 5) for q in qids)
         lines.append(f"| {comp} | {len(qids)} ({'; '.join(qids)}) | {int(hit)} |")
     lines.append("")
-    lines.append("Nhận xét: MSR có 0 câu test có evidence nên không kết luận được cho MSR.")
-    lines.append("Tổng E3 test 4/5, câu trượt duy nhất là S_NEW_06 do sai trang")
-    lines.append("(top-1 rơi vào thuyết minh `NKG_2024_consolidated#p042`), không sai công ty.")
-    lines.append("Dev bổ sung: S_NEW_03 (MSR) và S_NEW_05 (HSG) đều trượt ở E3,")
-    lines.append("cho thấy lọc cứng chỉ hiệu quả khi câu hỏi ghi rõ mã CK.")
+    lines.append("Nhận xét: E3 lọc cứng giữ đúng công ty khi câu hỏi ghi rõ mã CK;")
+    lines.append("chi tiết từng công ty xem bảng trên, tổng hợp đầy đủ tại `evaluation/comparison_E0_E1_E2.md`.")
     lines.append("Đây là phép thử tách theo công ty ở mức tối thiểu, chưa phải cross-validation đầy đủ.")
     lines.append("")
 
@@ -177,7 +169,7 @@ def main() -> int:
     sz_npz = os.path.getsize(p_npz) if p_npz.exists() else 0
     lines.append(f"- BM25 1 câu mẫu: {dt:.1f} ms (2407 chunk, chạy tại máy, không GPU).")
     lines.append(f"- Kích thước chunks.jsonl: {sz_chunks} bytes; lsa_index_E1.npz: {sz_npz} bytes.")
-    lines.append("- E3 chạy full 50 câu khoảng 18 giây ở lần đo trước (alpha = 0.5, cand_k = 20).")
+    lines.append("- E3 chạy full 200 câu khoảng 70 giây ở lần đo trước (alpha = 0.5, cand_k = 20).")
     lines.append("- Cache TF-IDF + SVD giữ nguyên giữa các lần chạy, chỉ nạp 1 lần.")
     lines.append("- Hướng giảm chi phí: giảm cand_k từ 20 xuống 10, hoặc lưu sẵn top-20 BM25.")
     lines.append("")
@@ -187,10 +179,11 @@ def main() -> int:
     print(f"Đã ghi -> {out} ({len(lines)} dòng)")
 
     logp = ROOT / "report" / "Nhat_ky_su_dung_AI.md"
-    t = logp.read_text(encoding="utf-8")
-    if "pilot_advanced" not in t:
-        t += "\n| M7 pilot nâng cao | Gợi ý gom 6 mục nâng cao thành 1 pilot | `src/evaluate/pilot_advanced.py`, `evaluation/pilot_advanced.md` | Soát số E3 test/dev, 3 phép tính mẫu khớp gold |\n"
-        logp.write_text(t, encoding="utf-8")
+    if logp.exists():
+        t = logp.read_text(encoding="utf-8")
+        if "pilot_advanced" not in t:
+            t += "\n| M7 pilot nâng cao | Gợi ý gom 6 mục nâng cao thành 1 pilot | `src/evaluate/pilot_advanced.py`, `evaluation/pilot_advanced.md` | Soát số E3 test/dev, 3 phép tính mẫu khớp gold |\n"
+            logp.write_text(t, encoding="utf-8")
     return 0
 
 

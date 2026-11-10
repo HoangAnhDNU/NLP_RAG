@@ -154,7 +154,9 @@ def main() -> int:
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     for split in ("dev", "test"):
-        out = outdir / f"{split}_predictions_E4.csv"
+        subdir = outdir / ("dev_predictions" if split == "dev" else "test_predictions")
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{split}_predictions_E4.csv"
         with open(out, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()

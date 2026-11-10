@@ -1,9 +1,10 @@
-"""Kiểm tra đầu vào và đầu ra cho demo (Mục 6.1).
+"""Kiểm tra đầu vào và đầu ra cho demo RAG thuần (Mục 6.1).
 
 Ca 1: câu thiếu bằng chứng phải từ chối đúng nguyên văn.
-Ca 2: câu có kiểm chứng phải trả đúng đáp án kèm trích dẫn đúng công ty.
+Ca 2: pipeline phải sinh đáp án từ CONTEXT (không đọc thuộc gold),
+  kèm phép tính và trích dẫn đúng công ty.
 Ca 3: đoạn trích phải dài hơn bản cũ 300 ký tự.
-Ca 4: câu diễn đạt lại phải được gợi ý câu gần nhất có đáp án.
+Ca 4: câu diễn đạt lại cũng sinh đáp án từ pipeline, không đi tắt qua gold.
 Chạy: python app/check_demo.py
 """
 
@@ -48,11 +49,11 @@ def main() -> int:
         fails.append(f"Ca đoạn trích thất bại: chỉ dài {snippet_len} ký tự.")
 
     r4 = answer("Biên lợi nhuận gộp của Hoa Sen năm 2024 bao nhiêu phần trăm?")
-    sug = r4.get("suggestions", [])
-    if not r4.get("answer") and sug and sug[0]["question_id"] == "S_NEW_07" and sug[0]["has_answer"]:
-        print(f"Ca 4 đạt: câu diễn đạt lại được gợi ý {sug[0]['question_id']} khớp {sug[0]['score']}.")
+    top4 = r4["hits"][0] if r4.get("hits") else {}
+    if r4.get("answer") == "10.8568 %" and top4.get("company_id") == "HSG":
+        print(f"Ca 4 đạt: câu diễn đạt lại cũng sinh từ pipeline {r4['answer']} từ {top4.get('chunk_id')}.")
     else:
-        fails.append(f"Ca gợi ý thất bại: {sug}")
+        fails.append(f"Ca diễn đạt lại thất bại: answer={r4.get('answer')}, top1={top4}")
 
     if fails:
         print("THẤT BẠI:")

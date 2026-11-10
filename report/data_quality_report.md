@@ -16,7 +16,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Sau khi lọc theo corpus | 35 | `data/processed/questions_matched.csv` |
 | Bị loại | 977 | `data/processed/questions_dropped.csv`, có lý do từng dòng |
 | Tổng kiểm lại | 1012 | khớp với tập gốc |
-| Bộ gold sau khi bù | 50 | `data/annotations/qa_gold.jsonl` (35 ViFinQA + 15 tự tạo) |
+| Bộ gold sau khi bù | 200 | `data/annotations/qa_gold.jsonl` |
 
 ### 1.2 Bảng kiểm đếm trước và sau khi sinh chunk
 
@@ -28,7 +28,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Chunk dùng cho truy hồi | 2407 | `data/processed/chunks.jsonl`, 1 chunk = 1 trang |
 | Chunk có chứa bảng | 1634 | (67.9%) |
 | Tổng bảng OCR đã parse | 2585 | |
-| Bản kê chuẩn `data/data_manifest.csv` | 90 | 40 corpus + 50 gold |
+| Bản kê chuẩn `data/data_manifest.csv` | 240 | 40 corpus + 200 gold |
 
 ### 1.3 Kiểm tra trường bắt buộc và kiểu dữ liệu
 
@@ -38,13 +38,13 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | `data/processed/ocr_audit.csv` | 40 | document_id | 0 | 0 |
 | `data/processed/questions_matched.csv` | 35 | question_id | 0 | 0 |
 | `data/processed/questions_dropped.csv` | 977 | id | 0 | 0 |
-| `data/data_manifest.csv` | 90 | item_id | 0 | 0 |
+| `data/data_manifest.csv` | 240 | item_id | 0 | 0 |
 | `data/processed/chunks.jsonl` | 2407 | chunk_id | 0 | 0 |
-| `data/annotations/qa_gold.jsonl` | 50 | question_id | 0 | 0 |
+| `data/annotations/qa_gold.jsonl` | 200 | question_id | 0 | 0 |
 
-Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm `computation, numeric, unanswerable`, đúng danh mục `numeric, computation, unanswerable`. `review_status` chỉ gồm `draft-needs-second-reviewer, pending-answer`, đúng danh mục `pending-answer, draft-needs-second-reviewer`.
+Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm `computation, numeric, unanswerable`, đúng danh mục `numeric, computation, unanswerable`. `review_status` chỉ gồm `draft-needs-second-reviewer, pending-answer, reviewed-agree`, đúng danh mục `pending-answer, draft-needs-second-reviewer`.
 
-Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file `data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. Mọi `report_id` trong 15 câu bổ sung đều có `document_id` tương ứng trong manifest.
+Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file `data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. 
 
 ### 1.4 Bản mã Unicode
 
@@ -160,42 +160,44 @@ hệ thống, và là một trong các nhóm lỗi bắt buộc báo cáo trong 
 ## 5. Gold
 
 ViFinQA công khai **không có gold answer, không có evidence và không có split**.
-Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.
+Nhóm đã tự xây bộ gold và tự kiểm chứng bằng script.
 
-### 5.1 Phân bố bộ gold 50 câu
+### 5.1 Phân bố bộ gold
 
 | đặc trưng | phân bố |
 |---|---|
-| answer_type: numeric | 35 câu |
-| answer_type: unanswerable | 8 câu |
-| answer_type: computation | 7 câu |
-| split: test | 40 câu |
-| split: dev | 10 câu |
+| answer_type: computation | 94 câu |
+| answer_type: numeric | 90 câu |
+| answer_type: unanswerable | 16 câu |
+| split: test | 160 câu |
+| split: dev | 40 câu |
+| nguồn: table-clean | 150 câu |
 | nguồn: vifinqa | 35 câu |
 | nguồn: supplement | 15 câu |
-| thiếu bằng chứng (`needs_more_evidence=true`) | 8 câu |
-| có đơn vị số liệu (`unit` khác rỗng) | 26 câu |
-| có bằng chứng (`evidence` khác rỗng) | 7 câu |
+| thiếu bằng chứng (`needs_more_evidence=true`) | 16 câu |
+| có đơn vị số liệu (`unit` khác rỗng) | 168 câu |
+| có bằng chứng (`evidence` khác rỗng) | 149 câu |
 
 | đơn vị trong gold | số câu |
 |---|---|
-| (rỗng) | 24 |
+| tỷ đồng | 89 |
+| nghìn tỷ đồng | 46 |
+| (rỗng) | 32 |
+| triệu đồng | 12 |
+| đồng | 10 |
 | lần | 7 |
-| nghìn tỷ đồng | 7 |
-| tỷ đồng | 4 |
 | % | 3 |
-| triệu đồng | 3 |
 | trăm tỷ đồng | 1 |
-| đồng | 1 |
 
 | trạng thái hậu kiểm | số câu |
 |---|---|
+| draft-needs-second-reviewer | 160 |
 | pending-answer | 35 |
-| draft-needs-second-reviewer | 15 |
+| reviewed-agree | 5 |
 
 ### 5.2 Ví dụ ranh giới
 
-| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md` v0.1) |
+| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md`) |
 |---|---|
 | Cùng chỉ tiêu nhưng khác bản báo cáo (hợp nhất so với riêng) | chỉ lấy đúng bản của phạm vi câu hỏi; phạm vi công ty mẹ dùng bản `separate`, còn lại dùng `consolidated` |
 | Cùng số nhưng khác năm (cột 2024 so với 2023) | chỉ lấy ô đúng năm hỏi, không lấy cột năm so sánh |
@@ -206,20 +208,20 @@ Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.
 
 | hạng mục | trạng thái |
 |---|---|
-| Nhãn unknown | không có nhãn unknown; 35 câu ViFinQA ở `pending-answer`, 15 câu bổ sung đã có đáp án |
-| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra ít nhất 3/15 câu bổ sung; hiện tại 15 câu ở `needs-second-reviewer` |
+| Nhãn unknown | không có nhãn unknown |
+| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra lại các câu `needs-second-reviewer` |
 | Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |
 
 ### 5.4 Độ đầy đủ của evidence
 
-- 7/7 câu trả lời được trong 15 câu bổ sung có ít nhất một dòng `quote` nguyên văn trong chunk, kiểm chứng tự động bằng `src/build_supplement_gold.py`.
-- 8/8 câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.
-- 35 câu ViFinQA đang chờ gắn nhãn nên `evidence` còn rỗng; `review_log.csv` có 50 dòng theo dõi trạng thái từng item.
+- Các câu trả lời được có ít nhất một dòng `quote` nguyên văn trong chunk.
+- Các câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.
+- `review_log.csv` có 200 dòng theo dõi trạng thái từng item.
 
 ### 5.5 Đóng băng dev/test
 
-- Dev 10 câu, test 40 câu, seed 42, version v1, sha256 `43276e350a9aa755...`.
-- Toàn bộ 8 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.
+- Dev 40 câu, test 160 câu, seed 42, version v3, sha256 `14b3829ab21b2449...`.
+- Toàn bộ câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.
 - Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.
 
 ## 6. Chống rò rỉ dữ liệu
@@ -240,7 +242,7 @@ Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.
 | Có PII trong dữ liệu | không phát hiện, dữ liệu là báo cáo tài chính công khai |
 | Quyền sử dụng dataset | `license_status` trong manifest để là `unknown_verify_with_teacher`, **phải xác minh với giảng viên trước khi công bố** |
 | Công bố lại dữ liệu | không nên đưa nguyên file OCR lên repo công khai, chỉ công bố manifest, chunk đã xử lý và script tải lại |
-| Nhãn do LLM hỗ trợ tạo | 15 câu bổ sung do nhóm tự đặt, đáp án do script trích từ chunk, người thứ hai hậu kiểm; không dùng nhãn LLM chưa kiểm chứng làm gold |
+| Nhãn do LLM hỗ trợ tạo | câu bổ sung và câu sạch do nhóm tự đặt, đáp án do script trích từ chunk, người thứ hai hậu kiểm; không dùng nhãn LLM chưa kiểm chứng làm gold |
 
 ## 8. Danh sách ID mẫu bị loại hoặc chỉnh
 

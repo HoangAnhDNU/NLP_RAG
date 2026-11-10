@@ -11,7 +11,7 @@ Script này tổng hợp từ các đầu ra đã sinh:
 - data/processed/ocr_audit_pages.csv      (audit OCR theo trang)
 - data/processed/questions_matched.csv    (tập câu hỏi lọc được)
 - data/processed/questions_dropped.csv    (câu hỏi bị loại kèm lý do)
-- data/annotations/qa_gold.jsonl          (bộ gold 50 câu)
+- data/annotations/qa_gold.jsonl          (bộ gold, có split dev/test)
 - data/annotations/review_log.csv         (hồ sơ hậu kiểm)
 - data/data_manifest.csv                  (bản kê chuẩn 13 cột)
 - data/splits/split_meta.json             (split đã đóng băng)
@@ -94,7 +94,7 @@ def main() -> int:
     add(f"| Sau khi lọc theo corpus | {len(matched)} | `data/processed/questions_matched.csv` |")
     add(f"| Bị loại | {len(dropped)} | `data/processed/questions_dropped.csv`, có lý do từng dòng |")
     add(f"| Tổng kiểm lại | {len(matched) + len(dropped)} | khớp với tập gốc |")
-    add(f"| Bộ gold sau khi bù | {len(gold)} | `data/annotations/qa_gold.jsonl` (35 ViFinQA + 15 tự tạo) |")
+    add(f"| Bộ gold sau khi bù | {len(gold)} | `data/annotations/qa_gold.jsonl` |")
     add("")
 
     add("### 1.2 Bảng kiểm đếm trước và sau khi sinh chunk")
@@ -109,7 +109,7 @@ def main() -> int:
         add(f"| Chunk có chứa bảng | {sum(1 for c in chunks if c['n_tables'] > 0)} | "
             f"({sum(1 for c in chunks if c['n_tables'] > 0) / len(chunks) * 100:.1f}%) |")
     add(f"| Tổng bảng OCR đã parse | {sum(c['n_tables'] for c in chunks)} | |")
-    add(f"| Bản kê chuẩn `data/data_manifest.csv` | {len(data_manifest)} | 40 corpus + 50 gold |")
+    add(f"| Bản kê chuẩn `data/data_manifest.csv` | {len(data_manifest)} | 40 corpus + {len(gold)} gold |")
     add("")
 
     add("### 1.3 Kiểm tra trường bắt buộc và kiểu dữ liệu")
@@ -142,8 +142,7 @@ def main() -> int:
         "đúng danh mục `pending-answer, draft-needs-second-reviewer`.")
     add("")
     add("Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file "
-        "`data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. "
-        "Mọi `report_id` trong 15 câu bổ sung đều có `document_id` tương ứng trong manifest.")
+        "`data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. ")
     add("")
 
     add("### 1.4 Bản mã Unicode")
@@ -245,9 +244,9 @@ def main() -> int:
     add("## 5. Gold")
     add("")
     add("ViFinQA công khai **không có gold answer, không có evidence và không có split**.")
-    add("Nhóm đã tự xây bộ gold 50 câu và tự kiểm chứng bằng script.")
+    add("Nhóm đã tự xây bộ gold và tự kiểm chứng bằng script.")
     add("")
-    add("### 5.1 Phân bố bộ gold 50 câu")
+    add("### 5.1 Phân bố bộ gold")
     add("")
     add("| đặc trưng | phân bố |")
     add("|---|---|")
@@ -273,7 +272,7 @@ def main() -> int:
     add("")
     add("### 5.2 Ví dụ ranh giới")
     add("")
-    add("| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md` v0.1) |")
+    add("| cặp ranh giới | quy tắc phân xử (theo `annotation_guideline.md`) |")
     add("|---|---|")
     add("| Cùng chỉ tiêu nhưng khác bản báo cáo (hợp nhất so với riêng) | chỉ lấy đúng bản của phạm vi câu hỏi; "
         "phạm vi công ty mẹ dùng bản `separate`, còn lại dùng `consolidated` |")
@@ -287,17 +286,16 @@ def main() -> int:
     add("")
     add("| hạng mục | trạng thái |")
     add("|---|---|")
-    add("| Nhãn unknown | không có nhãn unknown; 35 câu ViFinQA ở `pending-answer`, 15 câu bổ sung đã có đáp án |")
-    add(f"| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra ít nhất 3/15 câu bổ sung; hiện tại 15 câu ở `needs-second-reviewer` |")
+    add("| Nhãn unknown | không có nhãn unknown |")
+    add(f"| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra lại các câu `needs-second-reviewer` |")
     add("| Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, "
         "quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |")
     add("")
     add("### 5.4 Độ đầy đủ của evidence")
     add("")
-    add(f"- 7/7 câu trả lời được trong 15 câu bổ sung có ít nhất một dòng `quote` nguyên văn trong chunk, "
-        "kiểm chứng tự động bằng `src/build_supplement_gold.py`.")
-    add(f"- 8/8 câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.")
-    add(f"- 35 câu ViFinQA đang chờ gắn nhãn nên `evidence` còn rỗng; `review_log.csv` có {len(review)} dòng "
+    add(f"- Các câu trả lời được có ít nhất một dòng `quote` nguyên văn trong chunk.")
+    add(f"- Các câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.")
+    add(f"- `review_log.csv` có {len(review)} dòng "
         "theo dõi trạng thái từng item.")
     add("")
     add("### 5.5 Đóng băng dev/test")
@@ -306,7 +304,7 @@ def main() -> int:
         add(f"- Dev {split_meta.get('n_dev')} câu, test {split_meta.get('n_test')} câu, "
             f"seed {split_meta.get('seed')}, version {split_meta.get('version')}, "
             f"sha256 `{str(split_meta.get('sha256'))[:16]}...`.")
-    add("- Toàn bộ 8 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.")
+    add("- Toàn bộ câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.")
     add("- Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.")
     add("")
 
@@ -338,7 +336,7 @@ def main() -> int:
         "**phải xác minh với giảng viên trước khi công bố** |")
     add("| Công bố lại dữ liệu | không nên đưa nguyên file OCR lên repo công khai, "
         "chỉ công bố manifest, chunk đã xử lý và script tải lại |")
-    add("| Nhãn do LLM hỗ trợ tạo | 15 câu bổ sung do nhóm tự đặt, đáp án do script trích từ chunk, "
+    add("| Nhãn do LLM hỗ trợ tạo | câu bổ sung và câu sạch do nhóm tự đặt, đáp án do script trích từ chunk, "
         "người thứ hai hậu kiểm; không dùng nhãn LLM chưa kiểm chứng làm gold |")
     add("")
 

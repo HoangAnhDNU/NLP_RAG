@@ -3,7 +3,7 @@
 Tài liệu này mô tả tên trường, kiểu dữ liệu, tập giá trị hợp lệ và quy ước nhãn
 cho toàn bộ dữ liệu Đề tài 6. Mọi file đọc và ghi bằng `encoding="utf-8"`.
 
-## 1. `data/data_manifest.csv` (bản kê chuẩn, 90 dòng)
+## 1. `data/data_manifest.csv` (bản kê chuẩn, 240 dòng: 40 corpus + 200 gold)
 
 | Trường | Kiểu | Giá trị hợp lệ | Quy ước |
 |---|---|---|---|
@@ -18,7 +18,7 @@ cho toàn bộ dữ liệu Đề tài 6. Mọi file đọc và ghi bằng `encod
 | `original_category` | string | `financial_statement_ocr`, `vifinqa_question`, `synthetic_question` | Nhãn gốc của nguồn, không đánh đồng với `task_label` |
 | `task_label` | string | `financial_report_chunk`, `qa_gold` | Nhãn nhiệm vụ nhóm dùng cho RAG |
 | `license_status` | string | `unknown_verify_with_teacher` | Chưa xác minh quyền tái phân phối, phải hỏi giảng viên |
-| `split` | string | `corpus`, `dev`, `test` | `corpus` cho 40 báo cáo; `dev` 10 câu; `test` 40 câu |
+| `split` | string | `corpus`, `dev`, `test` | `corpus` cho 40 báo cáo; `dev` 40 câu; `test` 160 câu |
 | `notes` | string | tự do | Với báo cáo ghi `company/year/version/pages/sha256/local`; với câu gold ghi `answer_type/unit/needs_more_evidence/review` |
 
 Quy tắc: `original_category` và `task_label` ghi riêng hai cột, không gộp.
@@ -107,11 +107,11 @@ Tái lập: `python src/build_table_records.py`. E8 lookup trên file này trư�
 
 ## 6. Gold và gắn nhãn (`data/annotations/`)
 
-`qa_gold.jsonl` (50 dòng). Mỗi bản ghi:
+`qa_gold.jsonl` (200 dòng). Mỗi bản ghi:
 
 | Trường | Kiểu | Quy ước |
 |---|---|---|
-| `question_id` | string | `ViFinQA-<n>` hoặc `S_NEW_<nn>` |
+| `question_id` | string | `ViFinQA-<n>`, `S_NEW_<nn>` hoặc `CLEAN-T<tầng>-<mã>-<năm>-<số>` |
 | `question` | string | nguyên văn câu hỏi, giữ dấu |
 | `gold_answer` | string | đáp án hiển thị kèm đơn vị; câu thiếu bằng chứng luôn là `Không đủ bằng chứng trong corpus để trả lời.`; 35 câu ViFinQA để trống chờ gắn nhãn |
 | `answer_type` | string | `numeric, computation, unanswerable` |
@@ -123,10 +123,10 @@ Tái lập: `python src/build_table_records.py`. E8 lookup trên file này trư�
 | `evidence` | list | mỗi phần tử `chunk_id, source_page, quote` (quote nguyên văn trong chunk) |
 | `computation` | string | công thức và số đầu vào nếu có phép tính |
 | `source_page` | int hoặc `""` | trang chứa đáp án |
-| `needs_more_evidence` | bool | `true` với 8 câu thiếu bằng chứng |
+| `needs_more_evidence` | bool | `true` với 16 câu thiếu bằng chứng |
 | `reviewer_id` | string | mã người gắn nhãn |
 | `review_status` | string | `pending-answer, draft-needs-second-reviewer` |
-| `source` | string | `vifinqa, supplement` |
+| `source` | string | `vifinqa, supplement, table-clean` |
 | `split` | string | `dev, test` |
 
 `gold_labels.csv`: bản gọn `question_id, question, company_id, fiscal_year, unit, answer_type, source`.
@@ -136,7 +136,7 @@ Tái lập: `python src/build_table_records.py`. E8 lookup trên file này trư�
 
 ## 7. Splits (`data/splits/`)
 
-- `dev.json`: danh sách 10 ID dev.
-- `test.json`: danh sách 40 ID test.
-- `split_meta.json`: `version` (`v1`), `seed` (42), `n_dev`, `n_test`, `dev_ids`, `test_ids`, `rule`, `sha256` (hash của meta để đóng băng).
-- Quy tắc: toàn bộ 8 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được; chống rò rỉ bằng kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường.
+- `dev.json`: danh sách 40 ID dev.
+- `test.json`: danh sách 160 ID test.
+- `split_meta.json`: `version` (`v2`), `seed` (42), `n_dev`, `n_test`, `dev_ids`, `test_ids`, `rule`, `sha256` (hash của meta để đóng băng).
+- Quy tắc: toàn bộ 16 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được; chống rò rỉ bằng kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường.

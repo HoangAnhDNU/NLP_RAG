@@ -1,0 +1,201 @@
+run,split,question_id,answer_status,status_reason,refusal_label,needs_more_evidence,citation_complete_top1,predicted_answer,predicted_top1_chunk_id
+E8,dev,ViFinQA-99,answered,evidence_sufficient,true_answer,False,True,948.3035 tỷ đồng,NKG_2022_consolidated#p008
+E8,dev,ViFinQA-373,answered,evidence_sufficient,true_answer,False,True,11.8545 %,HPG_2022_consolidated#p011
+E8,dev,ViFinQA-393,answered,evidence_sufficient,true_answer,False,True,10.8764 %,HPG_2023_consolidated#p011
+E8,dev,ViFinQA-455,answered,evidence_sufficient,true_answer,False,True,214604646349 %,HPG_2021_separate#p039
+E8,dev,ViFinQA-490,answered,evidence_sufficient,true_answer,False,True,2.6552 nghìn tỷ đồng,HPG_2020_separate#p039
+E8,dev,ViFinQA-568,answered,evidence_sufficient,true_answer,False,True,2.6552 nghìn tỷ đồng,HPG_2020_separate#p039
+E8,dev,ViFinQA-575,answered,evidence_sufficient,true_answer,False,True,144.3545 tỷ đồng,HPG_2022_separate#p036
+E8,dev,ViFinQA-682,answered,evidence_sufficient,true_answer,False,True,14708.4147 triệu đồng,HSG_2021_consolidated#p009
+E8,dev,ViFinQA-973,answered,evidence_sufficient,true_answer,False,True,-761380984482 đồng,HPG_2022_separate#p011
+E8,dev,S_NEW_03,answered,evidence_sufficient,true_answer,False,True,14336.3287 tỷ đồng,MSR_2024_consolidated#p011
+E8,dev,CLEAN-T1-HSG-2024-05,answered,evidence_sufficient,true_answer,False,True,261.145 tỷ đồng,HSG_2024_consolidated#p007
+E8,dev,CLEAN-T1-HPG-2020-08,answered,evidence_sufficient,true_answer,False,True,55.864 tỷ đồng,HPG_2020_consolidated#p012
+E8,dev,CLEAN-T1-HPG-2024-20,answered,evidence_sufficient,true_answer,False,True,2118824427004 tỷ đồng,HPG_2024_consolidated#p039
+E8,dev,CLEAN-T1-HPG-2020-22,answered,evidence_sufficient,true_answer,False,True,5.5684 tỷ đồng,HPG_2020_consolidated#p010
+E8,dev,CLEAN-T1-MSR-2021-24,answered,evidence_sufficient,true_answer,False,True,800.5473 tỷ đồng,MSR_2021_consolidated#p009
+E8,dev,CLEAN-T1-HPG-2021-26,answered,evidence_sufficient,true_answer,False,True,49.3108 tỷ đồng,HPG_2021_consolidated#p009
+E8,dev,CLEAN-T2-HSG-2023-2024-02,answered,evidence_sufficient,true_answer,False,True,303516349039 đồng,HSG_2023_consolidated#p007
+E8,dev,CLEAN-T2-NKG-2020-2021-04,answered,evidence_sufficient,true_answer,False,True,2225261058221 đồng,NKG_2021_consolidated#p011
+E8,dev,CLEAN-T2-HSG-2023-2024-06,answered,evidence_sufficient,true_answer,False,True,135385630493 đồng,HSG_2023_consolidated#p006
+E8,dev,CLEAN-T2-MSR-2023-2024-15,answered,evidence_sufficient,true_answer,False,True,-1575884320 nghìn đồng,MSR_2023_consolidated#p013
+E8,dev,CLEAN-T2-HSG-2022-2023-18,answered,evidence_sufficient,true_answer,False,True,15418749409 đồng,HSG_2022_consolidated#p008
+E8,dev,CLEAN-T2-MSR-2020-2021-19,answered,evidence_sufficient,true_answer,False,True,12594995 nghìn đồng,MSR_2020_consolidated#p011
+E8,dev,CLEAN-T2-HPG-2022-2023-21,answered,evidence_sufficient,true_answer,False,True,-39081499515 đồng,HPG_2022_consolidated#p012
+E8,dev,CLEAN-T3-HSG-2023-2024-17,answered,evidence_sufficient,true_answer,False,True,16099026522 đồng,HSG_2023_consolidated#p008
+E8,dev,CLEAN-T3-NKG-2023-2024-22,answered,evidence_sufficient,true_answer,False,True,900000000 đồng,NKG_2023_consolidated#p010
+E8,dev,CLEAN-T1-HSG-2024-B06,answered,evidence_sufficient,true_answer,False,True,2.328 nghìn tỷ đồng,HSG_2024_consolidated#p008
+E8,dev,CLEAN-T1-HSG-2020-B15,answered,evidence_sufficient,true_answer,False,True,546.7341 tỷ đồng,HSG_2020_consolidated#p006
+E8,dev,CLEAN-T1-HSG-2020-B24,answered,evidence_sufficient,true_answer,False,True,7.2624 nghìn tỷ đồng,HSG_2020_consolidated#p007
+E8,dev,CLEAN-T1-NKG-2020-B26,answered,evidence_sufficient,true_answer,False,True,94.9588 tỷ đồng,NKG_2020_consolidated#p007
+E8,dev,CLEAN-T2-NKG-2021-2022-B03,answered,evidence_sufficient,true_answer,False,True,2544340815756 đồng,NKG_2022_consolidated#p010
+E8,dev,CLEAN-T2-HSG-2022-2023-B04,answered,evidence_sufficient,true_answer,False,True,132653824470 đồng,HSG_2022_consolidated#p008
+E8,dev,CLEAN-T2-NKG-2022-2023-B06,answered,evidence_sufficient,true_answer,False,True,2544340815756 đồng,NKG_2022_consolidated#p010
+E8,dev,CLEAN-T2-NKG-2023-2024-B17,answered,evidence_sufficient,true_answer,False,True,13681782893 đồng,NKG_2023_consolidated#p010
+E8,dev,CLEAN-T2-HSG-2023-2024-B18,answered,evidence_sufficient,true_answer,False,True,6568894350227 đồng,HSG_2023_consolidated#p008
+E8,dev,CLEAN-T3-HSG-2021-2022-B07,answered,evidence_sufficient,true_answer,False,True,4293881185244 đồng,HSG_2021_consolidated#p008
+E8,dev,CLEAN-T3-NKG-2022-2023-B08,answered,evidence_sufficient,true_answer,False,True,948303528970 đồng,NKG_2022_consolidated#p008
+E8,dev,CLEAN-T3-HSG-2022-2023-B09,answered,evidence_sufficient,true_answer,False,True,1039714645178 đồng,HSG_2022_consolidated#p008
+E8,dev,CLEAN-T3-NKG-2020-2021-B12,answered,evidence_sufficient,true_answer,False,True,3126532591606 đồng,NKG_2020_consolidated#p008
+E8,dev,CLEAN-T3-NKG-2022-2023-B16,answered,evidence_sufficient,true_answer,False,True,2588279100706 đồng,NKG_2022_consolidated#p009
+E8,dev,CLEAN-T3-NKG-2023-2024-B18,answered,evidence_sufficient,true_answer,False,True,2358754796405 đồng,NKG_2023_consolidated#p009
+E8,test,ViFinQA-97,answered,evidence_sufficient,true_answer,False,True,0.0001 tỷ đồng,HPG_2023_separate#p027
+E8,test,ViFinQA-186,answered,evidence_sufficient,true_answer,False,True,10850162726 nghìn đồng,MSR_2023_consolidated#p060
+E8,test,ViFinQA-311,answered,evidence_sufficient,true_answer,False,True,104.8459 triệu đồng,HSG_2024_separate#p042
+E8,test,ViFinQA-316,answered,evidence_sufficient,true_answer,False,True,52.5024 trăm tỷ đồng,NKG_2023_separate#p010
+E8,test,ViFinQA-368,answered,evidence_sufficient,true_answer,False,True,2225261058221 đồng,NKG_2022_consolidated#p039
+E8,test,ViFinQA-369,answered,evidence_sufficient,true_answer,False,True,11.8545 lần,HPG_2022_consolidated#p011
+E8,test,ViFinQA-374,answered,evidence_sufficient,true_answer,False,True,11.8545 %,HPG_2022_consolidated#p011
+E8,test,ViFinQA-400,answered,evidence_sufficient,true_answer,False,True,11587.2499 tỷ đồng,HPG_2020_consolidated#p013
+E8,test,ViFinQA-410,answered,evidence_sufficient,true_answer,False,True,114647457983699 đồng,HPG_2024_consolidated#p010
+E8,test,ViFinQA-450,answered,evidence_sufficient,true_answer,False,True,26720913303108 đồng,HPG_2021_consolidated#p013
+E8,test,ViFinQA-451,answered,evidence_sufficient,true_answer,False,True,214.6046 tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-453,answered,evidence_sufficient,true_answer,False,True,144.3545 tỷ đồng,HPG_2022_separate#p036
+E8,test,ViFinQA-454,answered,evidence_sufficient,true_answer,False,True,144.3545 tỷ đồng,HPG_2022_separate#p036
+E8,test,ViFinQA-473,answered,evidence_sufficient,true_answer,False,True,2.6552 nghìn tỷ đồng,HPG_2020_separate#p039
+E8,test,ViFinQA-475,answered,evidence_sufficient,true_answer,False,True,214.6046 tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-478,answered,evidence_sufficient,true_answer,False,True,0.2146 nghìn tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-479,answered,evidence_sufficient,true_answer,False,True,144.3545 tỷ đồng,HPG_2022_separate#p036
+E8,test,ViFinQA-493,answered,evidence_sufficient,true_answer,False,True,0.2146 nghìn tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-549,answered,evidence_sufficient,true_answer,False,True,214.6046 tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-552,answered,evidence_sufficient,true_answer,False,True,0.2146 nghìn tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-556,answered,evidence_sufficient,true_answer,False,True,336.8385 tỷ đồng,HPG_2024_separate#p033
+E8,test,ViFinQA-569,answered,evidence_sufficient,true_answer,False,True,144.3545 tỷ đồng,HPG_2022_separate#p036
+E8,test,ViFinQA-570,answered,evidence_sufficient,true_answer,False,True,214.6046 tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-573,answered,evidence_sufficient,true_answer,False,True,214.6046 tỷ đồng,HPG_2021_separate#p039
+E8,test,ViFinQA-612,answered,evidence_sufficient,true_answer,False,True,27970907182 %,NKG_2020_separate#p026
+E8,test,ViFinQA-709,answered,evidence_sufficient,true_answer,False,True,1119.9881 tỷ đồng,MSR_2022_consolidated#p065
+E8,test,S_NEW_01,answered,evidence_sufficient,true_answer,False,True,39.2719 nghìn tỷ đồng,HSG_2024_consolidated#p009
+E8,test,S_NEW_02,answered,evidence_sufficient,true_answer,False,True,453008.1444 triệu đồng,NKG_2024_consolidated#p011
+E8,test,S_NEW_04,answered,evidence_sufficient,true_answer,False,True,319.2579 tỷ đồng,HPG_2024_separate#p007
+E8,test,S_NEW_05,answered,evidence_sufficient,true_answer,False,True,602.0718 tỷ đồng,HSG_2024_consolidated#p007
+E8,test,S_NEW_06,answered,evidence_sufficient,true_answer,False,True,1434 đồng,NKG_2024_consolidated#p011
+E8,test,S_NEW_07,answered,evidence_sufficient,true_answer,False,True,10.8568 %,HSG_2024_consolidated#p009
+E8,test,S_NEW_08,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2024_consolidated#p031
+E8,test,S_NEW_09,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2024_separate#p057
+E8,test,S_NEW_10,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2024_separate#p033
+E8,test,S_NEW_11,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2020_separate#p060
+E8,test,S_NEW_12,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2024_separate#p027
+E8,test,S_NEW_13,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2022_consolidated#p002
+E8,test,S_NEW_14,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2024_consolidated#p064
+E8,test,S_NEW_15,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,NKG_2024_separate#p049
+E8,test,CLEAN-T1-HPG-2020-01,answered,evidence_sufficient,true_answer,False,True,0.0000 nghìn tỷ đồng,HPG_2020_separate#p030
+E8,test,CLEAN-T1-HSG-2020-02,answered,evidence_sufficient,true_answer,False,True,175771.811 tỷ đồng,HSG_2020_consolidated#p035
+E8,test,CLEAN-T1-MSR-2020-03,answered,evidence_sufficient,true_answer,False,True,39.196 tỷ đồng,MSR_2020_consolidated#p011
+E8,test,CLEAN-T1-NKG-2021-04,answered,evidence_sufficient,true_answer,False,True,2.2253 nghìn tỷ đồng,NKG_2021_consolidated#p011
+E8,test,CLEAN-T1-NKG-2020-06,answered,evidence_sufficient,true_answer,False,True,484.0963 tỷ đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-HSG-2024-07,answered,evidence_sufficient,true_answer,False,True,154.8429 tỷ đồng,HSG_2024_consolidated#p007
+E8,test,CLEAN-T1-HSG-2020-09,answered,evidence_sufficient,true_answer,False,True,10.5553 tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2020-10,answered,evidence_sufficient,true_answer,False,True,12.595 tỷ đồng,MSR_2020_consolidated#p011
+E8,test,CLEAN-T1-NKG-2020-11,answered,evidence_sufficient,true_answer,False,True,4.098 nghìn tỷ đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-HPG-2020-12,answered,evidence_sufficient,true_answer,False,True,64.663 tỷ đồng,HPG_2020_consolidated#p011
+E8,test,CLEAN-T1-HSG-2020-13,answered,evidence_sufficient,true_answer,False,True,6.6204 tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2020-14,answered,evidence_sufficient,true_answer,False,True,7.1132 nghìn tỷ đồng,MSR_2020_consolidated#p010
+E8,test,CLEAN-T1-NKG-2020-15,answered,evidence_sufficient,true_answer,False,True,900 triệu đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-HPG-2020-16,answered,evidence_sufficient,true_answer,False,True,564.297 tỷ đồng,HPG_2020_consolidated#p008
+E8,test,CLEAN-T1-HSG-2020-17,answered,evidence_sufficient,true_answer,False,True,2.1742 nghìn tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-NKG-2020-18,answered,evidence_sufficient,true_answer,False,True,1.0704 nghìn tỷ đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-MSR-2020-19,answered,evidence_sufficient,true_answer,False,True,1.2702 nghìn tỷ đồng,MSR_2020_consolidated#p010
+E8,test,CLEAN-T1-NKG-2020-21,answered,evidence_sufficient,true_answer,False,True,1.0174 tỷ đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-HSG-2020-23,answered,evidence_sufficient,true_answer,False,True,8.9915 nghìn tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-NKG-2020-25,answered,evidence_sufficient,true_answer,False,True,766.2556 tỷ đồng,NKG_2020_consolidated#p009
+E8,test,CLEAN-T1-HSG-2020-27,answered,evidence_sufficient,true_answer,False,True,709.5 triệu đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2022-28,answered,evidence_sufficient,true_answer,False,True,74.8871 tỷ đồng,MSR_2022_consolidated#p009
+E8,test,CLEAN-T1-MSR-2020-29,answered,evidence_sufficient,true_answer,False,True,-189.0586 tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T2-HPG-2020-2021-01,answered,evidence_sufficient,true_answer,False,True,216181818 đồng,HPG_2020_separate#p026
+E8,test,CLEAN-T2-MSR-2020-2021-03,answered,evidence_sufficient,true_answer,False,True,39195963 nghìn đồng,MSR_2020_consolidated#p011
+E8,test,CLEAN-T2-HPG-2021-2022-05,answered,evidence_sufficient,true_answer,False,True,5164018657 đồng,HPG_2021_separate#p032
+E8,test,CLEAN-T2-MSR-2021-2022-07,answered,evidence_sufficient,true_answer,False,True,195611320 nghìn đồng,MSR_2021_consolidated#p012
+E8,test,CLEAN-T2-NKG-2023-2024-08,answered,evidence_sufficient,true_answer,False,True,453008144440 đồng,NKG_2024_consolidated#p011
+E8,test,CLEAN-T2-HPG-2022-2023-09,answered,evidence_sufficient,true_answer,False,True,34153742918 đồng,HPG_2022_separate#p023
+E8,test,CLEAN-T2-HSG-2020-2021-10,answered,evidence_sufficient,true_answer,False,True,10555313816 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T2-MSR-2022-2023-11,answered,evidence_sufficient,true_answer,False,True,69024617 nghìn đồng,MSR_2022_consolidated#p013
+E8,test,CLEAN-T2-NKG-2021-2022-12,answered,evidence_sufficient,true_answer,False,True,32238887847 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HPG-2020-2021-13,answered,evidence_sufficient,true_answer,False,True,55864004095 đồng,HPG_2020_consolidated#p012
+E8,test,CLEAN-T2-HSG-2021-2022-14,answered,evidence_sufficient,true_answer,False,True,13917954327 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T2-NKG-2022-2023-16,answered,evidence_sufficient,true_answer,False,True,32238887847 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HPG-2021-2022-17,answered,evidence_sufficient,true_answer,False,True,42811733838 đồng,HPG_2021_consolidated#p012
+E8,test,CLEAN-T2-NKG-2023-2024-20,answered,evidence_sufficient,true_answer,False,True,28312735690 đồng,NKG_2023_consolidated#p010
+E8,test,CLEAN-T2-HSG-2023-2024-22,answered,evidence_sufficient,true_answer,False,True,15535422996 đồng,HSG_2023_consolidated#p008
+E8,test,CLEAN-T3-HPG-2020-2021-01,answered,evidence_sufficient,true_answer,False,True,64662982709 đồng,HPG_2020_consolidated#p011
+E8,test,CLEAN-T3-HSG-2020-2021-02,answered,evidence_sufficient,true_answer,False,True,175771811 triệu đồng,HSG_2020_consolidated#p035
+E8,test,CLEAN-T3-MSR-2021-2022-03,answered,evidence_sufficient,true_answer,False,True,65512309 nghìn đồng,MSR_2021_consolidated#p012
+E8,test,CLEAN-T3-NKG-2021-2022-04,answered,evidence_sufficient,true_answer,False,True,8108870806964 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T3-HPG-2021-2022-05,answered,evidence_sufficient,true_answer,False,True,48334267925 đồng,HPG_2021_consolidated#p011
+E8,test,CLEAN-T3-HSG-2020-2021-06,answered,evidence_sufficient,true_answer,False,True,6620370817 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T3-MSR-2022-2023-07,answered,evidence_sufficient,true_answer,False,True,36126441 nghìn đồng,MSR_2022_consolidated#p013
+E8,test,CLEAN-T3-NKG-2022-2023-08,answered,evidence_sufficient,true_answer,False,True,8108870806964 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T3-HPG-2022-2023-09,answered,evidence_sufficient,true_answer,False,True,5171797721,HPG_2023_consolidated#p048
+E8,test,CLEAN-T3-HSG-2021-2022-10,answered,evidence_sufficient,true_answer,False,True,15915941950 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T3-MSR-2023-2024-11,answered,evidence_sufficient,true_answer,False,True,46273619 nghìn đồng,MSR_2023_consolidated#p013
+E8,test,CLEAN-T3-NKG-2023-2024-12,answered,evidence_sufficient,true_answer,False,True,6784014554254 đồng,NKG_2023_consolidated#p010
+E8,test,CLEAN-T3-HPG-2023-2024-13,answered,evidence_sufficient,true_answer,False,True,5171797721,HPG_2023_consolidated#p048
+E8,test,CLEAN-T3-HSG-2022-2023-14,answered,evidence_sufficient,true_answer,False,True,16044918305 đồng,HSG_2022_consolidated#p008
+E8,test,CLEAN-T3-MSR-2020-2021-15,answered,evidence_sufficient,true_answer,False,True,7113222006 nghìn đồng,MSR_2020_consolidated#p010
+E8,test,CLEAN-T3-NKG-2021-2022-16,answered,evidence_sufficient,true_answer,False,True,900000000 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T3-MSR-2021-2022-18,answered,evidence_sufficient,true_answer,False,True,11293885339 nghìn đồng,MSR_2021_consolidated#p011
+E8,test,CLEAN-T3-NKG-2022-2023-19,answered,evidence_sufficient,true_answer,False,True,900000000 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T3-HSG-2020-2021-20,answered,evidence_sufficient,true_answer,False,True,2174180358349 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T3-MSR-2022-2023-21,answered,evidence_sufficient,true_answer,False,True,13172693544 nghìn đồng,MSR_2022_consolidated#p012
+E8,test,CLEAN-T5-HPG-2024-01,answered,evidence_sufficient,missed_refusal,True,True,2919531945908 đồng,HPG_2024_consolidated#p007
+E8,test,CLEAN-T5-HSG-2024-02,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2020_consolidated#p060
+E8,test,CLEAN-T5-NKG-2024-03,answered,evidence_sufficient,missed_refusal,True,True,3575014147 đồng,NKG_2024_separate#p028
+E8,test,CLEAN-T5-MSR-2024-04,answered,evidence_sufficient,missed_refusal,True,True,27623650 nghìn đồng,MSR_2024_consolidated#p067
+E8,test,CLEAN-T1-HPG-2021-B01,answered,evidence_sufficient,true_answer,False,True,4.7557 tỷ đồng,HPG_2021_consolidated#p009
+E8,test,CLEAN-T1-HSG-2020-B02,answered,evidence_sufficient,true_answer,False,True,1.4549 nghìn tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2020-B03,answered,evidence_sufficient,true_answer,False,True,7.4574 nghìn tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T1-NKG-2020-B04,answered,evidence_sufficient,true_answer,False,True,45.4717 tỷ đồng,NKG_2020_consolidated#p007
+E8,test,CLEAN-T1-HPG-2020-B05,answered,evidence_sufficient,true_answer,False,True,43.11 tỷ đồng,HPG_2020_consolidated#p008
+E8,test,CLEAN-T1-HSG-2020-B07,answered,evidence_sufficient,true_answer,False,True,433.2343 tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2020-B08,answered,evidence_sufficient,true_answer,False,True,6.5169 tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T1-NKG-2020-B09,answered,evidence_sufficient,true_answer,False,True,3.1265 nghìn tỷ đồng,NKG_2020_consolidated#p008
+E8,test,CLEAN-T1-HPG-2020-B10,answered,evidence_sufficient,true_answer,False,True,148.7467 tỷ đồng,HPG_2020_consolidated#p010
+E8,test,CLEAN-T1-HSG-2020-B11,answered,evidence_sufficient,true_answer,False,True,151.5832 tỷ đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T1-MSR-2020-B12,answered,evidence_sufficient,true_answer,False,True,66.8428 tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T1-NKG-2020-B13,answered,evidence_sufficient,true_answer,False,True,2.7269 nghìn tỷ đồng,NKG_2020_consolidated#p008
+E8,test,CLEAN-T1-HPG-2020-B14,answered,evidence_sufficient,true_answer,False,True,13.8168 tỷ đồng,HPG_2020_consolidated#p007
+E8,test,CLEAN-T1-MSR-2020-B16,answered,evidence_sufficient,true_answer,False,True,18.5212 nghìn tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T1-NKG-2020-B17,answered,evidence_sufficient,true_answer,False,True,248.9872 tỷ đồng,NKG_2020_consolidated#p008
+E8,test,CLEAN-T1-HPG-2021-B18,answered,evidence_sufficient,true_answer,False,True,13.9965 nghìn tỷ đồng,HPG_2021_consolidated#p009
+E8,test,CLEAN-T1-HPG-2021-B19,answered,evidence_sufficient,true_answer,False,True,73.4593 nghìn tỷ đồng,HPG_2021_consolidated#p009
+E8,test,CLEAN-T1-HSG-2020-B20,answered,evidence_sufficient,true_answer,False,True,7.5947 nghìn tỷ đồng,HSG_2020_consolidated#p007
+E8,test,CLEAN-T1-MSR-2020-B21,answered,evidence_sufficient,true_answer,False,True,7.5082 nghìn tỷ đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T1-NKG-2020-B22,answered,evidence_sufficient,true_answer,False,True,59.0695 tỷ đồng,NKG_2020_consolidated#p008
+E8,test,CLEAN-T1-HPG-2021-B23,answered,evidence_sufficient,true_answer,False,True,63.0271 tỷ đồng,HPG_2021_consolidated#p009
+E8,test,CLEAN-T1-MSR-2020-B25,answered,evidence_sufficient,true_answer,False,True,500.17 triệu đồng,MSR_2020_consolidated#p009
+E8,test,CLEAN-T2-HSG-2021-2022-B01,answered,evidence_sufficient,true_answer,False,True,1413989572667 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T2-MSR-2023-2024-B02,answered,evidence_sufficient,true_answer,False,True,13308967243 nghìn đồng,MSR_2023_consolidated#p012
+E8,test,CLEAN-T2-MSR-2020-2021-B05,answered,evidence_sufficient,true_answer,False,True,1270177497 nghìn đồng,MSR_2020_consolidated#p010
+E8,test,CLEAN-T2-HSG-2023-2024-B07,answered,evidence_sufficient,true_answer,False,True,16244922996 đồng,HSG_2023_consolidated#p008
+E8,test,CLEAN-T2-MSR-2021-2022-B08,answered,evidence_sufficient,true_answer,False,True,57529171 nghìn đồng,MSR_2021_consolidated#p011
+E8,test,CLEAN-T2-NKG-2023-2024-B09,answered,evidence_sufficient,true_answer,False,True,1631419258076 đồng,NKG_2023_consolidated#p010
+E8,test,CLEAN-T2-HSG-2020-2021-B10,answered,evidence_sufficient,true_answer,False,True,8991488795259 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T2-MSR-2022-2023-B11,answered,evidence_sufficient,true_answer,False,True,74772222 nghìn đồng,MSR_2022_consolidated#p012
+E8,test,CLEAN-T2-NKG-2021-2022-B12,answered,evidence_sufficient,true_answer,False,True,5372997178 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HSG-2021-2022-B13,answered,evidence_sufficient,true_answer,False,True,14372246601418 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T2-MSR-2023-2024-B14,answered,evidence_sufficient,true_answer,False,True,139275602 nghìn đồng,MSR_2023_consolidated#p012
+E8,test,CLEAN-T2-NKG-2022-2023-B15,answered,evidence_sufficient,true_answer,False,True,5372997178 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HSG-2022-2023-B16,answered,evidence_sufficient,true_answer,False,True,6009187395647 đồng,HSG_2022_consolidated#p008
+E8,test,CLEAN-T2-NKG-2021-2022-B19,answered,evidence_sufficient,true_answer,False,True,785907272279 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HSG-2020-2021-B20,answered,evidence_sufficient,true_answer,False,True,709500000 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T2-NKG-2022-2023-B21,answered,evidence_sufficient,true_answer,False,True,785907272279 đồng,NKG_2022_consolidated#p010
+E8,test,CLEAN-T2-HSG-2021-2022-B22,answered,evidence_sufficient,true_answer,False,True,709500000 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T3-HSG-2022-2023-B01,answered,evidence_sufficient,true_answer,False,True,709500000 đồng,HSG_2022_consolidated#p008
+E8,test,CLEAN-T3-NKG-2023-2024-B02,answered,evidence_sufficient,true_answer,False,True,785907272279 đồng,NKG_2023_consolidated#p010
+E8,test,CLEAN-T3-HSG-2023-2024-B03,answered,evidence_sufficient,true_answer,False,True,709500000 đồng,HSG_2023_consolidated#p008
+E8,test,CLEAN-T3-NKG-2020-2021-B04,answered,evidence_sufficient,true_answer,False,True,45471716845 đồng,NKG_2020_consolidated#p007
+E8,test,CLEAN-T3-HSG-2020-2021-B05,answered,evidence_sufficient,true_answer,False,True,1454938948232 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T3-NKG-2021-2022-B06,answered,evidence_sufficient,true_answer,False,True,670954162335 đồng,NKG_2021_consolidated#p008
+E8,test,CLEAN-T3-NKG-2023-2024-B10,answered,evidence_sufficient,true_answer,False,True,748979050340 đồng,NKG_2023_consolidated#p008
+E8,test,CLEAN-T3-HSG-2023-2024-B11,answered,evidence_sufficient,true_answer,False,True,2328013444688 đồng,HSG_2024_consolidated#p008
+E8,test,CLEAN-T3-HSG-2020-2021-B13,answered,evidence_sufficient,true_answer,False,True,433234264391 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T3-NKG-2021-2022-B14,answered,evidence_sufficient,true_answer,False,True,2770700940771 đồng,NKG_2021_consolidated#p009
+E8,test,CLEAN-T3-HSG-2021-2022-B15,answered,evidence_sufficient,true_answer,False,True,3574141589235 đồng,HSG_2021_consolidated#p008
+E8,test,CLEAN-T3-HSG-2022-2023-B17,answered,evidence_sufficient,true_answer,False,True,34991769952 đồng,HSG_2022_consolidated#p008
+E8,test,CLEAN-T3-HSG-2023-2024-B19,answered,evidence_sufficient,true_answer,False,True,51089573633 đồng,HSG_2023_consolidated#p008
+E8,test,CLEAN-T3-NKG-2020-2021-B20,answered,evidence_sufficient,true_answer,False,True,2726909254185 đồng,NKG_2020_consolidated#p008
+E8,test,CLEAN-T3-HSG-2020-2021-B21,answered,evidence_sufficient,true_answer,False,True,151583183521 đồng,HSG_2020_consolidated#p008
+E8,test,CLEAN-T5-HPG-2025-05,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2023_separate#p002
+E8,test,CLEAN-T5-HSG-2025-06,answered,evidence_sufficient,missed_refusal,True,True,-179273230000 đồng,HSG_2024_separate#p043
+E8,test,CLEAN-T5-NKG-2024-07,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2021_consolidated#p002
+E8,test,CLEAN-T5-MSR-2025-08,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2020_consolidated#p002

@@ -8,8 +8,8 @@ Theo Mục 4.6.3, baseline không bắt buộc sinh văn bản nên `predicted_a
 để trống; hệ thống không từ chối câu thiếu bằng chứng ở E0.
 
 Đầu ra:
-- evaluation/dev_predictions_E0.csv (10 dòng dev)
-- evaluation/test_predictions_E0.csv (40 dòng test, file bắt buộc Mục 3)
+- evaluation/dev_predictions/dev_predictions_E0.csv (10 dòng dev)
+- evaluation/test_predictions/test_predictions_E0.csv (40 dòng test, file bắt buộc Mục 3)
 
 Ví dụ:
     python src/infer/e0_bm25.py
@@ -111,7 +111,9 @@ def main() -> int:
         by_split.setdefault(g.get("split", "test"), []).append(row)
 
     for split in ("dev", "test"):
-        out = outdir / f"{split}_predictions_E0.csv"
+        subdir = outdir / ("dev_predictions" if split == "dev" else "test_predictions")
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{split}_predictions_E0.csv"
         with open(out, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()

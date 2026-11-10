@@ -68,18 +68,20 @@ def tokens(text: str) -> set[str]:
 
 def parse_target_unit(question: str) -> str:
     low = norm_text(question)
+    if "%" in question or "phần trăm" in low or "phan tram" in strip_accents(low):
+        return "%"
     if "nghìn tỷ" in low:
         return "nghìn tỷ đồng"
     if "trăm tỷ" in low:
         return "trăm tỷ đồng"
-    if "triệu" in low:
+    # "tỷ lệ" (ty le) là chỉ tiêu phần trăm, không phải đơn vị tỷ đồng.
+    low_no_ratio = low.replace("tỷ lệ", " ").replace("ty le", " ")
+    if "triệu" in low_no_ratio:
         return "triệu đồng"
-    if re.search(r"\btỷ\b", low) or "tỷ đồng" in low:
+    if re.search(r"\btỷ\b", low_no_ratio) or "tỷ đồng" in low_no_ratio:
         return "tỷ đồng"
-    if "nghìn" in low and "đồng" in low:
+    if "nghìn" in low_no_ratio and "đồng" in low_no_ratio:
         return "nghìn đồng"
-    if "%" in question or "phần trăm" in low or "phan tram" in strip_accents(low):
-        return "%"
     if re.search(r"\blần\b", low):
         return "lần"
     if "đồng" in low:

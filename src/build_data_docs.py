@@ -2,7 +2,7 @@
 
 Đọc:
 - data/processed/corpus_manifest.csv (40 báo cáo, có sha256 và retrieved_at)
-- data/annotations/qa_gold.jsonl (50 câu, có split dev/test)
+- data/annotations/qa_gold.jsonl (bộ gold v2, có split dev/test)
 
 Ghi:
 - data/data_manifest.csv với đúng 13 cột chuẩn:
@@ -11,7 +11,7 @@ Ghi:
   license_status, split, notes
 
 Kiểm tra:
-- data/splits/dev.json, test.json, split_meta.json tồn tại và khớp 50 câu gold.
+- data/splits/dev.json, test.json, split_meta.json tồn tại và khớp bộ gold.
 
 Quy tắc:
 - published_at chỉ ghi ngày phát hành thực từ nguồn. Nguồn ViFinQA không
@@ -130,8 +130,8 @@ def main() -> int:
     dev_ids = json.loads(open(SPLITS_DIR / "dev.json", encoding="utf-8").read())
     test_ids = json.loads(open(SPLITS_DIR / "test.json", encoding="utf-8").read())
     gold_ids = {g["question_id"] for g in gold}
-    assert set(dev_ids) | set(test_ids) == gold_ids, "dev/test trong splits phải khớp 50 câu gold"
-    assert len(dev_ids) == meta["n_dev"] == 10 and len(test_ids) == meta["n_test"] == 40
+    assert set(dev_ids) | set(test_ids) == gold_ids, "dev/test trong splits phai khop gold"
+    assert len(dev_ids) == meta["n_dev"] and len(test_ids) == meta["n_test"]
 
     n_corpus = sum(1 for r in rows if r["split"] == "corpus")
     n_dev = sum(1 for r in rows if r["split"] == "dev")

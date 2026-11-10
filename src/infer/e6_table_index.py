@@ -77,7 +77,9 @@ def main() -> int:
         by_split.setdefault(g.get("split", "test"), []).append(row)
     outdir = Path(args.outdir); outdir.mkdir(parents=True, exist_ok=True)
     for split in ("dev", "test"):
-        out = outdir / f"{split}_predictions_E6.csv"
+        subdir = outdir / ("dev_predictions" if split == "dev" else "test_predictions")
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{split}_predictions_E6.csv"
         with open(out, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields); w.writeheader(); w.writerows(by_split.get(split, []))
         print(f"Da ghi {len(by_split.get(split, []))} dong {split} -> {out}")

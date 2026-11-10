@@ -6,8 +6,8 @@ Khác E1 ở chiến lược (không chỉ đổi tên file hay tham số):
 - quy tắc từ chối theo 10 mẫu ngoài corpus (quý, bán niên, kế hoạch, dự báo...).
 
 Đầu ra:
-- evaluation/dev_predictions_E2.csv
-- evaluation/test_predictions_E2.csv
+- evaluation/dev_predictions/dev_predictions_E2.csv
+- evaluation/test_predictions/test_predictions_E2.csv
 
 Ví dụ:
     python src/infer/e2_hybrid.py
@@ -155,7 +155,9 @@ def main() -> int:
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     for split in ("dev", "test"):
-        out = outdir / f"{split}_predictions_E2.csv"
+        subdir = outdir / ("dev_predictions" if split == "dev" else "test_predictions")
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{split}_predictions_E2.csv"
         with open(out, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()

@@ -1,8 +1,8 @@
 # Phân tích lỗi E0/E1/E2 (do script sinh, không chọn tay mẫu đẹp)
 
-Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `test_predictions_E*.csv` cùng `dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test 40 câu, khớp `evaluation/split_freeze.json`, k bằng 5.
+Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `evaluation/test_predictions/test_predictions_E*.csv` cùng `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test 160 câu, khớp `evaluation/split_freeze.json`, k bằng 5.
 
-Bảng chính (test): E0 R@5 bằng 0,2 MRR@5 bằng 0,05 cite bằng 0,0 refusal bằng 0,0; E1 R@5 bằng 0,2 MRR@5 bằng 0,0667 cite bằng 0,0 refusal bằng 0,0; E2 R@5 bằng 0,4 MRR@5 bằng 0,14 cite bằng 0,0 refusal bằng 1,0. Dev chỉ có 2 câu có evidence (S_NEW_03, S_NEW_05) nên kém ổn định: E0 bằng 0,5, E1 bằng 0,0, E2 bằng 0,0. Cả 3 runs không sinh văn bản nên numeric match bằng 0,0 theo thiết kế; citation top-1 bằng 0,0 vì chưa lần nào top-1 rơi đúng trang gold.
+Bảng chính (test n=160, 118 câu có evidence; dev n=40, 31 câu có evidence): E0 R@5 bằng 0.0847 MRR@5 bằng 0.0528 cite bằng 0.0424 refusal P/R bằng 0.0/0.0; E1 R@5 bằng 0.0254 MRR@5 bằng 0.0134 cite bằng 0.0085 refusal P/R bằng 0.0/0.0; E2 R@5 bằng 0.1356 MRR@5 bằng 0.0582 cite bằng 0.0085 refusal P/R bằng 1.0/0.75. E0-E2 không sinh đáp án số nên numeric match bằng 0,0 theo thiết kế.
 
 Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu từ vựng, sai đơn vị, sai phép tính, thiếu từ chối, nhãn chưa đủ. Đánh giá retrieval và answer riêng: retrieval đúng (Recall@5 bằng 1 ở S_NEW_07) nhưng citation và answer vẫn sai.
 
@@ -90,9 +90,9 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 - Đầu vào, nguồn và chứng cứ hợp lệ: Tiền và các khoản tương đương tiền hợp nhất của HSG tại 30/09/2024. Nguồn đúng: HSG hợp nhất trang 7.
 - Gold hoặc đáp án tham chiếu: Gold: `602.0718 tỷ đồng`, evidence: `HSG_2024_consolidated#p007; HSG_2024_consolidated#p007`
 - Prediction E0, E1, E2:
-- E0 top-1 `HSG_2024_consolidated#p024` (điểm 20.5364), top-5 `HSG_2024_consolidated#p024;HSG_2020_consolidated#p060;HSG_2024_separate#p039;HSG_2022_separate#p021;HSG_2021_consolidated#p025`, answer: (để trống)
-- E1 top-1 `HPG_2021_consolidated#p044` (điểm 0.6939), top-5 `HPG_2021_consolidated#p044;HSG_2021_consolidated#p025;HPG_2024_consolidated#p037;HPG_2020_consolidated#p040;HPG_2023_consolidated#p038`, answer: (để trống)
-- E2 top-1 `HSG_2024_consolidated#p024` (điểm 0.9872), top-5 `HSG_2024_consolidated#p024;HPG_2024_consolidated#p037;HSG_2021_consolidated#p025;HSG_2022_separate#p021;HPG_2023_consolidated#p038`, answer: (để trống)
+- E0 top-1 `` (điểm ), top-5 ``, answer: (để trống)
+- E1 top-1 `` (điểm ), top-5 ``, answer: (để trống)
+- E2 top-1 `` (điểm ), top-5 ``, answer: (để trống)
 - Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Truy hồi: E1 top-1 là `HPG_2021_consolidated#p044`, sai cả HSG thành HPG và 2024 thành 2021. Cụm tiền và các khoản tương đương tiền là tiêu đề bảng phổ biến ở mọi báo cáo nên cosine dense gần như chỉ đo độ dài vector, không giữ được điều kiện thực thể.
 - Ảnh hưởng của lỗi đến người dùng: Top-1 hoàn toàn không liên quan, người dùng mất niềm tin ngay từ kết quả đầu tiên.
 - Đề xuất thay đổi và phép thử kế tiếp: Bắt buộc lọc trước công ty và năm khi câu hỏi có mã CK và năm rõ ràng, rồi mới tính cosine dense. Phép thử: chỉ truy hồi trong 2 báo cáo HSG 2024 rồi mới xếp hạng.
@@ -132,8 +132,8 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 - E0 top-1 `MSR_2023_consolidated#p035` (điểm 18.6332), top-5 `MSR_2023_consolidated#p035;HSG_2022_separate#p031;MSR_2021_consolidated#p034;MSR_2023_consolidated#p073;HSG_2021_consolidated#p022`, answer: (để trống)
 - E1 top-1 `HSG_2023_consolidated#p055` (điểm 0.5480), top-5 `HSG_2023_consolidated#p055;HSG_2020_consolidated#p057;HPG_2023_consolidated#p064;HPG_2021_consolidated#p071;HSG_2021_consolidated#p059`, answer: (để trống)
 - E2 top-1 `MSR_2023_consolidated#p035` (điểm 0.9444), top-5 `MSR_2023_consolidated#p035;HSG_2023_consolidated#p055;MSR_2021_consolidated#p034;HPG_2023_consolidated#p064;MSR_2022_consolidated#p069`, answer: (để trống)
-- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Nhãn và truy hồi: 35 câu ViFinQA đang ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.
-- Ảnh hưởng của lỗi đến người dùng: Metric chính chỉ phản ánh 7 trên 50 câu bổ sung, không đại diện gold. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ.
+- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Nhãn và truy hồi: 35 câu ViFinQA vẫn ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được trên nhóm này. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.
+- Ảnh hưởng của lỗi đến người dùng: Metric retrieval chỉ tính trên câu có evidence (test 64 câu, dev 16 câu), nhóm ViFinQA pending không đóng góp vào R@5. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ với chunk một trang.
 - Đề xuất thay đổi và phép thử kế tiếp: Gán nhãn evidence theo từng bước (đa bước): mỗi bước một chunk kèm công thức. Trước mắt đánh dấu nhóm này là needs_decomposition để không trộn vào metric hiện tại. Phép thử: thử nghiệm trên 3 câu 368, 369, 373 với pipeline 2 bước.
 
 ## 11. ViFinQA-97 - Nhãn chưa đầy đủ: câu đơn chỉ tiêu nhưng vẫn thiếu evidence
@@ -146,7 +146,7 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 - E1 top-1 `HPG_2021_separate#p030` (điểm 0.8317), top-5 `HPG_2021_separate#p030;HPG_2020_separate#p030;HPG_2022_separate#p027;HPG_2024_separate#p036;HPG_2023_separate#p037`, answer: (để trống)
 - E2 top-1 `HPG_2023_separate#p027` (điểm 0.9951), top-5 `HPG_2023_separate#p027;HPG_2021_separate#p030;HPG_2020_separate#p030;HPG_2022_separate#p027;HPG_2023_consolidated#p017`, answer: (để trống)
 - Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Nhãn: câu đơn công ty (tỷ lệ sở hữu Gang thép Hòa Phát của HPG 2023) vẫn chưa được gán evidence. Dù truy hồi trả về chunk đúng vùng (`HPG_2023_separate#p027` ở E0 và E2) thì script chấm vẫn bỏ qua vì gold_chunk_ids rỗng.
-- Ảnh hưởng của lỗi đến người dùng: Hệ thống có thể làm đúng nhưng không được cộng điểm, gây lệch đánh giá thấp hơn năng lực thật. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình.
+- Ảnh hưởng của lỗi đến người dùng: Hệ thống có thể làm đúng nhưng không được cộng điểm trên 35 câu pending này, gây lệch đánh giá thấp hơn năng lực thật ở nhóm ViFinQA. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình nếu chỉ nhìn R@5.
 - Đề xuất thay đổi và phép thử kế tiếp: Ưu tiên gán nhãn 35 câu ViFinQA đơn thực thể trước, câu đa bước sau. Phép thử: gán thêm 10 câu đơn rồi chạy lại metric để kiểm tra độ nhạy R@5.
 
 ## 12. OCR và đơn vị: HSG_2024_consolidated#p009 và NKG_2024_consolidated#p011 - Lỗi OCR làm nhiễu tokenize và rủi ro sai đơn vị tiền
