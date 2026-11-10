@@ -5,3 +5,5 @@ E1,dev,10,5,0.0,0.0,0.0,0.0,0.0,0,test_predictions_E1.csv
 E1,test,40,5,0.2,0.0667,0.0,0.0,0.0,8,test_predictions_E1.csv
 E2,dev,10,5,0.0,0.0,0.0,0.0,0.0,0,test_predictions_E2.csv
 E2,test,40,5,0.4,0.14,0.0,0.0,1.0,8,test_predictions_E2.csv
+E3,dev,10,5,0.5,0.125,0.0,0.0,0.0,0,test_predictions_E3.csv
+E3,test,40,5,0.8,0.45,0.2,0.0,1.0,8,test_predictions_E3.csv

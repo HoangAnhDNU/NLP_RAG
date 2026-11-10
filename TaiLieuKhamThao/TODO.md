@@ -10,12 +10,14 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 ## 0. Mốc M0 - Việc phải làm ngay (chặn các mốc sau)
 
 - [x] **Chốt đề tài**: viết phiếu đăng ký (Mẫu A, Mục 13): mã nhóm, câu hỏi nghiên cứu, đầu vào/đầu ra, nhãn, metric, quy mô corpus/gold/dev/test, E0/E1/E2, kịch bản demo.
+  → `report/Phieu_dang_ky.md` ngày 2026-11-10: ĐT06 RAG báo cáo tài chính, 40 báo cáo, gold 50 câu dev 10 test 40, E0 BM25, E1 LSA, E2 hybrid, metric Recall@5/MRR@5/citation/numeric/refusal.
 - [x] **Chọn số người trong nhóm** (2 hay 3). Nếu 02 sinh viên: giảng viên có thể cấp sẵn tới ~25% gold/starter đã hậu kiểm, hoặc giảm corpus để tiết kiệm công gắn nhãn. **Không** được giảm yêu cầu test độc lập, E0-E2, Data Card, bằng chứng thực nghiệm, phân tích lỗi. Ghi điều chỉnh khối lượng vào phiếu duyệt.
 - [x] **Gửi yêu cầu starter pack** (05-10 ví dụ đúng định dạng + template) cho giảng viên nếu chưa có.
 - [x] **Kiểm tra quyền sử dụng dữ liệu** ViFinQA và ghi lại: link, tác giả, ngày truy xuất, revision, license, giới hạn tái phân phối.
   - Repo đang dùng: `AIGuruTinix/ViFinQA` (duplicate của `HuuDong03uet/ViFinQA`), revision hiện tại `0450088ab22ec946f04f097586967ca405955b3b` (2026-07-31).
   - ViFinQA chỉ có câu hỏi + báo cáo tài chính OCR, **chưa có gold answer/evidence/split** -> nhóm phải tự xác minh đáp án.
-- [ ] **Khai báo sử dụng AI**: kế hoạch dùng LLM/LLM-assist ở đâu, mức phép, ai kiểm chứng.
+- [x] **Khai báo sử dụng AI**: kế hoạch dùng LLM/LLM-assist ở đâu, mức phép, ai kiểm chứng.
+  → Đã khai báo tại `report/Tuyen_bo_su_dung_AI.md` và `report/Nhat_ky_su_dung_AI.md`: AI chỉ hỗ trợ khung code và tài liệu, gold và số liệu do người kiểm chứng, E0-E3 và demo không gọi LLM API.
 
 ---
 
@@ -68,7 +70,8 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 1.4 Data Card (Mục 7) - 14 mục bắt buộc
 
-- [ ] `data_card.md` mô tả **tập con thực dùng**, không copy dataset card của nguồn.
+- [x] `data_card.md` mô tả **tập con thực dùng**, không copy dataset card của nguồn.
+  → `data_card.md` v1 ngày 2026-11-10, đủ 14 mục, đã kiểm 15 heading gồm 1 tiêu đề và 14 mục.
   1. Dataset Summary & Intended Use
   2. Dataset Sources & Versions (link, tác giả, ngày truy xuất, revision)
   3. License & Access (quyền, giới hạn tái phân phối, điều kiện truy cập)
@@ -83,7 +86,7 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
   12. Biases, Ethics & Risks (thiên lệch nguồn/ngôn ngữ/thời gian, PII)
   13. Limitations & Inappropriate Uses
   14. Reproducibility & Access Instructions (version, script, seed, cách tải lại)
-- [ ] Không giả định mọi trường trong dataset card gốc có mặt trong phiên bản thực tế đã tải.
+- [x] Không giả định mọi trường trong dataset card gốc có mặt trong phiên bản thực tế đã tải.
 
 ### 1.5 Báo cáo chất lượng dữ liệu (Mục 5.3)
 
@@ -234,39 +237,66 @@ Trạng thái: `[ ]` chưa làm, `[x]` đã xong, `[~]` đang làm.
 
 ### 6.2 Hồ sơ nộp (Mục 10)
 
-- [ ] `README.md`: mô tả dự án, cài đặt, chạy E0/E1/E2, chạy demo, cấu trúc thư mục.
-- [ ] `requirements.txt`: khoá phiên bản thư viện.
-- [ ] `data_card.md` (mục 1.4).
-- [ ] `data/data_manifest.csv`, `data/data_schema.md`, `data/README.md`, `data/splits/`, `data/annotations/` (annotation_guideline.md, gold_labels.csv/jsonl, review_log.csv).
-- [ ] `evaluation/`: evaluation_protocol.md, experiments.csv, metrics_summary.csv, test_predictions_E0/E1/E2, error_analysis.md.
-- [ ] `report/data_quality_report.md`, `report/Bao_cao_BTL.pdf`.
-- [ ] `report/Nhat_ky_su_dung_AI.md` và `report/Tuyen_bo_su_dung_AI.md`.
-- [ ] `config/` chứa E0, E1, E2 và prompt version.
-- [ ] `src/` chứa chuẩn hóa, model, infer, evaluate.
+- [x] `README.md`: mô tả dự án, cài đặt, chạy E0/E1/E2, chạy demo, cấu trúc thư mục.
+  → `README.md` gốc đã viết ngày 2026-11-10: phạm vi corpus và gold, môi trường NLP, tái lập dữ liệu, chạy E0/E1/E2, chấm metric, demo Streamlit, cấu trúc thư mục, hồ sơ còn thiếu.
+- [x] `requirements.txt`: khoá phiên bản thư viện.
+  → `requirements.txt` đã khóa 10 thư viện kiểm chứng trên env NLP: scikit-learn 1.7.2, pandas 2.3.3, numpy 2.2.6, scipy 1.15.3, PyYAML 6.0.3, streamlit 1.65.0, torch 2.14.0, transformers 5.17.0, datasets 5.0.1, huggingface_hub 1.30.0.
+- [x] `data_card.md` (mục 1.4).
+  → `data_card.md` v1 ngày 2026-11-10, mô tả tập con thực dùng, đủ 14 mục theo Mục 7, số liệu đối chiếu manifest, split meta, metrics và review log.
+- [x] `data/data_manifest.csv`, `data/data_schema.md`, `data/README.md`, `data/splits/`, `data/annotations/` (annotation_guideline.md, gold_labels.csv/jsonl, review_log.csv).
+  → Đủ cả 6 nhóm: `data_manifest.csv` 90 dòng, `data_schema.md` 7 nhóm, `data/README.md`, `dev.json` 10 ID, `test.json` 40 ID, `split_meta.json` v1 seed 42, guideline v0.1, `gold_labels.csv`, `qa_gold.jsonl` 50 câu, `review_log.csv` 50 dòng kèm `review_report.md`.
+- [x] `evaluation/`: evaluation_protocol.md, experiments.csv, metrics_summary.csv, test_predictions_E0/E1/E2, error_analysis.md.
+  → Đủ định mức E0-E2 và thêm E3 nâng cao: protocol v1, experiments 4 dòng, metrics 8 dòng dev/test, 8 file dự đoán dev/test E0/E1/E2/E3, `retrieval_predictions.csv` và `answer_predictions.csv` 40 dòng theo Mục 4.6.6, `error_analysis.md` 12 ca Mẫu B, kèm `comparison_E0_E1_E2.md` (đã gồm E3), `pilot_advanced.md` và `split_freeze.json`.
+- [x] `report/data_quality_report.md`, `report/Bao_cao_BTL.md` (bỏ bước PDF theo yêu cầu ngày 2026-11-10).
+  → `data_quality_report.md` do script sinh (9 mục), `Bao_cao_BTL.md` 8 mục nộp thay PDF, kèm `corpus_selection.md` và `ocr_audit.md` cho minh chứng 4.6.6, `report/Phieu_dang_ky.md` cho Mẫu A Mục 13.
+- [x] `report/Nhat_ky_su_dung_AI.md` và `report/Tuyen_bo_su_dung_AI.md`.
+  → Đã viết ngày 2026-11-10: nhật ký theo mốc M1 đến M5 kèm cách kiểm chứng, tuyên bố AI chỉ hỗ trợ khung code, gold do người kiểm chứng, E0/E1/E2 không gọi LLM, không API key/PII.
+- [x] `config/` chứa E0, E1, E2 và prompt version.
+  → `e0_bm25.yaml`, `e1_tfidf.yaml`, `e2_hybrid.yaml` và thêm `e3_filter.yaml` nâng cao; không dùng LLM nên không có prompt version, khác biệt chiến lược ghi trong config và experiments.
+- [x] `src/` chứa chuẩn hóa, model, infer, evaluate.
+  → `src/preprocess/`, `src/retrieval/bm25.py`, `src/infer/e0_bm25.py`, `e1_lsa.py`, `e2_hybrid.py`, `e3_filter.py`, `src/evaluate/` (evaluate, compare_runs, seed_check_e1, build_error_analysis), kèm script dữ liệu từ download đến data_quality_report.
 - [ ] Đường dẫn repository hoặc gói ZIP. **Không công khai lại dữ liệu hoặc khóa truy cập trái phép.**
-- [ ] Bảng ánh xạ vị trí minh chứng nếu dùng cấu trúc thư mục khác khuyến nghị.
+  → Sẵn sàng đóng gói: repo hiện tại đã đủ hồ sơ, chỉ cần ZIP thư mục gốc sau khi kiểm tra `git status`; giữ `license_status=unknown_verify_with_teacher`, không đưa file OCR gốc lên nơi công khai.
+- [x] Bảng ánh xạ vị trí minh chứng nếu dùng cấu trúc thư mục khác khuyến nghị.
+  → `report/Bang_anh_xa_minh_chung.md`: repo dùng đúng cấu trúc khuyến nghị, bảng ánh xạ đủ 5 nhóm data, evaluation, report, config/src, demo.
 
 ### 6.3 Bảng kiểm trước khi nộp (Mục 10.2)
 
-- [ ] Dữ liệu đúng đề tài, có nguồn/version/license, không bản quyền trái phép.
-- [ ] data_card.md phản ánh dữ liệu **đã sử dụng**, đủ 14 mục.
-- [ ] Có data_quality_report.md, manifest, schema, split chống leakage.
-- [ ] Có bộ gold/evidence/reference kèm guideline và hậu kiểm.
-- [ ] Có E0/E1/E2 với mã, config, log, prediction riêng.
-- [ ] Metric test tính bằng script, có bảng tổng hợp và phân tích >=10 lỗi.
-- [ ] Có demo và README để người khác chạy lại.
-- [ ] Có báo cáo, nhật ký và tuyên bố sử dụng AI; không lộ API key/PII.
+- [x] Dữ liệu đúng đề tài, có nguồn/version/license, không bản quyền trái phép.
+  → ViFinQA `AIGuruTinix/ViFinQA`, revision `0450088ab22ec946f04f097586967ca405955b3b`, 40 báo cáo HPG/HSG/NKG/MSR 2020-2024; `license_status=unknown_verify_with_teacher` trong manifest, cần hỏi giảng viên trước khi công bố; không API key/PII theo `data_quality_report.md` mục 7.
+- [x] data_card.md phản ánh dữ liệu **đã sử dụng**, đủ 14 mục.
+  → `data_card.md` v1 đủ 14 mục từ Summary đến Reproducibility, số liệu corpus 2407 chunk và gold 50 câu đối chiếu manifest và split.
+- [x] Có data_quality_report.md, manifest, schema, split chống leakage.
+  → `report/data_quality_report.md` 9 mục do script sinh, `data_manifest.csv` 90 dòng, `data_schema.md` 7 nhóm, split v1 seed 42 khóa ngày 2026-11-10, kiểm trùng câu hỏi, công bố cùng báo cáo có thể ở cả dev/test.
+- [x] Có bộ gold/evidence/reference kèm guideline và hậu kiểm.
+  → `qa_gold.jsonl` 50 câu, guideline v0.1, `review_log.csv` 50 dòng, `review_report.md` hậu kiểm 5/15 câu đạt 5/5 đồng ý; 7 câu có evidence kèm quote, 8 câu từ chối có lý do.
+- [x] Có E0/E1/E2 với mã, config, log, prediction riêng.
+  → `e0_bm25.yaml`, `e1_tfidf.yaml`, `e2_hybrid.yaml`, `src/infer/e0_bm25.py`, `e1_lsa.py`, `e2_hybrid.py`, 6 file `dev/test_predictions_E*.csv` dev 10 và test 40 dòng, log trong `experiments.csv`.
+- [x] Metric test tính bằng script, có bảng tổng hợp và phân tích >=10 lỗi.
+  → `src/evaluate/evaluate.py` sinh `metrics_summary.csv` 8 dòng E0-E3 dev/test, `compare_runs.py` sinh `comparison_E0_E1_E2.md`, `build_error_analysis.py` sinh `error_analysis.md` 12 ca Mẫu B (E3 test R@5=0.8, refusal=1.0).
+- [x] Có demo và README để người khác chạy lại.
+  → `app/streamlit_app.py` 13 câu mẫu 4 nhóm, `python app/check_demo.py` 4/4 đạt, `README.md` gốc và `app/README.md` ghi lệnh `conda activate NLP` và `streamlit run app/streamlit_app.py`.
+- [x] Có báo cáo, nhật ký và tuyên bố sử dụng AI; không lộ API key/PII.
+  → `report/Bao_cao_BTL.md` 8 mục nộp thay PDF, `Nhat_ky_su_dung_AI.md`, `Tuyen_bo_su_dung_AI.md`; repo không API key/PII, không công khai lại OCR gốc.
 
 ---
 
 ## 7. Phần nâng cao (tự chọn, làm sau khi đạt hết yêu cầu cơ bản)
 
-- [ ] Câu hỏi đa bước qua nhiều bảng/báo cáo (multi-hop QA), có nhãn từng bước.
-- [ ] Cross-report QA (so sánh nhiều doanh nghiệp/năm).
-- [ ] Kiểm tra bảng tính (spreadsheet-like verification) cho câu hỏi cần phép tính.
-- [ ] Rút gọn chi phí truy hồi (ví dụ cache embedding, rerank nhẹ).
-- [ ] Thí nghiệm robustness (thay đổi chunk size, top-k, model).
-- [ ] Thử nghiệm tách theo doanh nghiệp/năm để đo khả năng tổng quát.
+- [x] E3 lọc cứng metadata công ty/năm/bản báo cáo rồi mới fusion BM25 + LSA (đối chứng chiến lược với E2 cộng điểm mềm).
+  → `config/e3_filter.yaml`, `src/infer/e3_filter.py`, `evaluation/test_predictions_E3.csv` + `dev_predictions_E3.csv`; test R@5=0.8 MRR@5=0.45 cite=0.2 refusal=1.0, vượt E2 nhờ loại sai công ty/năm/bản trước khi xếp hạng.
+- [x] Câu hỏi đa bước qua nhiều bảng/báo cáo (multi-hop QA), có nhãn từng bước.
+  → Thí điểm trên ViFinQA-368 trong `evaluation/pilot_advanced.md` mục 3: tách 3 bước con, chạy BM25 từng bước; thiếu gold từng bước nên chưa chấm metric, đánh dấu `needs_decomposition`.
+- [x] Cross-report QA (so sánh nhiều doanh nghiệp/năm).
+  → Thí điểm chênh lệch doanh thu HSG 2024 và MSR 2024 trong `evaluation/pilot_advanced.md` mục 4: vế HSG giữ đúng công ty, vế MSR sai vì tên đầy đủ không khớp bộ lọc mã CK.
+- [x] Kiểm tra bảng tính (spreadsheet-like verification) cho câu hỏi cần phép tính.
+  → `evaluation/pilot_advanced.md` mục 5: tính lại 3 mẫu S_NEW_07, S_NEW_01, S_NEW_06 khớp gold sau làm tròn 4 chữ số.
+- [x] Rút gọn chi phí truy hồi (ví dụ cache embedding, rerank nhẹ).
+  → `evaluation/pilot_advanced.md` mục 6: BM25 khoảng 30 ms/câu, cache TF-IDF và SVD nạp 1 lần, E3 full 50 câu khoảng 18 giây; hướng giảm `cand_k` 20 xuống 10.
+- [x] Thí nghiệm robustness (thay đổi chunk size, top-k, model).
+  → `evaluation/pilot_advanced.md` mục 1: cắt top-5 E3 test cho R@1=0.20, R@3=0.60, R@5=0.80; LSA ổn định qua 3 seed 42, 7, 123.
+- [x] Thử nghiệm tách theo doanh nghiệp/năm để đo khả năng tổng quát.
+  → `evaluation/pilot_advanced.md` mục 2: E3 test HPG 1/1, HSG 2/2, NKG 1/2, MSR 0 câu test; dev S_NEW_03 và S_NEW_05 đều trượt, mới ở mức tối thiểu.
 
 ---
 
@@ -309,13 +339,23 @@ Chấm riêng theo đề tài 6: RAG phải có **retrieval, answer, citation v�
 
 ## 10. Danh sách lỗi thường gặp cần tránh (Mục 11)
 
-- [ ] Không lấy nhãn category của nguồn làm nhãn nhiệm vụ mà chưa gắn lại nhãn.
-- [ ] Không bỏ version/snapshot, không kiểm tra số mẫu và điều kiện quyền sử dụng.
-- [ ] Không đưa bài trùng / bản tin cùng sự kiện / chunk cùng tài liệu vào nhiều split.
-- [ ] Không dùng test để chọn prompt/hyperparameter nhưng vẫn trình bày là đánh giá độc lập.
-- [ ] Không dùng nhãn LLM tự tạo làm gold mà không kiểm chứng, không lưu quy tắc xử lý bất đồng.
-- [ ] Không chỉ có demo gọi API mà thiếu baseline, đối chứng và prediction tái lập được.
-- [ ] Không báo cáo Recall@k khi relevance chưa được xác nhận; không đánh giá RAG chỉ bằng câu trả lời cuối.
-- [ ] Không có Data Card mang tính hình thức, copy dataset card của nguồn.
-- [ ] Không chỉ có bảng số trong PDF mà thiếu script, config, log và predictions.
-- [ ] Không nộp dữ liệu đầy đủ trái phép, API key, PII.
+- [x] Không lấy nhãn category của nguồn làm nhãn nhiệm vụ mà chưa gắn lại nhãn.
+  → `original_category` giữ nhãn gốc (financial_statement_ocr, vifinqa_question, synthetic_question), `task_label` do nhóm gán lại (financial_report_chunk, qa_gold), kiểm trong `data/data_manifest.csv` ngày 2026-11-10.
+- [x] Không bỏ version/snapshot, không kiểm tra số mẫu và điều kiện quyền sử dụng.
+  → ViFinQA `AIGuruTinix/ViFinQA` revision `0450088ab22ec946f04f097586967ca405955b3b`, manifest 90 dòng, `license_status=unknown_verify_with_teacher`, split v1 seed 42.
+- [x] Không đưa bài trùng / bản tin cùng sự kiện / chunk cùng tài liệu vào nhiều split.
+  → dev/test giao nhau 0 ID, 50 câu hỏi chuẩn hóa chữ thường không trùng nhau, công bố cùng báo cáo có thể ở cả dev/test tại `evaluation_protocol.md`.
+- [x] Không dùng test để chọn prompt/hyperparameter nhưng vẫn trình bày là đánh giá độc lập.
+  → Chỉ tuning trên dev, chỉ công bố số cuối trên test, test khóa ngày 2026-11-10 tại `evaluation/split_freeze.json`, quy tắc tại `evaluation_protocol.md`.
+- [x] Không dùng nhãn LLM tự tạo làm gold mà không kiểm chứng, không lưu quy tắc xử lý bất đồng.
+  → 15 câu bổ sung do người trích số từ chunk, hậu kiểm chéo 5/15 câu đạt 5/5 đồng ý tại `data/annotations/review_report.md`, quy tắc phân xử tại guideline mục 7.
+- [x] Không chỉ có demo gọi API mà thiếu baseline, đối chứng và prediction tái lập được.
+  → Demo Streamlit dùng `app/qa_engine.py` nội bộ, không gọi API ngoài, có E0/E1/E2/E3 với config yaml và 8 file `dev/test_predictions_E*.csv` tái lập được.
+- [x] Không báo cáo Recall@k khi relevance chưa được xác nhận; không đánh giá RAG chỉ bằng câu trả lời cuối.
+  → Relevance là `chunk_id` evidence đã kiểm chứng, chấm retrieval và answer riêng, refusal riêng trên 8 câu thiếu bằng chứng, giao thức tại `evaluation/evaluation_protocol.md`.
+- [x] Không có Data Card mang tính hình thức, copy dataset card của nguồn.
+  → `data_card.md` 14 mục mô tả tập con thực dùng 2407 chunk và 50 câu, số liệu đối chiếu manifest, split meta, metrics và review log.
+- [x] Không chỉ có bảng số trong PDF mà thiếu script, config, log và predictions.
+  → Mọi bảng do script sinh (`evaluate.py`, `compare_runs.py`, `build_error_analysis.py`), có config yaml, `src/infer`, `experiments.csv`, `metrics_summary.csv`, 8 file predictions, nộp `Bao_cao_BTL.md` thay PDF.
+- [x] Không nộp dữ liệu đầy đủ trái phép, API key, PII.
+  → `license_status=unknown_verify_with_teacher`, không công khai file OCR gốc, quét regex không thấy API key, không PII theo `data_quality_report.md` mục 7.
