@@ -1,0 +1,11 @@
+# Dữ liệu thô tải từ Hugging Face, không commit lên git
+data/raw/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+
+# Môi trường và khóa
+.venv/
+venv/
+.env
