@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT))
 
 from src.preprocess.normalize import normalize_query, tokenize_vi  # noqa: E402
 from src.retrieval.bm25 import BM25Retriever  # noqa: E402
+from src.retrieval.table_lookup import check_refusal  # noqa: E402
 
 TICKERS = ["HPG", "HSG", "NKG", "MSR"]
 YEAR_RE = re.compile(r"\b(20[0-2]\d)\b")
@@ -65,6 +66,7 @@ def main() -> int:
 
     cfg = load_config(Path(args.config))
     top_k = int(cfg["retrieval"]["top_k"])
+    save_k = max(top_k, 10)
     cand_k = int(cfg["retrieval"].get("candidate_k", 20))
     alpha = float(cfg["retrieval"].get("fusion_alpha", 0.5))
     bonus = float(cfg["retrieval"].get("metadata_bonus", 0.15))
@@ -132,12 +134,11 @@ def main() -> int:
                     s += bonus / 2
             fused.append((s, i))
         fused.sort(key=lambda x: x[0], reverse=True)
-        ranked = [i for _, i in fused[:top_k]]
+        ranked = [i for _, i in fused[:save_k]]
         top_chunks = [chunks[i] for i in ranked]
         top1 = top_chunks[0] if top_chunks else {}
 
-        q_low = g["question"].lower()
-        refused = any(pat in q_low for pat in patterns)
+        refused, _ = check_refusal(g["question"], extra_patterns=patterns)
         row = {"question_id": g["question_id"], "question": g["question"],
                "split": g.get("split", ""), "gold_answer": g.get("gold_answer", ""),
                "gold_chunk_ids": ";".join(e["chunk_id"] for e in g.get("evidence", [])),

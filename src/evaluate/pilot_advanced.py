@@ -1,6 +1,6 @@
 """Pilot nâng cao mục 7: multi-hop, cross-report, spreadsheet, chi phí, robustness, tổng quát.
 
-Chạy nhanh trên 7 câu có evidence, không cần train lại, không gọi LLM.
+Chạy nhanh trên toàn bộ câu có evidence trong split v4 (dev + test), không cần train lại, không gọi LLM.
 Đầu ra: evaluation/pilot_advanced.md
 Ví dụ: python src/evaluate/pilot_advanced.py
 """
@@ -42,17 +42,23 @@ def main() -> int:
     e3d = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E3.csv")
 
     ev_test = [g for g in gold.values() if g.get("split") == "test" and g.get("evidence")]
+    ev_dev = [g for g in gold.values() if g.get("split") == "dev" and g.get("evidence")]
     ev_ids = [g["question_id"] for g in ev_test]
+    n_dev_total = sum(1 for g in gold.values() if g.get("split") == "dev")
+    n_test_total = sum(1 for g in gold.values() if g.get("split") == "test")
 
     lines = []
     lines.append("# Pilot nâng cao mục 7 (chạy nhanh, không train, không API)")
     lines.append("")
-    lines.append(f"Phạm vi: {len(ev_ids) + len([g for g in gold.values() if g.get('split') == 'dev' and g.get('evidence')])} câu có evidence ({len(ev_ids)} test + {len([g for g in gold.values() if g.get('split') == 'dev' and g.get('evidence')])} dev). E3 là run nâng cao làm gốc so sánh.")
+    lines.append(
+        f"Phạm vi: {len(ev_ids) + len(ev_dev)} câu có evidence ({len(ev_ids)} test + {len(ev_dev)} dev, "
+        f"trên tổng {len(gold)} câu split v4: {n_dev_total} dev / {n_test_total} test). E3 là run nâng cao làm gốc so sánh."
+    )
     lines.append("Script sinh file này: `src/evaluate/pilot_advanced.py`.")
     lines.append("")
 
     # 1. Robustness top-k
-    lines.append("## 1. Robustness theo top-k (cắt top-5 của E3 test)")
+    lines.append("## 1. Robustness theo top-k (E3 test)")
     lines.append("")
     lines.append(f"| k | recall@k E3 test ({len(ev_ids)} câu) | ghi chú |")
     lines.append("|---|---|---|")
@@ -62,7 +68,7 @@ def main() -> int:
             g = gold[qid]
             gc = [e["chunk_id"] for e in g.get("evidence", [])]
             hits += recall_at_k(e3t[qid], gc, k)
-        lines.append(f"| {k} | {int(hits)}/{len(ev_ids)} = {hits/len(ev_ids):.2f} | cắt trực tiếp từ top-5 |")
+        lines.append(f"| {k} | {int(hits)}/{len(ev_ids)} = {hits/len(ev_ids):.2f} | cắt trực tiếp ở top-{k} |")
     lines.append("")
     lines.append("Nhận xét: recall tăng theo k đúng kỳ vọng truy hồi.")
     lines.append("")
@@ -74,11 +80,15 @@ def main() -> int:
     lines.append("|---|---|---|")
     comp_groups: dict[str, list[str]] = {}
     for qid in ev_ids:
-        comp_groups.setdefault(gold[qid].get("company_id", "?"), []).append(qid)
-    for comp in sorted(comp_groups):
+        raw_comp = gold[qid].get("company_id", "?")
+        comp_key = "Đa công ty" if "|" in raw_comp else raw_comp
+        comp_groups.setdefault(comp_key, []).append(qid)
+    order_key = lambda c: (1, c) if c == "Đa công ty" else (0, c)
+    for comp in sorted(comp_groups, key=order_key):
         qids = comp_groups[comp]
         hit = sum(recall_at_k(e3t[q], [e["chunk_id"] for e in gold[q].get("evidence", [])], 5) for q in qids)
-        lines.append(f"| {comp} | {len(qids)} ({'; '.join(qids)}) | {int(hit)} |")
+        preview = "; ".join(qids[:4]) + (f"; ... (+{len(qids) - 4})" if len(qids) > 4 else "")
+        lines.append(f"| {comp} | {len(qids)} ({preview}) | {int(hit)} ({hit/len(qids):.1%}) |")
     lines.append("")
     lines.append("Nhận xét: E3 lọc cứng giữ đúng công ty khi câu hỏi ghi rõ mã CK;")
     lines.append("chi tiết từng công ty xem bảng trên, tổng hợp đầy đủ tại `evaluation/comparison_E0_E1_E2.md`.")
@@ -86,7 +96,7 @@ def main() -> int:
     lines.append("")
 
     # 3. Multi-hop thí điểm trên ViFinQA-368
-    lines.append("## 3. Multi-hop thí điểm (ViFinQA-368, chưa có gold)")
+    lines.append("## 3. Multi-hop thí điểm (ViFinQA-368, đã gắn gold reviewed-agree ở v4)")
     lines.append("")
     lines.append("Câu gốc (rút gọn): năm 2022, trong nhóm HPG HSG MSR NKG,")
     lines.append("các công ty có hệ số thanh toán nhanh thấp hơn trung vị của nhóm")
@@ -116,8 +126,8 @@ def main() -> int:
         top = [f"{chunks[i]['chunk_id']} ({s:.2f})" for i, s in ranked]
         lines.append(f"- Truy hồi `{sq}` -> {'; '.join(top)}")
     lines.append("")
-    lines.append("Nhận xét: pipeline 2 bước chạy được về kỹ thuật, nhưng thiếu gold từng bước")
-    lines.append("nên chưa chấm metric; đánh dấu nhóm này là needs_decomposition.")
+    lines.append("Nhận xét: pipeline 2 bước chạy được về kỹ thuật; ViFinQA-368 ở v4 đã có gold tổng hợp cuối")
+    lines.append("(0.5909 %, 10 evidence chunks, reviewed-agree) nhưng chưa có gold từng bước con, nên vẫn đánh dấu needs_decomposition.")
     lines.append("Thí điểm còn cho thấy BM25 thuần không giữ được điều kiện thực thể")
     lines.append("khi thiếu lọc metadata, củng cố việc E3 lọc cứng mỗi bước con là đúng hướng.")
     lines.append("")
@@ -128,8 +138,8 @@ def main() -> int:
     lines.append("Câu thí điểm: chênh lệch doanh thu thuần HSG 2024 và MSR 2024 bao nhiêu tỷ đồng?")
     lines.append("Tách 2 vế: vế HSG lấy S_NEW_01, vế MSR lấy S_NEW_03.")
     for qid in ("S_NEW_01", "S_NEW_03"):
-        src = e3t.get(qid) or e3d.get(qid)
-        lines.append(f"- {qid} ({gold[qid].get('company_id')}): top-1 `{src.get('predicted_top1_chunk_id')}`, công ty dự đoán `{src.get('predicted_company')}`, gold `{gold[qid].get('company_id')}`")
+        src = e3t.get(qid) or e3d.get(qid) or {}
+        lines.append(f"- {qid} ({gold[qid].get('company_id')}): top-1 `{src.get('predicted_top1_chunk_id', '')}`, công ty dự đoán `{src.get('predicted_company', '')}`, gold `{gold[qid].get('company_id')}`")
     lines.append("")
     lines.append("Nhận xét: E3 giữ đúng công ty khi câu hỏi có mã CK rõ ràng (S_NEW_01),")
     lines.append("nhưng thất bại khi tên công ty viết đầy đủ mà bộ lọc chỉ nhận mã CK (S_NEW_03).")
@@ -167,9 +177,9 @@ def main() -> int:
     sz_chunks = os.path.getsize(ROOT / "data/processed/chunks.jsonl")
     p_npz = ROOT / "evaluation/lsa_index_E1.npz"
     sz_npz = os.path.getsize(p_npz) if p_npz.exists() else 0
-    lines.append(f"- BM25 1 câu mẫu: {dt:.1f} ms (2407 chunk, chạy tại máy, không GPU).")
+    lines.append(f"- BM25 1 câu mẫu: {dt:.1f} ms ({len(chunks)} chunk, chạy tại máy, không GPU).")
     lines.append(f"- Kích thước chunks.jsonl: {sz_chunks} bytes; lsa_index_E1.npz: {sz_npz} bytes.")
-    lines.append("- E3 chạy full 200 câu khoảng 70 giây ở lần đo trước (alpha = 0.5, cand_k = 20).")
+    lines.append(f"- E3 chạy bản v3 (200 câu) mất khoảng 70 giây (alpha = 0.5, cand_k = 20); bản v4 có {len(gold)} câu ({n_dev_total} dev + {n_test_total} test).")
     lines.append("- Cache TF-IDF + SVD giữ nguyên giữa các lần chạy, chỉ nạp 1 lần.")
     lines.append("- Hướng giảm chi phí: giảm cand_k từ 20 xuống 10, hoặc lưu sẵn top-20 BM25.")
     lines.append("")
@@ -177,13 +187,6 @@ def main() -> int:
     out = ROOT / "evaluation" / "pilot_advanced.md"
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Đã ghi -> {out} ({len(lines)} dòng)")
-
-    logp = ROOT / "report" / "Nhat_ky_su_dung_AI.md"
-    if logp.exists():
-        t = logp.read_text(encoding="utf-8")
-        if "pilot_advanced" not in t:
-            t += "\n| M7 pilot nâng cao | Gợi ý gom 6 mục nâng cao thành 1 pilot | `src/evaluate/pilot_advanced.py`, `evaluation/pilot_advanced.md` | Soát số E3 test/dev, 3 phép tính mẫu khớp gold |\n"
-            logp.write_text(t, encoding="utf-8")
     return 0
 
 

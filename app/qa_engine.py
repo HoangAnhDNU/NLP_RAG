@@ -32,13 +32,18 @@ from src.retrieval.answer_policy import (  # noqa: E402
     detect_retrieval_conflict,
 )
 from src.retrieval.bm25 import BM25Retriever  # noqa: E402
+from src.retrieval.pipeline_two_stage import minmax  # noqa: E402
 from src.retrieval.table_lookup import (  # noqa: E402
-    convert_value,
-    find_by_code,
-    format_number,
+    CORPUS_YEARS,
+    REFUSAL_TEXT_DEFAULT,
+    check_refusal,
+    detect_query_meta,
+    extract_years,
     lookup_records,
-    parse_target_unit,
+    normalize_ocr_vi,
     resolve_tickers,
+    strip_accents,
+    synthesize_answer,
 )
 
 TICKERS = ["HPG", "HSG", "NKG", "MSR"]
@@ -48,8 +53,23 @@ COMPANY_NAMES = {
     "NKG": "CTCP Thép Nam Kim",
     "MSR": "CTCP Masan High-Tech Materials",
 }
-YEAR_RE = re.compile(r"\b(20[0-2]\d)\b")
+YEAR_RE = re.compile(r"\b((?:19|20)\d{2})\b")
 NUMBER_RE = re.compile(r"\(?[\d.]{4,}\)?|\d[\d.,]*\s*(?:VND|đồng|%|tỷ|triệu|nghìn)?", re.IGNORECASE)
+_FINANCIAL_ACRONYMS = {
+    "HPG", "HSG", "NKG", "MSR", "CTCP", "TNHH", "BCTC", "VND", "VNĐ", "USD", "EUR",
+    "GTGT", "EPS", "ROE", "ROA", "EBIT", "EBITDA", "LNST", "LNTT", "DTT", "TSNH",
+    "TSDH", "VCSH", "HĐQT", "HĐKD", "KQHĐKD", "CĐKT", "LCTT", "TSCĐ", "XDCB", "NVL",
+    "BĐS", "TNDN", "TNCN", "BHXH", "VAT", "IFRS", "VAS", "SXKD", "QLDN", "HTK",
+    "KCN", "CEO", "CFO", "NIM", "CAR", "NPL", "TP", "HCM", "HN", "VN", "CP", "CK",
+}
+_GENERIC_Q_TOKENS = {
+    "hpg", "hsg", "nkg", "msr", "hòa", "phát", "hoa", "sen", "nam", "kim", "masan",
+    "high", "tech", "materials", "năm", "hợp", "nhất", "công", "ty", "tập", "đoàn",
+    "cổ", "phần", "ctcp", "tnhh", "bao", "nhiêu", "đồng", "tỷ", "triệu", "nghìn",
+    "trăm", "bằng", "giá", "trị", "chỉ", "tiêu", "báo", "cáo", "tài", "chính",
+    "kết", "thúc", "ngày", "tháng", "riêng", "bản", "tại", "của", "trong", "cho",
+    "gồm", "những", "khoản", "nào", "gì", "nội", "dung", "như", "thế", "sao", "vì",
+}
 
 _table_cache: dict = {}
 _engine_cache: dict = {}
@@ -73,22 +93,30 @@ def load_table_records() -> list[dict]:
 
 
 def extract_entities(question: str) -> dict:
-    tickers = resolve_tickers(question)
-    _, years_raw = detect_meta(question)
-    low = (question or "").lower()
-    version = ""
-    if any(k in low for k in ["công ty mẹ", "báo cáo riêng", "bản riêng", "riêng"]):
-        version = "separate"
-    elif any(k in low for k in ["hợp nhất", "hop nhat", "consolidated"]):
-        version = "consolidated"
-    unit = parse_target_unit(question)
-    # Đoán chỉ tiêu bằng bản ghi bảng khớp nhất
+    meta = detect_query_meta(question, use_aliases=True)
+    tickers = meta["tickers"]
+    years_raw = meta["years"]
+    version = meta["version"]
+    unit = meta["target_unit"]
     indicator = ""
     try:
         recs = load_table_records()
-        scored = lookup_records(recs, tickers, years_raw, version, question, min_score=0.2)
+        scored = lookup_records(
+            recs,
+            tickers,
+            years_raw,
+            version,
+            question,
+            min_score=0.35,
+            target_unit=unit,
+            period_side=meta["period_side"],
+        )
         if scored:
             indicator = scored[0][1].get("metric", "")
+        else:
+            low_noacc = strip_accents((question or "").lower())
+            if ("bien" in low_noacc and "gop" in low_noacc) and not check_refusal(question)[0]:
+                indicator = "Biên lợi nhuận gộp (Lợi nhuận gộp / Doanh thu thuần)"
     except Exception:
         indicator = ""
     return {
@@ -163,9 +191,8 @@ def detect_conflict_warning(question: str, hits: list[dict], entities: dict) -> 
 
 
 def detect_meta(question: str) -> tuple[list[str], list[str]]:
-    up = question.upper()
-    tickers = [t for t in TICKERS if re.search(rf"(?<![A-Z]){t}(?![A-Z])", up)]
-    years = YEAR_RE.findall(question)
+    tickers = resolve_tickers(question)
+    years = extract_years(question)
     return tickers, years
 
 
@@ -276,90 +303,169 @@ def chunk_to_hit(c: dict, question: str, q_toks: list[str], score: float = 0.0) 
 
 def retrieve(question: str, top_k: int = 5) -> list[dict]:
     chunks, tokenize, retriever, _, _, _ = load_engine()
+    if not chunks:
+        return []
     q_toks = tokenize(question)
-    ranked = retriever.top_k(q_toks, 20)
-    tickers, years = detect_meta(question)
-    rescored = []
-    for idx, score in ranked:
+    cand_k = max(20, top_k)
+    raw_all = retriever.score(q_toks)
+    if not raw_all:
+        return []
+    global_order = sorted(range(len(chunks)), key=lambda i: raw_all[i], reverse=True)
+
+    meta = detect_query_meta(question, use_aliases=True)
+    tickers = meta["tickers"]
+    all_years = meta["years"]
+    version = meta["version"]
+    corpus_years = [y for y in all_years if y.isdigit() and int(y) in CORPUS_YEARS]
+    upper_tokens = set(re.findall(r"\b[A-Z]{2,6}\b", question or ""))
+    has_unknown_ticker = bool((upper_tokens - _FINANCIAL_ACRONYMS) and not tickers)
+    has_outside_only_year = bool(all_years and not corpus_years)
+    use_meta_pool = bool((tickers or corpus_years) and not has_unknown_ticker and not has_outside_only_year)
+
+    pool_idxs: list[int] = []
+    if use_meta_pool:
+        strict_idxs = [
+            i
+            for i in global_order
+            if raw_all[i] > 0.0
+            and ((not tickers) or chunks[i].get("company_id") in tickers)
+            and ((not corpus_years) or str(chunks[i].get("fiscal_year")) in corpus_years)
+        ]
+        if len(strict_idxs) >= top_k:
+            target_pairs = [
+                (t, y)
+                for t in (tickers or [""])
+                for y in (corpus_years or [""])
+            ]
+            if len(target_pairs) > 1:
+                buckets: dict[tuple[str, str], list[int]] = {pair: [] for pair in target_pairs}
+                for i in strict_idxs:
+                    c = chunks[i]
+                    t_key = c.get("company_id", "") if tickers else ""
+                    y_key = str(c.get("fiscal_year", "")) if corpus_years else ""
+                    if (t_key, y_key) in buckets:
+                        buckets[(t_key, y_key)].append(i)
+                pos_b = 0
+                while len(pool_idxs) < cand_k:
+                    added = False
+                    for pair in target_pairs:
+                        lst = buckets[pair]
+                        if pos_b < len(lst) and lst[pos_b] not in pool_idxs:
+                            pool_idxs.append(lst[pos_b])
+                            added = True
+                            if len(pool_idxs) >= cand_k:
+                                break
+                    if not added:
+                        break
+                    pos_b += 1
+            for i in strict_idxs:
+                if i not in pool_idxs:
+                    pool_idxs.append(i)
+                if len(pool_idxs) >= cand_k:
+                    break
+        else:
+            seen_p: set[int] = set()
+            partial_idxs = [
+                i
+                for i in global_order
+                if raw_all[i] > 0.0
+                and (
+                    (tickers and chunks[i].get("company_id") in tickers)
+                    or (corpus_years and str(chunks[i].get("fiscal_year")) in corpus_years)
+                )
+            ]
+            for i in strict_idxs + partial_idxs + global_order:
+                if i not in seen_p:
+                    seen_p.add(i)
+                    pool_idxs.append(i)
+                if len(pool_idxs) >= cand_k:
+                    break
+    else:
+        pool_idxs = global_order[:cand_k]
+
+    raw_scores = [float(raw_all[i]) for i in pool_idxs]
+    norm_scores = minmax(raw_scores) if raw_scores else []
+    rescored: list[tuple[int, int, float, float, int]] = []
+    for pos, idx in enumerate(pool_idxs):
+        raw_s = float(raw_all[idx])
+        if raw_s <= 0.0:
+            rescored.append((0, 0, 0.0, 0.0, idx))
+            continue
         c = chunks[idx]
         bonus = 0.0
-        if tickers or years:
-            c_match = (not tickers) or (c.get("company_id") in tickers)
-            y_match = (not years) or (str(c.get("fiscal_year")) in years)
+        match_tier = 0
+        c_match = (not tickers) or (c.get("company_id") in tickers)
+        y_match = (not corpus_years) or (str(c.get("fiscal_year")) in corpus_years)
+        if tickers or corpus_years:
             if c_match and y_match:
                 bonus = 0.15
+                match_tier = 2 if use_meta_pool else 0
             elif c_match or y_match:
                 bonus = 0.075
-        rescored.append((score + bonus * 10, idx))
-    rescored.sort(key=lambda x: x[0], reverse=True)
+                match_tier = 1 if use_meta_pool else 0
+        ver_tier = 1 if (version and c.get("report_version") == version) or (not version and c.get("report_version") == "consolidated") else 0
+        total_s = norm_scores[pos] + bonus
+        rescored.append((match_tier, ver_tier, total_s, raw_s, idx))
+    rescored.sort(key=lambda x: (x[0], x[1], x[2], x[3]), reverse=True)
     hits = []
-    for score, idx in rescored[:top_k]:
+    for _, _, total_s, raw_s, idx in rescored[:top_k]:
         c = chunks[idx]
-        hits.append(chunk_to_hit(c, question, q_toks, score))
+        clamped_s = max(0.0, min(1.0, float(total_s)))
+        hit = chunk_to_hit(c, question, q_toks, clamped_s)
+        hit["raw_bm25"] = round(raw_s, 4)
+        hits.append(hit)
     return hits
 
 
 def generate_from_context(question: str, hits: list[dict]) -> dict:
-    """Bộ sinh đáp án offline thay cho LLM: chỉ dùng CONTEXT truy hồi.
-
-    Hợp đồng giống LLM trong `config/answer_policy.yaml`:
-    chỉ dùng chunk/table được cấp, mỗi số kèm citation, thiếu thì rỗng
-    để tầng trên đánh refused/partial_answer. Không đọc `qa_gold.jsonl`.
-    """
-    tickers = resolve_tickers(question)
-    years = YEAR_RE.findall(question or "")
-    low = (question or "").lower()
-    version = ""
-    if any(k in low for k in ["công ty mẹ", "báo cáo riêng", "bản riêng", "riêng"]):
-        version = "separate"
-    elif any(k in low for k in ["hợp nhất", "hop nhat", "consolidated"]):
-        version = "consolidated"
-    target_unit = parse_target_unit(question)
+    """Bộ sinh đáp án từ structured lookup thống nhất trên table_lookup.py + CONTEXT truy hồi."""
+    _, _, _, patterns, _, _ = load_engine()
     recs = load_table_records()
-    is_margin = ("biên" in low or "bien" in low) and ("gộp" in low or "gop" in low)
-    if is_margin:
-        gross = find_by_code(recs, tickers, years, version, ["20"], ["lợi nhuận gộp", "loi nhuan gop"])
-        rev = find_by_code(recs, tickers, years, version, ["10"], ["doanh thu thuần", "doanh thu thuan"])
-        if gross and rev and rev.get("value"):
-            try:
-                margin = float(gross["value"]) / float(rev["value"]) * 100.0
-                unit = target_unit or "%"
-                ans = f"{format_number(margin)} {unit}".strip()
-                comp = (f"Biên gộp = {gross.get('value_raw', '')} {gross.get('unit', '')} / "
-                        f"{rev.get('value_raw', '')} {rev.get('unit', '')} x 100 = {ans}.")
-                ev = [gross.get("source_chunk_id", ""), rev.get("source_chunk_id", "")]
-                return {"answer": ans, "computation": comp, "evidence": [e for e in ev if e],
-                        "answer_source": "rag-margin", "struct_hit": gross}
-            except (ValueError, ZeroDivisionError):
-                pass
-    cands = lookup_records(recs, tickers, years, version, question, min_score=0.3)
-    if cands:
-        # Uu tien ban ghi cung don vi voi cau hoi (VD hoi % thi lay cot %,
-        # khong lay cot VND). Tranh truong hop convert sai don vi.
-        pool = cands
-        if target_unit:
-            same = [c for c in cands if (c[1].get("unit", "") or "") == target_unit]
-            if same:
-                pool = same
-        top = pool[0][1]
-        conv = convert_value(float(top["value"]), top.get("unit", ""), target_unit or top.get("unit", ""))
-        if conv is None:
-            conv = float(top["value"])
-            unit = top.get("unit", "")
-        else:
-            unit = target_unit or top.get("unit", "")
-        ans = f"{format_number(conv)} {unit}".strip()
-        if (top.get("unit", "") or "") == "%" or (target_unit or "") == "%":
-            comp = (f"{top.get('value_raw', '')} (ô bảng, đơn vị %) = {ans}. "
-                    f"Nguồn {top.get('source_chunk_id', '')} trang {top.get('page', '')}.")
-        else:
-            comp = (f"{top.get('value_raw', '')} {top.get('unit', '')} = "
-                    f"{float(top['value']):,.0f} VND = {ans}.")
-        return {"answer": ans, "computation": comp,
-                "evidence": [top.get("source_chunk_id", "")],
-                "answer_source": "rag-table-lookup", "struct_hit": top}
-    return {"answer": "", "computation": "", "evidence": [],
-            "answer_source": "retrieval-only", "struct_hit": None}
+    synth = synthesize_answer(
+        question,
+        recs,
+        min_score=0.4,
+        extra_refusal_patterns=patterns,
+        refusal_text=REFUSAL_TEXT_DEFAULT,
+    )
+    if synth["refused"]:
+        return {
+            "answer": synth["answer"],
+            "computation": "",
+            "evidence": [],
+            "answer_source": "refusal-rule",
+            "struct_hit": None,
+            "refused": True,
+            "refusal_reason": synth["refusal_reason"],
+            "lookup_score": 0.0,
+        }
+    src_map = {
+        "computed_margin": "rag-margin",
+        "computed_diff": "rag-table-diff",
+        "table_lookup": "rag-table-lookup",
+    }
+    if synth["answer"]:
+        recs_ev = synth["evidence_records"]
+        return {
+            "answer": synth["answer"],
+            "computation": synth["computation"],
+            "evidence": synth["evidence_chunk_ids"],
+            "answer_source": src_map.get(synth["answer_source"], "rag-table-lookup"),
+            "struct_hit": recs_ev[0] if recs_ev else None,
+            "refused": False,
+            "lookup_score": synth["lookup_score"],
+            "predicted_year": synth["predicted_year"],
+            "predicted_company": synth["predicted_company"],
+        }
+    return {
+        "answer": "",
+        "computation": "",
+        "evidence": [],
+        "answer_source": "retrieval-only",
+        "struct_hit": None,
+        "refused": False,
+        "lookup_score": 0.0,
+    }
 
 
 def build_context_block(hits: list[dict], max_chars: int = 1200) -> str:
@@ -377,7 +483,7 @@ def build_context_block(hits: list[dict], max_chars: int = 1200) -> str:
 
 def attach_status(question: str, predicted_answer: str, hits: list[dict], refused_by_rule: bool = False) -> dict:
     tickers = resolve_tickers(question)
-    years = YEAR_RE.findall(question or "")
+    years = extract_years(question)
     top_for_status = [
         {
             "chunk_id": h.get("chunk_id", ""),
@@ -392,8 +498,8 @@ def attach_status(question: str, predicted_answer: str, hits: list[dict], refuse
         question,
         predicted_answer,
         top_for_status,
-        tickers=tickers if len(tickers) == 1 else None,
-        years=years if len(set(years)) == 1 else None,
+        tickers=tickers or None,
+        years=years or None,
         conflict=conflict,
         refused_by_rule=refused_by_rule,
     )
@@ -420,58 +526,142 @@ def enrich(question: str, out: dict) -> dict:
     return out
 
 
+def _should_refuse_unmatched(question: str, hits: list[dict], q_toks: list[str]) -> bool:
+    """Refuse in interactive QA when retrieval has no valid corpus match or targets an outside entity."""
+    if not hits or all(float(h.get("raw_bm25", h.get("score", 0.0))) <= 0.0 for h in hits):
+        return True
+    tickers = resolve_tickers(question)
+    years = extract_years(question)
+    # Explicit unknown ticker outside HPG/HSG/NKG/MSR
+    upper_tokens = set(re.findall(r"\b[A-Z]{2,6}\b", question or ""))
+    unknown_tickers = upper_tokens - _FINANCIAL_ACRONYMS
+    if unknown_tickers and not tickers:
+        return True
+    # Years exclusively outside 2020-2024 corpus range
+    if years and not any(y.isdigit() and int(y) in CORPUS_YEARS for y in years):
+        return True
+    # Low query content coverage across top retrieved chunks (off-topic / outside corpus)
+    q_content = [t for t in q_toks if t not in _GENERIC_Q_TOKENS and not t.isdigit() and len(t) > 1]
+    if not tickers and not years:
+        bctc_domain = {"doanh", "thu", "lợi", "nhuận", "tài", "sản", "nợ", "vốn", "lưu", "chuyển", "tiền", "khấu", "hao", "thuế", "cổ", "tức", "biên", "gộp"}
+        if not (set(q_content) & bctc_domain):
+            return True
+    if q_content:
+        top3_text = normalize_ocr_vi(" ".join(h.get("full_text", h.get("snippet", "")) for h in hits[:3]))
+        top3_tokens = set(re.findall(r"[a-zà-ỹ0-9_+-]+", top3_text))
+        covered = sum(1 for t in set(q_content) if normalize_ocr_vi(t) in top3_tokens)
+        cov_ratio = covered / len(set(q_content))
+        if cov_ratio < 0.35 or (not tickers and cov_ratio < 0.6):
+            return True
+    return False
+
+
 def answer(question: str, top_k: int = 5) -> dict:
     # Pipeline RAG thuần: không đọc gold_answer trong demo.
     # Gold chỉ dùng offline để chấm điểm, không dùng làm đáp án.
-    _, _, _, patterns, _, _ = load_engine()
-    q_low = question.lower()
-    if any(p in q_low for p in patterns):
-        out = {"question": question, "refused": True, "answer": "Không đủ bằng chứng trong corpus để trả lời.",
-                "answer_source": "refusal-rule", "computation": "", "evidence": [], "hits": [], "context": ""}
+    chunks, tokenize, _, patterns, _, _ = load_engine()
+    refused, _ = check_refusal(question, extra_patterns=patterns)
+    if refused:
+        out = {
+            "question": question,
+            "refused": True,
+            "answer": REFUSAL_TEXT_DEFAULT,
+            "answer_source": "refusal-rule",
+            "computation": "",
+            "evidence": [],
+            "hits": [],
+            "context": "",
+        }
         out.update(attach_status(question, out["answer"], [], refused_by_rule=True))
         return enrich(question, out)
-    chunks, tokenize, _, _, _, _ = load_engine()
     q_toks = tokenize(question)
     hits = retrieve(question, top_k)
     gen = generate_from_context(question, hits)
-    # Chen chunk chung cu cua dap an sinh ra vao top hits: dam bao CONTEXT
-    # hien thi dung nguon da dung, tranh truong hop BM25 day chunk khac len.
+    if gen.get("refused"):
+        out = {
+            "question": question,
+            "refused": True,
+            "answer": gen.get("answer") or REFUSAL_TEXT_DEFAULT,
+            "answer_source": "refusal-rule",
+            "computation": "",
+            "evidence": [],
+            "hits": [],
+            "context": "",
+        }
+        out.update(attach_status(question, out["answer"], [], refused_by_rule=True))
+        return enrich(question, out)
+
+    # Chèn chunk chứng cứ của đáp án sinh ra vào top hits với điểm lookup thực (<= 1.0)
     ev_ids: list[str] = []
     for cid in (gen.get("evidence") or []):
         if cid and cid not in ev_ids:
             ev_ids.append(cid)
     if ev_ids:
         chunk_map = {c.get("chunk_id", ""): c for c in chunks}
+        lookup_score = max(0.0, min(1.0, float(gen.get("lookup_score") or 0.9)))
+        top_hit_score = max((float(h.get("score", 0.0)) for h in hits), default=0.0)
+        ev_score = round(max(0.0, min(1.0, max(lookup_score, top_hit_score))), 4)
         have = {h.get("chunk_id", "") for h in hits}
+        for h in hits:
+            if h.get("chunk_id", "") in ev_ids:
+                h["score"] = round(max(float(h.get("score", 0.0)), ev_score), 4)
         prepend: list[dict] = []
         for cid in ev_ids:
             if cid not in have and cid in chunk_map:
-                prepend.append(chunk_to_hit(chunk_map[cid], question, q_toks, score=999.0))
+                prepend.append(chunk_to_hit(chunk_map[cid], question, q_toks, score=ev_score))
                 have.add(cid)
-        hits = (prepend + [h for h in hits if h.get("chunk_id", "") in have])[:max(top_k, len(prepend))]
-        # Sap xep de chunk chung cu dung top-1 theo dung thu tu evidence.
+        hits = (prepend + [h for h in hits if h.get("chunk_id", "") in have])[:max(top_k, len(ev_ids))]
         order = {cid: i for i, cid in enumerate(ev_ids)}
-        hits = sorted(hits, key=lambda h: order.get(h.get("chunk_id", ""), 999))
+        hits = sorted(
+            hits,
+            key=lambda h: (
+                0 if h.get("chunk_id", "") in order else 1,
+                order.get(h.get("chunk_id", ""), 999),
+                -float(h.get("score", 0.0)),
+            ),
+        )
     context = build_context_block(hits)
     if gen.get("answer"):
-        out = {"question": question, "refused": False, "answer": gen["answer"],
-                "answer_source": gen.get("answer_source", "rag-table-lookup"),
-                "computation": gen.get("computation", ""),
-                "evidence": gen.get("evidence", []),
-                "hits": hits, "context": context}
+        out = {
+            "question": question,
+            "refused": False,
+            "answer": gen["answer"],
+            "answer_source": gen.get("answer_source", "rag-table-lookup"),
+            "computation": gen.get("computation", ""),
+            "evidence": gen.get("evidence", []),
+            "hits": hits,
+            "context": context,
+        }
         out.update(attach_status(question, out["answer"], hits))
         return enrich(question, out)
-    numbers = []
-    if hits:
-        numbers = NUMBER_RE.findall(hits[0].get("snippet", ""))[:8]
-    out = {"question": question, "refused": False, "answer": "",
-            "answer_source": "retrieval-only",
+
+    if _should_refuse_unmatched(question, hits, q_toks):
+        out = {
+            "question": question,
+            "refused": True,
+            "answer": REFUSAL_TEXT_DEFAULT,
+            "answer_source": "refusal-no-evidence",
             "computation": "",
             "evidence": [],
             "hits": hits,
             "context": context,
-            "candidates": numbers,
-            "suggestions": suggest_closest(question),
-            "note": "Pipeline không tìm được ô bảng khớp chắc chắn cho câu này, nên không sinh đáp án. Hãy đối chiếu top chunks bên dưới hoặc chọn một câu gợi ý gần nhất."}
+        }
+        out.update(attach_status(question, out["answer"], hits, refused_by_rule=True))
+        return enrich(question, out)
+
+    numbers = NUMBER_RE.findall(hits[0].get("snippet", ""))[:8] if hits else []
+    out = {
+        "question": question,
+        "refused": False,
+        "answer": "",
+        "answer_source": "retrieval-only",
+        "computation": "",
+        "evidence": [],
+        "hits": hits,
+        "context": context,
+        "candidates": numbers,
+        "suggestions": suggest_closest(question),
+        "note": "Pipeline không tìm được ô bảng khớp chắc chắn cho câu này, nên không sinh đáp án. Hãy đối chiếu top chunks bên dưới hoặc chọn một câu gợi ý gần nhất.",
+    }
     out.update(attach_status(question, "", hits))
     return enrich(question, out)

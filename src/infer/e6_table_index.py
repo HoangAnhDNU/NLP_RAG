@@ -70,7 +70,8 @@ def main() -> int:
                 elif cm or ym: s += bonus / 2
             fused.append((s, i))
         fused.sort(key=lambda x: x[0], reverse=True)
-        ranked = [i for _, i in fused[:top_k]]
+        save_k = max(top_k, 10)
+        ranked = [i for _, i in fused[:save_k]]
         top_chunks = [chunks[i] for i in ranked]; top1 = top_chunks[0] if top_chunks else {}
         refused = any(pat in g["question"].lower() for pat in patterns)
         row = {"question_id": g["question_id"], "question": g["question"], "split": g.get("split", ""), "gold_answer": g.get("gold_answer", ""), "gold_chunk_ids": ";".join(e["chunk_id"] for e in g.get("evidence", [])), "predicted_chunk_ids": ";".join(c["chunk_id"] for c in top_chunks), "predicted_top1_chunk_id": top1.get("chunk_id", ""), "predicted_company": top1.get("company_id", ""), "predicted_year": top1.get("fiscal_year", ""), "predicted_report_version": top1.get("report_version", ""), "predicted_page": top1.get("page", ""), "predicted_n_tables": top1.get("n_tables", ""), "retrieval_score_top1": f"{fused[0][0]:.4f}" if fused else "0.0000", "predicted_answer": refusal_text if refused else ""}

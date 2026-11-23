@@ -26,12 +26,16 @@ def load_pred(path: Path) -> dict:
 
 
 def main() -> int:
-    gold = {json.loads(line)["question_id"]: json.loads(line) for line in open(ROOT / "data" / "annotations" / "qa_gold.jsonl", encoding="utf-8")}
-    meta = json.loads(open(ROOT / "data" / "splits" / "split_meta.json", encoding="utf-8").read())
-    n_test = int(meta.get("n_test", 102))
-    n_dev = int(meta.get("n_dev", 25))
+    with open(ROOT / "data" / "annotations" / "qa_gold.jsonl", encoding="utf-8") as gf:
+        gold = {json.loads(line)["question_id"]: json.loads(line) for line in gf if line.strip()}
+    meta = json.loads((ROOT / "data" / "splits" / "split_meta.json").read_text(encoding="utf-8"))
+    n_test = int(meta.get("n_test", len(meta.get("test_ids", []))))
+    n_dev = int(meta.get("n_dev", len(meta.get("dev_ids", []))))
     n_ev_test = sum(1 for g in gold.values() if g.get("split") == "test" and g.get("evidence"))
     n_ev_dev = sum(1 for g in gold.values() if g.get("split") == "dev" and g.get("evidence"))
+    n_pending_vif = sum(
+        1 for g in gold.values() if g.get("source") == "vifinqa" and g.get("review_status") == "pending-answer"
+    )
     t0 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E0.csv")
     t1 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E1.csv")
     t2 = load_pred(ROOT / "evaluation/test_predictions/test_predictions_E2.csv")
@@ -39,20 +43,46 @@ def main() -> int:
     d1 = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E1.csv")
     d2 = load_pred(ROOT / "evaluation/dev_predictions/dev_predictions_E2.csv")
 
-    def pred_line(qid: str, src) -> str:
+    with open(ROOT / "evaluation" / "metrics_summary.csv", encoding="utf-8") as mf:
+        rows = list(csv.DictReader(mf))
+    k_saved = max(
+        (
+            len([c for c in (r.get("predicted_chunk_ids") or "").split(";") if c.strip()])
+            for d in (t0, t1, t2)
+            for r in d.values()
+        ),
+        default=5,
+    )
+
+    def preds_for_qid(qid: str) -> list[tuple[str, dict]]:
+        if gold.get(qid, {}).get("split") == "dev":
+            return [("E0", d0), ("E1", d1), ("E2", d2)]
+        return [("E0", t0), ("E1", t1), ("E2", t2)]
+
+    def case_label(qid: str) -> str:
+        split = gold.get(qid, {}).get("split", "")
+        return f"{qid} ({split})" if split == "dev" else qid
+
+    def pred_line(qid: str, src=None) -> str:
+        src = src if src is not None else preds_for_qid(qid)
         parts = []
         for nm, d in src:
             r = d.get(qid, {})
             score = r.get("bm25_score_top1", r.get("retrieval_score_top1", ""))
             ans = (r.get("predicted_answer", "") or "").strip()
             ans_show = ans if ans else "(để trống)"
-            parts.append(f"{nm} top-1 `{r.get('predicted_top1_chunk_id', '')}` (điểm {score}), top-5 `{r.get('predicted_chunk_ids', '')}`, answer: {ans_show}")
+            top5_ids = ";".join([c for c in (r.get("predicted_chunk_ids") or "").split(";") if c][:5])
+            parts.append(f"{nm} top-1 `{r.get('predicted_top1_chunk_id', '')}` (điểm {score}), top-5 `{top5_ids}`, answer: {ans_show}")
         return "\n".join(f"- {p}" for p in parts)
 
     def gold_evidence(qid: str) -> str:
         g = gold[qid]
-        ev = [e["chunk_id"] for e in g.get("evidence", [])]
-        return "; ".join(ev) if ev else "(chưa có evidence, pending-answer)"
+        ev = list(dict.fromkeys(e["chunk_id"] for e in g.get("evidence", []) if e.get("chunk_id")))
+        if ev:
+            return "; ".join(ev)
+        if g.get("needs_more_evidence"):
+            return "(không có evidence, needs_more_evidence=true)"
+        return "(chưa có evidence, pending-answer)"
 
     cases = []
 
@@ -104,24 +134,24 @@ def main() -> int:
         "pred": pred_line("S_NEW_07", [("E0", t0), ("E1", t1), ("E2", t2)]),
         "cause": "Trích dẫn và phép tính: cả 3 runs đều có chunk gold trong top-5 (E0 hạng 4, E1 hạng 3, E2 hạng 2) nên Recall@5 bằng 1, nhưng top-1 lại là bản separate thay vì consolidated nên citation correctness vẫn bằng 0.0. Đây là ví dụ điển hình retrieval đúng nhưng citation và đáp án vẫn sai. Ngoài ra cả 3 runs không sinh văn bản nên phép tính biên lợi nhuận gộp chưa từng được thực hiện, numeric match bằng 0.0 theo thiết kế.",
         "impact": "Hệ thống báo trúng nhưng trích dẫn đầu tiên vẫn sai bản báo cáo. Người dùng kiểm chứng sẽ thấy số liệu bản riêng khác bản hợp nhất. Thiếu phép tính khiến đáp án phần trăm không bao giờ xuất hiện.",
-        "next": "Xếp lại 5 chunk đầu bằng bộ lọc report_version: câu hỏi có hợp nhất thì đẩy consolidated lên trước khi chọn top-1 để trích dẫn. Phép thử: áp dụng lại trên 5 câu test có evidence, sau đó bổ sung bước tính (lợi nhuận gộp chia doanh thu thuần nhân 100).",
+        "next": "Xếp lại 5 chunk đầu bằng bộ lọc report_version: câu hỏi có hợp nhất thì đẩy consolidated lên trước khi chọn top-1 để trích dẫn. Phép thử: áp dụng trên toàn bộ tập test có evidence, sau đó bổ sung bước tính (lợi nhuận gộp chia doanh thu thuần nhân 100).",
     })
     cases.append({
-        "id": "S_NEW_03 (dev)",
-        "type": "Dense và hybrid thua BM25 trên câu hiếm MSR",
+        "id": case_label("S_NEW_03"),
+        "type": "Dense và hybrid thua BM25 trên câu dùng tên đầy đủ của MSR",
         "input": "Doanh thu thuần hợp nhất của MSR năm 2024. Nguồn đúng: MSR hợp nhất trang 11.",
         "gold": f"Gold: `{gold['S_NEW_03'].get('gold_answer')}`, evidence: `{gold_evidence('S_NEW_03')}`",
-        "pred": pred_line("S_NEW_03", [("E0", d0), ("E1", d1), ("E2", d2)]),
-        "cause": "Mô hình: chỉ E0 trúng ở hạng 5 (`MSR_2024_consolidated#p011`), E1 và E2 trật cả top-5 và cùng đổ về `HSG_2024_consolidated#p045`. MSR xuất hiện ít trong corpus (4 trên 40 báo cáo) nên vector LSA của MSR bị lấn át bởi HSG và NKG cùng nghĩa. Giả thuyết E1 sai trên câu này.",
-        "impact": "Chứng minh giả thuyết dense tốt hơn BM25 không đúng với thực thể hiếm. Nếu chọn mô hình bằng dev nhỏ sẽ kết luận sai.",
-        "next": "Cân bằng lại corpus theo công ty hoặc dùng trọng số IDF mạnh hơn cho tên MSR. Phép thử: tăng gấp đôi trọng số token MSR trong query LSA.",
+        "pred": pred_line("S_NEW_03"),
+        "cause": "Mô hình: nếu E0 không tách tên công ty tiếng Việt hoặc dense/hybrid bỏ sót alias, câu hỏi ghi tên đầy đủ 'CTCP Masan High-Tech Materials' thay vì mã MSR (MSR chiếm 10/40 báo cáo trong corpus) dễ bị nhiễu thực thể giữa HSG và MSR.",
+        "impact": "Chứng minh giả thuyết dense tốt hơn BM25 không đúng khi câu hỏi dùng tên đầy đủ thay vì mã CK. Nếu chọn mô hình bằng dev nhỏ sẽ kết luận sai.",
+        "next": "Dùng `resolve_tickers()` ánh xạ tên tiếng Việt đầy đủ sang mã CK (MSR/HSG/HPG/NKG) trước khi cộng điểm metadata và tính trọng số query.",
     })
     cases.append({
-        "id": "S_NEW_05 (dev)",
+        "id": case_label("S_NEW_05"),
         "type": "Sai công ty và sai năm: E1 trôi sang HPG_2021",
         "input": "Tiền và các khoản tương đương tiền hợp nhất của HSG tại 30/09/2024. Nguồn đúng: HSG hợp nhất trang 7.",
         "gold": f"Gold: `{gold['S_NEW_05'].get('gold_answer')}`, evidence: `{gold_evidence('S_NEW_05')}`",
-        "pred": pred_line("S_NEW_05", [("E0", d0), ("E1", d1), ("E2", d2)]),
+        "pred": pred_line("S_NEW_05"),
         "cause": "Truy hồi: E1 top-1 là `HPG_2021_consolidated#p044`, sai cả HSG thành HPG và 2024 thành 2021. Cụm tiền và các khoản tương đương tiền là tiêu đề bảng phổ biến ở mọi báo cáo nên cosine dense gần như chỉ đo độ dài vector, không giữ được điều kiện thực thể.",
         "impact": "Top-1 hoàn toàn không liên quan, người dùng mất niềm tin ngay từ kết quả đầu tiên.",
         "next": "Bắt buộc lọc trước công ty và năm khi câu hỏi có mã CK và năm rõ ràng, rồi mới tính cosine dense. Phép thử: chỉ truy hồi trong 2 báo cáo HSG 2024 rồi mới xếp hạng.",
@@ -146,25 +176,29 @@ def main() -> int:
         "impact": "Hệ thống có thể khiến người dùng tưởng số cả năm là số quý 1 nếu họ tự đọc chunk. Đây là lỗi hiểu lầm đơn vị kỳ báo cáo.",
         "next": "Bổ sung nhận diện kỳ báo cáo (quý, bán niên, 6 tháng) và đối chiếu với metadata corpus (chỉ có báo cáo năm) để từ chối có giải thích. Phép thử: mở rộng pattern kèm lý do thay vì một câu cứng.",
     })
+    g368 = gold["ViFinQA-368"]
+    g97 = gold["ViFinQA-97"]
+    status368 = g368.get("review_status", "")
+    status97 = g97.get("review_status", "")
     cases.append({
         "id": "ViFinQA-368",
-        "type": "Nhãn chưa đầy đủ: câu đa bước không thể chấm bằng chunk một trang",
-        "input": (gold["ViFinQA-368"]["question"][:220] + "... (cần lọc nhóm theo trung vị rồi tính bình quân trên nhiều công ty và năm)"),
-        "gold": f"Gold: `{(gold['ViFinQA-368'].get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-368')}`, split: {gold['ViFinQA-368'].get('split')}",
+        "type": "Câu đa bước đa công ty: truy hồi một trang không gom đủ bằng chứng",
+        "input": (g368["question"][:220] + "... (cần lọc nhóm theo trung vị rồi tính bình quân trên nhiều công ty và năm)"),
+        "gold": f"Gold: `{(g368.get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-368')}`, status: `{status368}`, split: {g368.get('split')}",
         "pred": pred_line("ViFinQA-368", [("E0", t0), ("E1", t1), ("E2", t2)]),
-        "cause": "Nhãn và truy hồi: 35 câu ViFinQA vẫn ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được trên nhóm này. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.",
-        "impact": "Metric retrieval chỉ tính trên câu có evidence (test 64 câu, dev 16 câu), nhóm ViFinQA pending không đóng góp vào R@5. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ với chunk một trang.",
-        "next": "Gán nhãn evidence theo từng bước (đa bước): mỗi bước một chunk kèm công thức. Trước mắt đánh dấu nhóm này là needs_decomposition để không trộn vào metric hiện tại. Phép thử: thử nghiệm trên 3 câu 368, 369, 373 với pipeline 2 bước.",
+        "cause": f"Truy hồi đa bước (trạng thái gold hiện tại: `{status368}`, còn {n_pending_vif} câu ViFinQA `pending-answer`): câu hỏi cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG) trong khi E0-E2 truy hồi một lượt trên top-5 chunk đơn lẻ, không tách truy vấn con theo từng công ty.",
+        "impact": f"Metric retrieval hiện tính trên tập câu có evidence (test {n_ev_test} câu, dev {n_ev_dev} câu). Với câu so sánh đa công ty, top-5 chunk một lượt thường bỏ sót ít nhất một thực thể.",
+        "next": "Tách truy vấn đa bước theo từng cặp (công ty, năm) rồi tổng hợp trung vị/bình quân; kiểm tra phủ đủ thực thể qua `decide_status()` (`missing_multi_entity_evidence`).",
     })
     cases.append({
         "id": "ViFinQA-97",
-        "type": "Nhãn chưa đầy đủ: câu đơn chỉ tiêu nhưng vẫn thiếu evidence",
-        "input": gold["ViFinQA-97"]["question"],
-        "gold": f"Gold: `{(gold['ViFinQA-97'].get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-97')}`, split: {gold['ViFinQA-97'].get('split')}",
+        "type": "Câu đơn chỉ tiêu tỷ lệ sở hữu: E0-E2 không trích xuất câu trả lời %",
+        "input": g97["question"],
+        "gold": f"Gold: `{(g97.get('gold_answer') or '(trống)')}`, evidence: `{gold_evidence('ViFinQA-97')}`, status: `{status97}`, split: {g97.get('split')}",
         "pred": pred_line("ViFinQA-97", [("E0", t0), ("E1", t1), ("E2", t2)]),
-        "cause": "Nhãn: câu đơn công ty (tỷ lệ sở hữu Gang thép Hòa Phát của HPG 2023) vẫn chưa được gán evidence. Dù truy hồi trả về chunk đúng vùng (`HPG_2023_separate#p027` ở E0 và E2) thì script chấm vẫn bỏ qua vì gold_chunk_ids rỗng.",
-        "impact": "Hệ thống có thể làm đúng nhưng không được cộng điểm trên 35 câu pending này, gây lệch đánh giá thấp hơn năng lực thật ở nhóm ViFinQA. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình nếu chỉ nhìn R@5.",
-        "next": "Ưu tiên gán nhãn 35 câu ViFinQA đơn thực thể trước, câu đa bước sau. Phép thử: gán thêm 10 câu đơn rồi chạy lại metric để kiểm tra độ nhạy R@5.",
+        "cause": f"Truy hồi & trích xuất đơn vị (trạng thái gold hiện tại: `{status97}`): E0 và E2 tìm đúng vùng (`HPG_2023_separate#p027`), nhưng E0-E2 không sinh đáp án, còn pipeline lookup dễ nhầm cột vốn góp VND với cột tỷ lệ sở hữu `%` nếu thiếu lọc `target_unit`.",
+        "impact": "Nếu hệ thống không ưu tiên bản ghi khớp đơn vị `%`, người dùng có thể nhận giá trị VND thô thay cho tỷ lệ phần trăm sở hữu.",
+        "next": "Ưu tiên lọc `target_unit` trong `table_lookup` (khớp `%` trước khi fallback) và kiểm tra đánh giá qua `evaluate.py`.",
     })
     cases.append({
         "id": "OCR và đơn vị: HSG_2024_consolidated#p009 và NKG_2024_consolidated#p011",
@@ -173,20 +207,26 @@ def main() -> int:
         "gold": "Gold S_NEW_01 chứa 39.271.893.738.448 VND đổi sang nghìn tỷ đồng; S_NEW_02 và S_NEW_06 nằm trên trang có nhiều ký tự rác.",
         "pred": "E0, E1, E2 vẫn index cả hai trang, nhưng token từ tiêu đề bảng có thể thừa hoặc mang dấu sai.",
         "cause": "OCR: tiêu đề bảng HSG có dấu sắc đặt sai, trang NKG dính ký tự rác lặp lại hàng chục lần nên tạo token rác. Tokenizer giữ dấu nên từ sai dấu và từ đúng dấu có thể thành 2 token khác nhau, làm giảm điểm BM25 và TF-IDF của tiêu đề bảng. Đơn vị VND thô trong chunk cũng khác đơn vị đã đổi trong gold nên so khớp số nguyên văn sẽ trượt nếu không đổi đơn vị trước.",
-        "impact": "Trực tiếp làm giảm điểm chunk gold, góp phần vào 4 trên 5 câu test trật top-1. Người dùng thấy trích dẫn vẫn đọc được số, nhưng hệ thống khó tìm thấy nó. Sai hệ số đổi đơn vị có thể biến 3,2 phần trăm thành 32 phần trăm.",
-        "next": "Tiền xử lý riêng tiêu đề bảng: chuẩn hóa dấu sai, xóa dãy ký tự rác dài hơn 5 ký tự trước khi index nhưng giữ bản gốc để trích dẫn. Phép thử: đo lại R@5 trên 7 câu có evidence sau khi lọc, kèm kiểm tra đổi đơn vị VND sang nghìn tỷ, triệu đồng và phần trăm.",
+        "impact": f"Làm giảm điểm chunk gold trong tập test ({n_ev_test} câu có evidence). Người dùng thấy trích dẫn vẫn đọc được số nhưng hệ thống dễ rơi sang trang thuyết minh, đồng thời nếu không chuẩn hóa đơn vị khi chấm sẽ sinh unsupported claim giả.",
+        "next": "Tiền xử lý riêng tiêu đề bảng (chuẩn hóa dấu sai, xóa chuỗi rác dài) nhưng giữ bản gốc để trích dẫn; dùng quy đổi đơn vị chuẩn trong `table_lookup.py` và `numbers_in_context()`.",
     })
 
     lines = []
     lines.append("# Phân tích lỗi E0/E1/E2 (do script sinh, không chọn tay mẫu đẹp)")
     lines.append("")
-    lines.append("Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `evaluation/test_predictions/test_predictions_E*.csv` cùng `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test %d câu, khớp `evaluation/split_freeze.json`, k bằng 5." % n_test)
+    lines.append(f"Nguồn số liệu: `evaluation/metrics_summary.csv` và các file `evaluation/test_predictions/test_predictions_E*.csv`, `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test {n_test} câu, khớp `evaluation/split_freeze.json`, lưu tối đa {k_saved} chunk (chấm @5 và `ctxP@5`/`ctxR@5` trên top-5, `@10` trên top-10).")
     lines.append("")
-    rows = list(csv.DictReader(open(ROOT / "evaluation" / "metrics_summary.csv", encoding="utf-8")))
     def fmt(run, split):
         for r in rows:
             if r["run"] == run and r["split"] == split:
-                return "R@5 bằng %s MRR@5 bằng %s cite bằng %s refusal P/R bằng %s/%s" % (r["recall_at_5"], r["mrr_at_5"], r["citation_precision_top1"], r["refusal_precision"], r["refusal_recall"])
+                return "R@5=%s R@10=%s MRR@5=%s cite=%s refusal P/R=%s/%s" % (
+                    r.get("recall_at_5", ""),
+                    r.get("recall_at_10", ""),
+                    r.get("mrr_at_5", ""),
+                    r.get("citation_precision_top1", ""),
+                    r.get("refusal_precision", ""),
+                    r.get("refusal_recall", ""),
+                )
         return ""
     lines.append("Bảng chính (test n=%d, %d câu có evidence; dev n=%d, %d câu có evidence): E0 %s; E1 %s; E2 %s. E0-E2 không sinh đáp án số nên numeric match bằng 0,0 theo thiết kế." % (n_test, n_ev_test, n_dev, n_ev_dev, fmt("E0", "test"), fmt("E1", "test"), fmt("E2", "test")))
     lines.append("")

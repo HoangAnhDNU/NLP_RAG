@@ -4,7 +4,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 
 - Script sinh báo cáo: `src/data_quality_report.py`
 - Nguồn dữ liệu: `https://huggingface.co/datasets/AIGuruTinix/ViFinQA`, revision `0450088ab22ec946f04f097586967ca405955b3b`
-- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> `src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> `src/build_supplement_gold.py` -> `src/build_gold.py` -> `src/build_data_docs.py` -> `src/data_quality_report.py`
+- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> `src/filter_questions.py` -> `src/build_chunks.py` -> `src/build_table_records.py` -> `src/audit_ocr.py` -> `src/build_supplement_gold.py` -> `src/build_gold.py` (guard `--force-v1`) -> `src/build_expanded_gold_v2.py` -> `src/build_expanded_gold_v3.py` -> `src/resolve_vifinqa_and_dev_refusal.py` -> `src/cross_review.py` -> `src/build_data_docs.py` -> `src/data_quality_report.py`
 
 ## 1. Schema và tính đầy đủ
 
@@ -16,7 +16,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Sau khi lọc theo corpus | 35 | `data/processed/questions_matched.csv` |
 | Bị loại | 977 | `data/processed/questions_dropped.csv`, có lý do từng dòng |
 | Tổng kiểm lại | 1012 | khớp với tập gốc |
-| Bộ gold sau khi bù | 200 | `data/annotations/qa_gold.jsonl` |
+| Bộ gold sau khi bù | 204 | `data/annotations/qa_gold.jsonl` |
 
 ### 1.2 Bảng kiểm đếm trước và sau khi sinh chunk
 
@@ -28,7 +28,7 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | Chunk dùng cho truy hồi | 2407 | `data/processed/chunks.jsonl`, 1 chunk = 1 trang |
 | Chunk có chứa bảng | 1634 | (67.9%) |
 | Tổng bảng OCR đã parse | 2585 | |
-| Bản kê chuẩn `data/data_manifest.csv` | 240 | 40 corpus + 200 gold |
+| Bản kê chuẩn `data/data_manifest.csv` | 244 | 40 corpus + 204 gold |
 
 ### 1.3 Kiểm tra trường bắt buộc và kiểu dữ liệu
 
@@ -38,11 +38,11 @@ Dự án: BTL CSC4007, đề tài 6 - Hỏi đáp báo cáo tài chính có trí
 | `data/processed/ocr_audit.csv` | 40 | document_id | 0 | 0 |
 | `data/processed/questions_matched.csv` | 35 | question_id | 0 | 0 |
 | `data/processed/questions_dropped.csv` | 977 | id | 0 | 0 |
-| `data/data_manifest.csv` | 240 | item_id | 0 | 0 |
+| `data/data_manifest.csv` | 244 | item_id | 0 | 0 |
 | `data/processed/chunks.jsonl` | 2407 | chunk_id | 0 | 0 |
-| `data/annotations/qa_gold.jsonl` | 200 | question_id | 0 | 0 |
+| `data/annotations/qa_gold.jsonl` | 204 | question_id | 0 | 0 |
 
-Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm `computation, numeric, unanswerable`, đúng danh mục `numeric, computation, unanswerable`. `review_status` chỉ gồm `draft-needs-second-reviewer, pending-answer, reviewed-agree`, đúng danh mục `pending-answer, draft-needs-second-reviewer`.
+Nhãn ngoài danh mục: `answer_type` trong gold chỉ gồm `computation, numeric, unanswerable`, đúng danh mục `numeric, computation, unanswerable`. `review_status` chỉ gồm `draft-needs-second-reviewer, reviewed-agree`, đúng danh mục hợp lệ (có **0** câu `pending-answer`).
 
 Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file `data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. 
 
@@ -168,32 +168,34 @@ Nhóm đã tự xây bộ gold và tự kiểm chứng bằng script.
 |---|---|
 | answer_type: computation | 94 câu |
 | answer_type: numeric | 90 câu |
-| answer_type: unanswerable | 16 câu |
+| answer_type: unanswerable | 20 câu |
 | split: test | 160 câu |
-| split: dev | 40 câu |
+| split: dev | 44 câu |
 | nguồn: table-clean | 150 câu |
 | nguồn: vifinqa | 35 câu |
 | nguồn: supplement | 15 câu |
-| thiếu bằng chứng (`needs_more_evidence=true`) | 16 câu |
-| có đơn vị số liệu (`unit` khác rỗng) | 168 câu |
-| có bằng chứng (`evidence` khác rỗng) | 149 câu |
+| nguồn: dev-refusal | 4 câu |
+| thiếu bằng chứng (`needs_more_evidence=true`) | 20 câu |
+| có đơn vị số liệu (`unit` khác rỗng) | 183 câu |
+| có bằng chứng (`evidence` khác rỗng) | 184 câu |
 
 | đơn vị trong gold | số câu |
 |---|---|
 | tỷ đồng | 89 |
 | nghìn tỷ đồng | 46 |
-| (rỗng) | 32 |
+| (rỗng) | 21 |
 | triệu đồng | 12 |
+| % | 11 |
 | đồng | 10 |
-| lần | 7 |
-| % | 3 |
+| điểm phần trăm | 9 |
+| lần | 4 |
+| nghìn đồng | 1 |
 | trăm tỷ đồng | 1 |
 
 | trạng thái hậu kiểm | số câu |
 |---|---|
-| draft-needs-second-reviewer | 160 |
-| pending-answer | 35 |
-| reviewed-agree | 5 |
+| draft-needs-second-reviewer | 147 |
+| reviewed-agree | 57 |
 
 ### 5.2 Ví dụ ranh giới
 
@@ -209,19 +211,19 @@ Nhóm đã tự xây bộ gold và tự kiểm chứng bằng script.
 | hạng mục | trạng thái |
 |---|---|
 | Nhãn unknown | không có nhãn unknown |
-| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra lại các câu `needs-second-reviewer` |
-| Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |
+| Hậu kiểm chéo >= 20% (`src/cross_review.py`) | đạt **57/204 (27.94%)** `reviewed-agree` (gồm 53 mẫu kiểm định phân tầng v4 + 4 mẫu `supplement` duyệt trước đó, chi tiết tại `data/annotations/review_report.md`) |
+| Bất đồng và cách phân xử | **0 bất đồng** trong đợt hậu kiểm chéo v4 (`agree=53, disagree=0`); khi phát sinh bất đồng, tra lại chunk gốc và cập nhật guideline thống nhất thay vì sửa lẻ |
 
 ### 5.4 Độ đầy đủ của evidence
 
-- Các câu trả lời được có ít nhất một dòng `quote` nguyên văn trong chunk.
+- Các câu trả lời được có ít nhất một dòng `quote` đối chiếu trực tiếp với chunk trong `chunks.jsonl` (100% `vifinqa` và `supplement` khớp nguyên văn).
 - Các câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.
-- `review_log.csv` có 200 dòng theo dõi trạng thái từng item.
+- `review_log.csv` có 204 dòng theo dõi trạng thái từng item.
 
 ### 5.5 Đóng băng dev/test
 
-- Dev 40 câu, test 160 câu, seed 42, version v3, sha256 `14b3829ab21b2449...`.
-- Toàn bộ câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.
+- Dev 44 câu (gồm 4 câu thiếu bằng chứng), test 160 câu (gồm 16 câu thiếu bằng chứng), seed 42, version v4, sha256 `0012ebccd6712b44...`.
+- Toàn bộ câu mới thêm vào dev ở v4 là câu từ chối ngoài corpus (`DEV-REF-01..04`); 160 câu test v3 được giữ nguyên vẹn không rò rỉ.
 - Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.
 
 ## 6. Chống rò rỉ dữ liệu
@@ -280,7 +282,7 @@ Danh sách đầy đủ từng câu kèm lý do nằm ở `data/processed/questi
 
 | rủi ro | mức độ | giải pháp |
 |---|---|---|
-| Gắn nhãn 35 câu ViFinQA còn dở | cao | gắn theo guideline v0.1, hậu kiểm chéo rồi mới khóa test |
+| Phần còn lại chưa hậu kiểm bậc 2 | thấp | Đã giải toàn bộ 35 câu ViFinQA (`0` `pending-answer`) và hậu kiểm chéo **57/204 (27.94%)** `reviewed-agree`; mở rộng hậu kiểm nốt các câu `draft-needs-second-reviewer` khi có thêm reviewer |
 | Lỗi đơn vị tiền khi chấm điểm | cao | chuẩn hóa đơn vị ở tầng processed, tính metric theo đơn vị chuẩn |
 | OCR bỏ sót trang (HPG 2022 hợp nhất) | trung bình | ghi nhận trong audit, loại khỏi chunk |
 | Bảng HTML vỡ cột | thấp | tỷ lệ hàng lệch cột đo được trong `ocr_audit.csv` |

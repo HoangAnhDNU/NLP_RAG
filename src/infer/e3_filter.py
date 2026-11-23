@@ -73,6 +73,7 @@ def main() -> int:
 
     cfg = load_config(Path(args.config))
     top_k = int(cfg["retrieval"]["top_k"])
+    save_k = max(top_k, 10)
     cand_k = int(cfg["retrieval"].get("candidate_k", 20))
     alpha = float(cfg["retrieval"].get("fusion_alpha", 0.5))
     fallback = int(cfg["retrieval"].get("fallback_min_pool", 5))
@@ -143,7 +144,7 @@ def main() -> int:
         d_norm = minmax([dense_scores[i] for i in cand])
         fused = [((1 - alpha) * b + alpha * d, i) for b, d, i in zip(b_norm, d_norm, cand)]
         fused.sort(key=lambda x: x[0], reverse=True)
-        ranked = [i for _, i in fused[:top_k]]
+        ranked = [i for _, i in fused[:save_k]]
         top_chunks = [chunks[i] for i in ranked]
         top1 = top_chunks[0] if top_chunks else {}
 

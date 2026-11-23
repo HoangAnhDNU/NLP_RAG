@@ -1,7 +1,7 @@
 {
-  "version": "v3",
+  "version": "v4",
   "seed": 42,
-  "n_dev": 40,
+  "n_dev": 44,
   "n_test": 160,
   "dev_ids": [
     "CLEAN-T1-HPG-2020-08",
@@ -34,6 +34,10 @@
     "CLEAN-T3-NKG-2022-2023-B16",
     "CLEAN-T3-NKG-2023-2024-22",
     "CLEAN-T3-NKG-2023-2024-B18",
+    "DEV-REF-01",
+    "DEV-REF-02",
+    "DEV-REF-03",
+    "DEV-REF-04",
     "S_NEW_03",
     "ViFinQA-373",
     "ViFinQA-393",
@@ -207,6 +211,6 @@
     "ViFinQA-709",
     "ViFinQA-97"
   ],
-  "rule": "16 cau thieu bang chung deu nam o test; dev gom 40 cau tra loi duoc; giu split v2, them 15 cau moi vao dev",
-  "sha256": "14b3829ab21b244957e92654be9a6b273b8c45b64a50e9c37dc4cc33de99ce69"
+  "rule": "160 cau test giu nguyen hoan toan nhu v3 (16 thieu bang chung); dev mo rong tu 40 len 44 bang 4 cau refusal ngoai corpus (DEV-REF-01..04) de refusal_den_dev=4; toan bo 35 cau ViFinQA duoc giai va gan evidence nguyen van tu 40 bao cao",
+  "sha256": "0012ebccd6712b44cdd1faf18f020c547c82973db09d37ab2b9e96b0a94a34b4"
 }

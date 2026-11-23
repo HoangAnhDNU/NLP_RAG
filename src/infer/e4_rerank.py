@@ -131,7 +131,8 @@ def main() -> int:
                              int(c.get("n_tables", 0) or 0), wf, wc, wm, wmeta)
             rescored.append((s, i))
         rescored.sort(key=lambda x: x[0], reverse=True)
-        ranked = [i for _, i in rescored[:top_k]]
+        save_k = max(top_k, 10)
+        ranked = [i for _, i in rescored[:save_k]]
         top_chunks = [chunks[i] for i in ranked]
         top1 = top_chunks[0] if top_chunks else {}
 

@@ -1,72 +1,72 @@
 item_id,gold,reviewer,status,guideline_version,disagreement_note
-ViFinQA-97,,,pending-answer,v0.2,
-ViFinQA-99,,,pending-answer,v0.2,
-ViFinQA-186,,,pending-answer,v0.2,
-ViFinQA-311,,,pending-answer,v0.2,
-ViFinQA-316,,,pending-answer,v0.2,
-ViFinQA-368,,,pending-answer,v0.2,
-ViFinQA-369,,,pending-answer,v0.2,
-ViFinQA-373,,,pending-answer,v0.2,
-ViFinQA-374,,,pending-answer,v0.2,
-ViFinQA-393,,,pending-answer,v0.2,
-ViFinQA-400,,,pending-answer,v0.2,
-ViFinQA-410,,,pending-answer,v0.2,
-ViFinQA-450,,,pending-answer,v0.2,
-ViFinQA-451,,,pending-answer,v0.2,
-ViFinQA-453,,,pending-answer,v0.2,
-ViFinQA-454,,,pending-answer,v0.2,
-ViFinQA-455,,,pending-answer,v0.2,
-ViFinQA-473,,,pending-answer,v0.2,
-ViFinQA-475,,,pending-answer,v0.2,
-ViFinQA-478,,,pending-answer,v0.2,
-ViFinQA-479,,,pending-answer,v0.2,
-ViFinQA-490,,,pending-answer,v0.2,
-ViFinQA-493,,,pending-answer,v0.2,
-ViFinQA-549,,,pending-answer,v0.2,
-ViFinQA-552,,,pending-answer,v0.2,
-ViFinQA-556,,,pending-answer,v0.2,
-ViFinQA-568,,,pending-answer,v0.2,
-ViFinQA-569,,,pending-answer,v0.2,
-ViFinQA-570,,,pending-answer,v0.2,
-ViFinQA-573,,,pending-answer,v0.2,
-ViFinQA-575,,,pending-answer,v0.2,
-ViFinQA-612,,,pending-answer,v0.2,
-ViFinQA-682,,,pending-answer,v0.2,
-ViFinQA-709,,,pending-answer,v0.2,
-ViFinQA-973,,,pending-answer,v0.2,
+ViFinQA-97,99.988 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-99,948.3035 tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-186,10850162726 nghìn đồng,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-311,360 triệu đồng,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-316,52.5024 trăm tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-368,0.5909 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-369,1.747 lần,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-373,6.2269 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-374,-3.2957 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-393,1.1867 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-400,17.8521 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-410,4.7442 %,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-450,10.8764 %,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-451,-3.2957 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-453,0.5909 %,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-454,1.747 lần,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-455,6.2269 %,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-473,206.6695 nghìn tỷ đồng,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-475,-8.7348 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-478,150.6037 nghìn tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-479,-0.2648 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-490,206.6695 nghìn tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-493,150.6037 nghìn tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-549,1.8297 lần,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-552,150.6037 nghìn tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-556,2.445 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-568,206.6695 nghìn tỷ đồng,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-569,9.9739 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-570,-8.7348 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-573,1.8297 lần,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-575,-0.2648 điểm phần trăm,annotator-1,draft-needs-second-reviewer,v0.2,"resolved ViFinQA from corpus, awaiting cross-review"
+ViFinQA-612,52.842 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-682,-1899.3214 triệu đồng,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-709,9.1149 %,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+ViFinQA-973,1,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 S_NEW_01,39.2719 nghìn tỷ đồng,member-1/member-2,reviewed-agree,v0.2,
-S_NEW_02,453008.1444 triệu đồng,member-1,needs-second-reviewer,v0.2,
+S_NEW_02,453008.1444 triệu đồng,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 S_NEW_03,14336.3287 tỷ đồng,member-1/member-2,reviewed-agree,v0.2,
-S_NEW_04,319.2579 tỷ đồng,member-1,needs-second-reviewer,v0.2,
-S_NEW_05,602.0718 tỷ đồng,member-1,needs-second-reviewer,v0.2,
+S_NEW_04,319.2579 tỷ đồng,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+S_NEW_05,602.0718 tỷ đồng,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 S_NEW_06,1434 đồng,member-1/member-2,reviewed-agree,v0.2,
-S_NEW_07,10.8568 %,member-1/member-2,reviewed-agree,v0.2,
+S_NEW_07,10.8568 %,member-1/member-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 S_NEW_08,Không đủ bằng chứng trong corpus để trả lời.,member-1/member-2,reviewed-agree,v0.2,
-S_NEW_09,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
-S_NEW_10,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
+S_NEW_09,Không đủ bằng chứng trong corpus để trả lời.,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
+S_NEW_10,Không đủ bằng chứng trong corpus để trả lời.,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
 S_NEW_11,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
-S_NEW_12,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
+S_NEW_12,Không đủ bằng chứng trong corpus để trả lời.,member-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
 S_NEW_13,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
 S_NEW_14,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
 S_NEW_15,Không đủ bằng chứng trong corpus để trả lời.,member-1,needs-second-reviewer,v0.2,
 CLEAN-T1-HPG-2020-01,13.4503 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-HSG-2020-02,-3.2852 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T1-HSG-2020-02,-3.2852 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-MSR-2020-03,39.196 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-NKG-2021-04,2.2253 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-HSG-2024-05,261.145 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-NKG-2020-06,484.0963 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-HSG-2024-07,154.8429 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-HPG-2020-08,55.864 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-HSG-2020-09,10.5553 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T1-HSG-2024-07,154.8429 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T1-HPG-2020-08,55.864 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T1-HSG-2020-09,10.5553 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-MSR-2020-10,12.595 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-NKG-2020-11,4.098 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-HPG-2020-12,64.663 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-HSG-2020-13,6.6204 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-MSR-2020-14,7.1132 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-NKG-2020-15,900.0 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-HPG-2020-16,564.297 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T1-NKG-2020-15,900.0 triệu đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T1-HPG-2020-16,564.297 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-HSG-2020-17,2.1742 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T1-NKG-2020-18,1.0704 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T1-NKG-2020-18,1.0704 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-MSR-2020-19,1.2702 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-HPG-2024-20,426.1495 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-NKG-2020-21,1.0174 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
@@ -79,11 +79,11 @@ CLEAN-T1-HSG-2020-27,709.5 triệu đồng,auto-builder,needs-second-reviewer,v0
 CLEAN-T1-MSR-2022-28,818.6559 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T1-MSR-2020-29,-189.0586 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HPG-2020-2021-01,21.0278 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T2-HSG-2023-2024-02,-42.3713 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T2-MSR-2020-2021-03,156.4154 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T2-HSG-2023-2024-02,-42.3713 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T2-MSR-2020-2021-03,156.4154 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-NKG-2020-2021-04,1.93 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HPG-2021-2022-05,-25.9946 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T2-HSG-2023-2024-06,19.4573 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T2-HSG-2023-2024-06,19.4573 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-MSR-2021-2022-07,-126.5867 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-NKG-2023-2024-08,335.5996 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HPG-2022-2023-09,-1.6484 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
@@ -91,8 +91,8 @@ CLEAN-T2-HSG-2020-2021-10,3.3626 tỷ đồng,auto-builder,needs-second-reviewer
 CLEAN-T2-MSR-2022-2023-11,-1.6449 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-NKG-2021-2022-12,-44.2803 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HPG-2020-2021-13,-13.0523 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T2-HSG-2021-2022-14,1.5008 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T2-MSR-2023-2024-15,-62.5724 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T2-HSG-2021-2022-14,1.5008 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T2-MSR-2023-2024-15,-62.5724 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-NKG-2022-2023-16,-3.9262 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HPG-2021-2022-17,-81.8932 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HSG-2022-2023-18,116.6736 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
@@ -101,7 +101,7 @@ CLEAN-T2-NKG-2023-2024-20,-1.5205 tỷ đồng,auto-builder,needs-second-reviewe
 CLEAN-T2-HPG-2022-2023-21,4.4055 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T2-HSG-2023-2024-22,24.9894 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-HPG-2020-2021-01,-16.3287 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T3-HSG-2020-2021-02,1.3859 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T3-HSG-2020-2021-02,1.3859 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-MSR-2021-2022-03,-29.3859 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-NKG-2021-2022-04,-1.4893 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-HPG-2021-2022-05,80.5762 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
@@ -112,9 +112,9 @@ CLEAN-T3-HPG-2022-2023-09,13.0555 tỷ đồng,auto-builder,needs-second-reviewe
 CLEAN-T3-HSG-2021-2022-10,128.9764 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-MSR-2023-2024-11,5.5844 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-NKG-2023-2024-12,836.8722 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T3-HPG-2023-2024-13,284.5307 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T3-HPG-2023-2024-13,284.5307 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-HSG-2022-2023-14,54.1082 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
-CLEAN-T3-MSR-2020-2021-15,4.1807 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
+CLEAN-T3-MSR-2020-2021-15,4.1807 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-NKG-2021-2022-16,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-HSG-2023-2024-17,39.168 triệu đồng,auto-builder,needs-second-reviewer,v0.2,
 CLEAN-T3-MSR-2021-2022-18,1.8788 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,
@@ -137,14 +137,14 @@ CLEAN-T1-MSR-2020-B08,6.5169 tỷ đồng,auto-builder,needs-second-reviewer,v0.
 CLEAN-T1-NKG-2020-B09,3.1265 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-HPG-2020-B10,148.7467 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-HSG-2020-B11,151.5832 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T1-MSR-2020-B12,66.8428 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T1-MSR-2020-B12,66.8428 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-NKG-2020-B13,2.7269 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-HPG-2020-B14,13.8168 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T1-HSG-2020-B15,546.7341 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T1-HSG-2020-B15,546.7341 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-MSR-2020-B16,18.5212 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-NKG-2020-B17,248.9872 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-HPG-2021-B18,13.9965 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T1-HPG-2021-B19,73.4593 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T1-HPG-2021-B19,73.4593 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T1-HSG-2020-B20,7.5947 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-MSR-2020-B21,7.5082 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T1-NKG-2020-B22,59.0695 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
@@ -157,45 +157,49 @@ CLEAN-T2-MSR-2023-2024-B02,134.6549 tỷ đồng,auto-builder,needs-second-revie
 CLEAN-T2-NKG-2021-2022-B03,-2.3347 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-HSG-2022-2023-B04,-116.4089 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-MSR-2020-2021-B05,-1.2126 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T2-NKG-2022-2023-B06,-912.9216 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T2-NKG-2022-2023-B06,-912.9216 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-HSG-2023-2024-B07,24.9894 triệu đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-MSR-2021-2022-B08,17.2431 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-NKG-2023-2024-B09,-775.4798 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-HSG-2020-2021-B10,5.3808 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-MSR-2022-2023-B11,64.5034 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-NKG-2021-2022-B12,-7.2633 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T2-HSG-2021-2022-B13,-8.3631 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T2-HSG-2021-2022-B13,-8.3631 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-MSR-2023-2024-B14,-814.7696 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-NKG-2022-2023-B15,8.3088 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T2-HSG-2022-2023-B16,559.707 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T2-HSG-2022-2023-B16,559.707 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-NKG-2023-2024-B17,-2.7669 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-HSG-2023-2024-B18,2.0635 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-NKG-2021-2022-B19,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T2-HSG-2020-2021-B20,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T2-NKG-2022-2023-B21,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T2-NKG-2022-2023-B21,0.0 đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T2-HSG-2021-2022-B22,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-HSG-2022-2023-B01,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-NKG-2023-2024-B02,-526.5417 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-HSG-2023-2024-B03,0.0 đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-NKG-2020-2021-B04,625.4824 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-HSG-2020-2021-B05,2.8389 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T3-HSG-2020-2021-B05,2.8389 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-NKG-2021-2022-B06,277.3494 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-HSG-2021-2022-B07,-3.2542 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T3-HSG-2021-2022-B07,-3.2542 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-NKG-2022-2023-B08,-199.3245 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-HSG-2022-2023-B09,1.8455 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-NKG-2023-2024-B10,-357.1953 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-HSG-2023-2024-B11,-557.1587 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T3-HSG-2023-2024-B11,-557.1587 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-NKG-2020-2021-B12,-355.8317 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-HSG-2020-2021-B13,3.1409 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-NKG-2021-2022-B14,-182.4218 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T3-HSG-2020-2021-B13,3.1409 nghìn tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
+CLEAN-T3-NKG-2021-2022-B14,-182.4218 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-HSG-2021-2022-B15,-3.5391 nghìn tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-NKG-2022-2023-B16,-229.5243 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T3-HSG-2022-2023-B17,16.0978 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T3-HSG-2022-2023-B17,16.0978 tỷ đồng,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): chunk quote + raw recomputation match, agree"
 CLEAN-T3-NKG-2023-2024-B18,-337.4101 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-HSG-2023-2024-B19,102.8485 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-NKG-2020-2021-B20,-197.0928 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
 CLEAN-T3-HSG-2020-2021-B21,5.7094 tỷ đồng,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T5-HPG-2025-05,Không đủ bằng chứng trong corpus để trả lời.,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T5-HPG-2025-05,Không đủ bằng chứng trong corpus để trả lời.,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
 CLEAN-T5-HSG-2025-06,Không đủ bằng chứng trong corpus để trả lời.,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
-CLEAN-T5-NKG-2024-07,Không đủ bằng chứng trong corpus để trả lời.,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+CLEAN-T5-NKG-2024-07,Không đủ bằng chứng trong corpus để trả lời.,auto-builder/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
 CLEAN-T5-MSR-2025-08,Không đủ bằng chứng trong corpus để trả lời.,auto-builder,needs-second-reviewer,v0.2,"mo rong gold v3, can hau kiem"
+DEV-REF-01,Không đủ bằng chứng trong corpus để trả lời.,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
+DEV-REF-02,Không đủ bằng chứng trong corpus để trả lời.,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
+DEV-REF-03,Không đủ bằng chứng trong corpus để trả lời.,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"
+DEV-REF-04,Không đủ bằng chứng trong corpus để trả lời.,annotator-1/reviewer-2,reviewed-agree,v0.2,"cross-review pass (seed=42): 0 hits verified in 2407 chunks, agree"

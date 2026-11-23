@@ -1,15 +1,15 @@
 # Pilot nâng cao mục 7 (chạy nhanh, không train, không API)
 
-Phạm vi: 149 câu có evidence (118 test + 31 dev). E3 là run nâng cao làm gốc so sánh.
+Phạm vi: 184 câu có evidence (144 test + 40 dev, trên tổng 204 câu split v4: 44 dev / 160 test). E3 là run nâng cao làm gốc so sánh.
 Script sinh file này: `src/evaluate/pilot_advanced.py`.
 
-## 1. Robustness theo top-k (cắt top-5 của E3 test)
+## 1. Robustness theo top-k (E3 test)
 
-| k | recall@k E3 test (118 câu) | ghi chú |
+| k | recall@k E3 test (144 câu) | ghi chú |
 |---|---|---|
-| 1 | 6/118 = 0.05 | cắt trực tiếp từ top-5 |
-| 3 | 15/118 = 0.13 | cắt trực tiếp từ top-5 |
-| 5 | 24/118 = 0.20 | cắt trực tiếp từ top-5 |
+| 1 | 8/144 = 0.06 | cắt trực tiếp ở top-1 |
+| 3 | 19/144 = 0.13 | cắt trực tiếp ở top-3 |
+| 5 | 34/144 = 0.24 | cắt trực tiếp ở top-5 |
 
 Nhận xét: recall tăng theo k đúng kỳ vọng truy hồi.
 
@@ -17,16 +17,17 @@ Nhận xét: recall tăng theo k đúng kỳ vọng truy hồi.
 
 | công ty | số câu có evidence | số câu E3 trúng top-5 |
 |---|---|---|
-| HPG | 20 (S_NEW_04; CLEAN-T1-HPG-2020-01; CLEAN-T1-HPG-2020-12; CLEAN-T1-HPG-2020-16; CLEAN-T2-HPG-2020-2021-01; CLEAN-T2-HPG-2021-2022-05; CLEAN-T2-HPG-2022-2023-09; CLEAN-T2-HPG-2020-2021-13; CLEAN-T2-HPG-2021-2022-17; CLEAN-T3-HPG-2020-2021-01; CLEAN-T3-HPG-2021-2022-05; CLEAN-T3-HPG-2022-2023-09; CLEAN-T3-HPG-2023-2024-13; CLEAN-T1-HPG-2021-B01; CLEAN-T1-HPG-2020-B05; CLEAN-T1-HPG-2020-B10; CLEAN-T1-HPG-2020-B14; CLEAN-T1-HPG-2021-B18; CLEAN-T1-HPG-2021-B19; CLEAN-T1-HPG-2021-B23) | 7 |
-| HSG | 38 (S_NEW_01; S_NEW_05; S_NEW_07; CLEAN-T1-HSG-2020-02; CLEAN-T1-HSG-2024-07; CLEAN-T1-HSG-2020-09; CLEAN-T1-HSG-2020-13; CLEAN-T1-HSG-2020-17; CLEAN-T1-HSG-2020-23; CLEAN-T1-HSG-2020-27; CLEAN-T2-HSG-2020-2021-10; CLEAN-T2-HSG-2021-2022-14; CLEAN-T2-HSG-2023-2024-22; CLEAN-T3-HSG-2020-2021-02; CLEAN-T3-HSG-2020-2021-06; CLEAN-T3-HSG-2021-2022-10; CLEAN-T3-HSG-2022-2023-14; CLEAN-T3-HSG-2020-2021-20; CLEAN-T1-HSG-2020-B02; CLEAN-T1-HSG-2020-B07; CLEAN-T1-HSG-2020-B11; CLEAN-T1-HSG-2020-B20; CLEAN-T2-HSG-2021-2022-B01; CLEAN-T2-HSG-2023-2024-B07; CLEAN-T2-HSG-2020-2021-B10; CLEAN-T2-HSG-2021-2022-B13; CLEAN-T2-HSG-2022-2023-B16; CLEAN-T2-HSG-2020-2021-B20; CLEAN-T2-HSG-2021-2022-B22; CLEAN-T3-HSG-2022-2023-B01; CLEAN-T3-HSG-2023-2024-B03; CLEAN-T3-HSG-2020-2021-B05; CLEAN-T3-HSG-2023-2024-B11; CLEAN-T3-HSG-2020-2021-B13; CLEAN-T3-HSG-2021-2022-B15; CLEAN-T3-HSG-2022-2023-B17; CLEAN-T3-HSG-2023-2024-B19; CLEAN-T3-HSG-2020-2021-B21) | 4 |
-| MSR | 26 (CLEAN-T1-MSR-2020-03; CLEAN-T1-MSR-2020-10; CLEAN-T1-MSR-2020-14; CLEAN-T1-MSR-2020-19; CLEAN-T1-MSR-2022-28; CLEAN-T1-MSR-2020-29; CLEAN-T2-MSR-2020-2021-03; CLEAN-T2-MSR-2021-2022-07; CLEAN-T2-MSR-2022-2023-11; CLEAN-T3-MSR-2021-2022-03; CLEAN-T3-MSR-2022-2023-07; CLEAN-T3-MSR-2023-2024-11; CLEAN-T3-MSR-2020-2021-15; CLEAN-T3-MSR-2021-2022-18; CLEAN-T3-MSR-2022-2023-21; CLEAN-T1-MSR-2020-B03; CLEAN-T1-MSR-2020-B08; CLEAN-T1-MSR-2020-B12; CLEAN-T1-MSR-2020-B16; CLEAN-T1-MSR-2020-B21; CLEAN-T1-MSR-2020-B25; CLEAN-T2-MSR-2023-2024-B02; CLEAN-T2-MSR-2020-2021-B05; CLEAN-T2-MSR-2021-2022-B08; CLEAN-T2-MSR-2022-2023-B11; CLEAN-T2-MSR-2023-2024-B14) | 8 |
-| NKG | 34 (S_NEW_02; S_NEW_06; CLEAN-T1-NKG-2021-04; CLEAN-T1-NKG-2020-06; CLEAN-T1-NKG-2020-11; CLEAN-T1-NKG-2020-15; CLEAN-T1-NKG-2020-18; CLEAN-T1-NKG-2020-21; CLEAN-T1-NKG-2020-25; CLEAN-T2-NKG-2023-2024-08; CLEAN-T2-NKG-2021-2022-12; CLEAN-T2-NKG-2022-2023-16; CLEAN-T2-NKG-2023-2024-20; CLEAN-T3-NKG-2021-2022-04; CLEAN-T3-NKG-2022-2023-08; CLEAN-T3-NKG-2023-2024-12; CLEAN-T3-NKG-2021-2022-16; CLEAN-T3-NKG-2022-2023-19; CLEAN-T1-NKG-2020-B04; CLEAN-T1-NKG-2020-B09; CLEAN-T1-NKG-2020-B13; CLEAN-T1-NKG-2020-B17; CLEAN-T1-NKG-2020-B22; CLEAN-T2-NKG-2023-2024-B09; CLEAN-T2-NKG-2021-2022-B12; CLEAN-T2-NKG-2022-2023-B15; CLEAN-T2-NKG-2021-2022-B19; CLEAN-T2-NKG-2022-2023-B21; CLEAN-T3-NKG-2023-2024-B02; CLEAN-T3-NKG-2020-2021-B04; CLEAN-T3-NKG-2021-2022-B06; CLEAN-T3-NKG-2023-2024-B10; CLEAN-T3-NKG-2021-2022-B14; CLEAN-T3-NKG-2020-2021-B20) | 5 |
+| HPG | 23 (ViFinQA-97; ViFinQA-400; ViFinQA-450; S_NEW_04; ... (+19)) | 9 (39.1%) |
+| HSG | 39 (ViFinQA-311; S_NEW_01; S_NEW_05; S_NEW_07; ... (+35)) | 5 (12.8%) |
+| MSR | 28 (ViFinQA-186; ViFinQA-709; CLEAN-T1-MSR-2020-03; CLEAN-T1-MSR-2020-10; ... (+24)) | 9 (32.1%) |
+| NKG | 36 (ViFinQA-316; ViFinQA-612; S_NEW_02; S_NEW_06; ... (+32)) | 6 (16.7%) |
+| Đa công ty | 18 (ViFinQA-368; ViFinQA-369; ViFinQA-374; ViFinQA-410; ... (+14)) | 5 (27.8%) |
 
 Nhận xét: E3 lọc cứng giữ đúng công ty khi câu hỏi ghi rõ mã CK;
 chi tiết từng công ty xem bảng trên, tổng hợp đầy đủ tại `evaluation/comparison_E0_E1_E2.md`.
 Đây là phép thử tách theo công ty ở mức tối thiểu, chưa phải cross-validation đầy đủ.
 
-## 3. Multi-hop thí điểm (ViFinQA-368, chưa có gold)
+## 3. Multi-hop thí điểm (ViFinQA-368, đã gắn gold reviewed-agree ở v4)
 
 Câu gốc (rút gọn): năm 2022, trong nhóm HPG HSG MSR NKG,
 các công ty có hệ số thanh toán nhanh thấp hơn trung vị của nhóm
@@ -40,8 +41,8 @@ Bước 3: truy hồi biên lợi nhuận ròng của nhóm được lọc rồi
 - Truy hồi `he so thanh toan nhanh HSG nam 2022` -> MSR_2022_consolidated#p002 (10.15); MSR_2022_separate#p002 (10.15); MSR_2022_consolidated#p073 (10.01)
 - Truy hồi `bien loi nhuan rong NKG nam 2022` -> NKG_2022_consolidated#p013 (7.88); NKG_2023_consolidated#p013 (7.69); NKG_2023_separate#p013 (7.66)
 
-Nhận xét: pipeline 2 bước chạy được về kỹ thuật, nhưng thiếu gold từng bước
-nên chưa chấm metric; đánh dấu nhóm này là needs_decomposition.
+Nhận xét: pipeline 2 bước chạy được về kỹ thuật; ViFinQA-368 ở v4 đã có gold tổng hợp cuối
+(0.5909 %, 10 evidence chunks, reviewed-agree) nhưng chưa có gold từng bước con, nên vẫn đánh dấu needs_decomposition.
 Thí điểm còn cho thấy BM25 thuần không giữ được điều kiện thực thể
 khi thiếu lọc metadata, củng cố việc E3 lọc cứng mỗi bước con là đúng hướng.
 
@@ -72,9 +73,9 @@ Nhận xét: 3 phép tính mẫu khớp gold sau làm tròn 4 chữ số.
 
 ## 6. Chi phí truy hồi (cache embedding, rerank nhẹ)
 
-- BM25 1 câu mẫu: 37.0 ms (2407 chunk, chạy tại máy, không GPU).
-- Kích thước chunks.jsonl: 6545504 bytes; lsa_index_E1.npz: 2360512 bytes.
-- E3 chạy full 200 câu khoảng 70 giây ở lần đo trước (alpha = 0.5, cand_k = 20).
+- BM25 1 câu mẫu: 35.6 ms (2407 chunk, chạy tại máy, không GPU).
+- Kích thước chunks.jsonl: 6545504 bytes; lsa_index_E1.npz: 2360463 bytes.
+- E3 chạy bản v3 (200 câu) mất khoảng 70 giây (alpha = 0.5, cand_k = 20); bản v4 có 204 câu (44 dev + 160 test).
 - Cache TF-IDF + SVD giữ nguyên giữa các lần chạy, chỉ nạp 1 lần.
 - Hướng giảm chi phí: giảm cand_k từ 20 xuống 10, hoặc lưu sẵn top-20 BM25.
 

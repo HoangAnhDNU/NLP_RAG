@@ -88,24 +88,35 @@ def detect_retrieval_conflict(
     question_years: list[str],
     top_chunks: list[dict],
 ) -> bool:
-    """Mau thuan that: hoi 1 thuc the nhung bang chung top la nhieu thuc the.
+    """Mau thuan that: hoi 1 thuc the nhung bang chung top-5 la nhieu thuc the.
 
     Chi xet cau hoi don (1 cong ty va 1 nam). Cau so sanh nhieu cong ty/nam
     la hop le, khong tinh la mo ho. Dieu kien mo ho: top-1 lech khoi thuc the
     duoc hoi ma top-5 lai chua ca thuc the duoc hoi lan thuc the khac, nghia la
     he khong quyet duoc nen tin chunk nao.
     """
-    if not top_chunks:
+    top5 = (top_chunks or [])[:5]
+    if not top5:
         return False
-    if len(question_tickers) != 1 or len(set(question_years)) != 1:
+    asked_tickers = {str(t).strip().upper() for t in (question_tickers or []) if str(t).strip()}
+    asked_years = {str(y).strip() for y in (question_years or []) if str(y).strip()}
+    if len(asked_tickers) != 1 or len(asked_years) != 1:
         return False
-    asked_c = str(question_tickers[0]).strip().upper()
-    asked_y = str(question_years[0]).strip()
-    top1 = top_chunks[0] or {}
+    asked_c = next(iter(asked_tickers))
+    asked_y = next(iter(asked_years))
+    top1 = top5[0] or {}
     top1_c = str(top1.get("company_id", "")).strip().upper()
     top1_y = str(top1.get("fiscal_year", "")).strip()
-    companies = {str(c.get("company_id", "")).strip().upper() for c in top_chunks if str(c.get("company_id", "")).strip()}
-    years = {str(c.get("fiscal_year", "")).strip() for c in top_chunks if str(c.get("fiscal_year", "")).strip()}
+    companies = {
+        str(c.get("company_id", "")).strip().upper()
+        for c in top5
+        if str(c.get("company_id", "")).strip()
+    }
+    years = {
+        str(c.get("fiscal_year", "")).strip()
+        for c in top5
+        if str(c.get("fiscal_year", "")).strip()
+    }
     company_conflict = (top1_c != asked_c) and (asked_c in companies) and (len(companies) >= 2)
     year_conflict = (top1_y != asked_y) and (asked_y in years) and (len(years) >= 2)
     return bool(company_conflict or year_conflict)
@@ -123,7 +134,8 @@ def decide_status(
     """Gán trạng thái answered / partial_answer / refused / ambiguous.
 
     Thu tu uu tien: refused theo rule -> ambiguous khi mau thuan ->
-    refused khi khong co chunk -> partial khi thieu metadata ->
+    refused khi khong co chunk -> partial khi thieu dap an / thieu thuc the
+    trong cau hoi da cong ty hoac da nam / lech metadata / thieu trang ->
     answered khi du chung cu.
     """
     if refused_by_rule or is_refusal(predicted_answer):
@@ -134,13 +146,38 @@ def decide_status(
         return {"status": "refused", "reason": "no_chunks"}
     if not str(predicted_answer or "").strip():
         return {"status": "partial_answer", "reason": "missing_answer"}
-    top1 = top_chunks[0] if top_chunks else {}
-    if tickers:
-        if top1.get("company_id") not in tickers:
+
+    top5 = top_chunks[:5]
+    top1 = top5[0] or {}
+    asked_tickers = {str(t).strip().upper() for t in (tickers or []) if str(t).strip()}
+    asked_years = {str(y).strip() for y in (years or []) if str(y).strip()}
+
+    if asked_tickers:
+        top1_c = str(top1.get("company_id", "")).strip().upper()
+        if len(asked_tickers) >= 2:
+            chunk_companies = {
+                str(c.get("company_id", "")).strip().upper()
+                for c in top5
+                if str(c.get("company_id", "")).strip()
+            }
+            if not (asked_tickers <= chunk_companies):
+                return {"status": "partial_answer", "reason": "missing_multi_entity_evidence"}
+        if top1_c not in asked_tickers:
             return {"status": "partial_answer", "reason": "company_mismatch"}
-    if years:
-        if str(top1.get("fiscal_year", "")) not in {str(y) for y in years}:
+
+    if asked_years:
+        top1_y = str(top1.get("fiscal_year", "")).strip()
+        if len(asked_years) >= 2:
+            chunk_years = {
+                str(c.get("fiscal_year", "")).strip()
+                for c in top5
+                if str(c.get("fiscal_year", "")).strip()
+            }
+            if not (asked_years <= chunk_years):
+                return {"status": "partial_answer", "reason": "missing_multi_entity_evidence"}
+        if top1_y not in asked_years:
             return {"status": "partial_answer", "reason": "year_mismatch"}
+
     if not str(top1.get("page", "")).strip():
         return {"status": "partial_answer", "reason": "missing_page"}
     return {"status": "answered", "reason": "evidence_sufficient"}

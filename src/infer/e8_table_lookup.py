@@ -15,11 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from src.preprocess.normalize import normalize_query, tokenize_vi  # noqa: E402
 from src.retrieval.bm25 import BM25Retriever  # noqa: E402
-from src.retrieval.pipeline_two_stage import detect_meta_extended, minmax  # noqa: E402
-from src.retrieval.table_lookup import (  # noqa: E402
-    convert_value, find_by_code, find_pair, format_number, lookup_records,
-    parse_target_unit, resolve_tickers,
-)
+from src.retrieval.pipeline_two_stage import minmax  # noqa: E402
+from src.retrieval.table_lookup import synthesize_answer  # noqa: E402
 def load_config(path: Path) -> dict:
     with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
@@ -38,7 +35,7 @@ def main() -> int:
     p.add_argument("--outdir", default=str(ROOT / "evaluation"))
     args = p.parse_args()
     cfg = load_config(Path(args.config))
-    top_k = int(cfg["retrieval"]["top_k"]); cand_k = int(cfg["retrieval"].get("candidate_k", 20))
+    top_k = int(cfg["retrieval"]["top_k"]); save_k = max(top_k, 10); cand_k = int(cfg["retrieval"].get("candidate_k", 20))
     alpha = float(cfg["retrieval"].get("fusion_alpha", 0.5)) if "fusion_alpha" in cfg["retrieval"] else 0.5
     bonus = float(cfg["retrieval"].get("metadata_bonus", 0.15))
     min_score = float(cfg["retrieval"].get("lookup_min_score", 0.3))
@@ -89,62 +86,53 @@ def main() -> int:
         return fused
     for g in gold:
         q = g["question"]
-        meta = detect_meta_extended(q)
-        tickers, years, version = meta["tickers"], meta["years"], meta["version"]
-        if not tickers:
-            tickers = resolve_tickers(q)
         q_toks = tokenize(q)
-        refused_pat = any(pat in q.lower() for pat in patterns)
-        answer = ""
-        struct_hit = None
-        target_unit = parse_target_unit(q)
-        if not refused_pat:
-            low = q.lower()
-            is_margin = ("biên" in low or "bien" in low) and ("gộp" in low or "gop" in low)
-            if is_margin:
-                gross = find_by_code(records, tickers, years, version, ["20"], ["lợi nhuận gộp", "loi nhuan gop"])
-                rev = find_by_code(records, tickers, years, version, ["10"], ["doanh thu thuần", "doanh thu thuan"])
-                if gross and rev and rev.get("value"):
-                    try:
-                        margin = float(gross["value"]) / float(rev["value"]) * 100.0
-                        unit = target_unit or "%"
-                        answer = f"{format_number(margin)} {unit}".strip()
-                        struct_hit = gross
-                    except (ValueError, ZeroDivisionError):
-                        struct_hit = None
-            if struct_hit is None and not answer:
-                cands = lookup_records(records, tickers, years, version, q, min_score=min_score)
-                if cands:
-                    struct_hit = cands[0][1]
-            if struct_hit is not None and not answer:
-                conv = convert_value(float(struct_hit["value"]), struct_hit.get("unit", ""), target_unit or struct_hit.get("unit", ""))
-                if conv is None:
-                    conv = float(struct_hit["value"])
-                    unit = struct_hit.get("unit", "")
-                else:
-                    unit = target_unit or struct_hit.get("unit", "")
-                answer = f"{format_number(conv)} {unit}".strip()
+        synth = synthesize_answer(
+            q,
+            records,
+            min_score=min_score,
+            extra_refusal_patterns=patterns,
+            refusal_text=refusal_text,
+        )
+        tickers, years = synth["tickers"], synth["years"]
         fused = hybrid_topk(q_toks, tickers, years)
-        ranked = [i for _, i in fused[:top_k]]
-        if struct_hit is not None:
-            src_id = struct_hit.get("source_chunk_id", "")
-            ordered = []
-            if src_id:
-                ordered.append(src_id)
+        ranked = [i for _, i in fused[:save_k]]
+        hybrid_top = max(0.0, min(1.0, float(fused[0][0]))) if fused else 0.0
+        ev_cids = [] if synth["refused"] else list(synth["evidence_chunk_ids"])
+        if ev_cids:
+            ordered = list(ev_cids)
             for c in [chunks[i] for i in ranked]:
                 if c["chunk_id"] not in ordered:
                     ordered.append(c["chunk_id"])
-            pred_ids = ordered[:top_k]
+            pred_ids = ordered[:save_k]
             top_chunks = [chunk_idx[cid] for cid in pred_ids if cid in chunk_idx]
             top1 = top_chunks[0] if top_chunks else {}
-            score_top = 1.0
+            score_top = max(0.0, min(1.0, float(synth["lookup_score"] or hybrid_top)))
         else:
             top_chunks = [chunks[i] for i in ranked]
             top1 = top_chunks[0] if top_chunks else {}
-            score_top = fused[0][0] if fused else 0.0
-        if refused_pat:
-            answer = refusal_text
-        row = {"question_id": g["question_id"], "question": q, "split": g.get("split", ""), "gold_answer": g.get("gold_answer", ""), "gold_chunk_ids": ";".join(e["chunk_id"] for e in g.get("evidence", [])), "predicted_chunk_ids": ";".join(c["chunk_id"] for c in top_chunks), "predicted_top1_chunk_id": top1.get("chunk_id", ""), "predicted_company": top1.get("company_id", ""), "predicted_year": top1.get("fiscal_year", ""), "predicted_report_version": top1.get("report_version", ""), "predicted_page": top1.get("page", ""), "predicted_n_tables": top1.get("n_tables", ""), "retrieval_score_top1": f"{score_top:.4f}", "predicted_answer": answer}
+            score_top = hybrid_top
+        answer = synth["answer"]
+        pred_company = synth["predicted_company"] if (not synth["refused"] and synth["predicted_company"]) else top1.get("company_id", "")
+        pred_year = synth["predicted_year"] if (not synth["refused"] and synth["predicted_year"]) else top1.get("fiscal_year", "")
+        pred_ver = synth["predicted_report_version"] if (not synth["refused"] and synth["predicted_report_version"]) else top1.get("report_version", "")
+        pred_page = synth["predicted_page"] if (not synth["refused"] and synth["predicted_page"] != "") else top1.get("page", "")
+        row = {
+            "question_id": g["question_id"],
+            "question": q,
+            "split": g.get("split", ""),
+            "gold_answer": g.get("gold_answer", ""),
+            "gold_chunk_ids": ";".join(e["chunk_id"] for e in g.get("evidence", [])),
+            "predicted_chunk_ids": ";".join(c["chunk_id"] for c in top_chunks),
+            "predicted_top1_chunk_id": top1.get("chunk_id", ""),
+            "predicted_company": pred_company,
+            "predicted_year": pred_year,
+            "predicted_report_version": pred_ver,
+            "predicted_page": pred_page,
+            "predicted_n_tables": top1.get("n_tables", ""),
+            "retrieval_score_top1": f"{score_top:.4f}",
+            "predicted_answer": answer,
+        }
         by_split.setdefault(g.get("split", "test"), []).append(row)
     outdir = Path(args.outdir); outdir.mkdir(parents=True, exist_ok=True)
     for split in ("dev", "test"):

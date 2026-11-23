@@ -39,6 +39,10 @@ E2,dev,CLEAN-T3-HSG-2022-2023-B09,partial_answer,missing_answer,true_answer,Fals
 E2,dev,CLEAN-T3-NKG-2020-2021-B12,partial_answer,missing_answer,true_answer,False,True,,NKG_2021_separate#p014
 E2,dev,CLEAN-T3-NKG-2022-2023-B16,partial_answer,missing_answer,true_answer,False,True,,MSR_2022_consolidated#p022
 E2,dev,CLEAN-T3-NKG-2023-2024-B18,partial_answer,missing_answer,true_answer,False,True,,NKG_2024_separate#p014
+E2,dev,DEV-REF-01,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2024_consolidated#p031
+E2,dev,DEV-REF-02,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,NKG_2024_separate#p013
+E2,dev,DEV-REF-03,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2023_consolidated#p002
+E2,dev,DEV-REF-04,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2024_consolidated#p064
 E2,test,ViFinQA-97,partial_answer,missing_answer,true_answer,False,True,,HPG_2023_separate#p027
 E2,test,ViFinQA-186,ambiguous,conflicting_values,true_answer,False,True,,MSR_2021_consolidated#p056
 E2,test,ViFinQA-311,partial_answer,missing_answer,true_answer,False,True,,HSG_2024_separate#p056
@@ -137,10 +141,10 @@ E2,test,CLEAN-T3-MSR-2021-2022-18,partial_answer,missing_answer,true_answer,Fals
 E2,test,CLEAN-T3-NKG-2022-2023-19,partial_answer,missing_answer,true_answer,False,True,,MSR_2023_consolidated#p022
 E2,test,CLEAN-T3-HSG-2020-2021-20,partial_answer,missing_answer,true_answer,False,True,,HSG_2020_consolidated#p044
 E2,test,CLEAN-T3-MSR-2022-2023-21,partial_answer,missing_answer,true_answer,False,True,,MSR_2022_consolidated#p022
-E2,test,CLEAN-T5-HPG-2024-01,partial_answer,missing_answer,missed_refusal,True,True,,HPG_2024_consolidated#p057
+E2,test,CLEAN-T5-HPG-2024-01,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2024_consolidated#p057
 E2,test,CLEAN-T5-HSG-2024-02,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2020_consolidated#p060
-E2,test,CLEAN-T5-NKG-2024-03,partial_answer,missing_answer,missed_refusal,True,True,,NKG_2024_separate#p001
-E2,test,CLEAN-T5-MSR-2024-04,partial_answer,missing_answer,missed_refusal,True,True,,MSR_2024_consolidated#p073
+E2,test,CLEAN-T5-NKG-2024-03,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,NKG_2024_separate#p001
+E2,test,CLEAN-T5-MSR-2024-04,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2024_consolidated#p073
 E2,test,CLEAN-T1-HPG-2021-B01,partial_answer,missing_answer,true_answer,False,True,,HPG_2021_consolidated#p009
 E2,test,CLEAN-T1-HSG-2020-B02,ambiguous,conflicting_values,true_answer,False,True,,HPG_2020_consolidated#p073
 E2,test,CLEAN-T1-MSR-2020-B03,partial_answer,missing_answer,true_answer,False,True,,MSR_2020_consolidated#p058
@@ -196,6 +200,6 @@ E2,test,CLEAN-T3-HSG-2023-2024-B19,partial_answer,missing_answer,true_answer,Fal
 E2,test,CLEAN-T3-NKG-2020-2021-B20,partial_answer,missing_answer,true_answer,False,True,,NKG_2020_separate#p013
 E2,test,CLEAN-T3-HSG-2020-2021-B21,partial_answer,missing_answer,true_answer,False,True,,MSR_2024_consolidated#p065
 E2,test,CLEAN-T5-HPG-2025-05,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2023_separate#p002
-E2,test,CLEAN-T5-HSG-2025-06,partial_answer,missing_answer,missed_refusal,True,True,,HSG_2024_separate#p057
+E2,test,CLEAN-T5-HSG-2025-06,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HSG_2024_separate#p057
 E2,test,CLEAN-T5-NKG-2024-07,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2021_consolidated#p002
 E2,test,CLEAN-T5-MSR-2025-08,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2020_consolidated#p002

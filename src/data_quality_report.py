@@ -78,9 +78,10 @@ def main() -> int:
     add("- Script sinh báo cáo: `src/data_quality_report.py`")
     add(f"- Nguồn dữ liệu: `{REPO_URL}`, revision `{REVISION}`")
     add("- Các bước chạy lại được: `src/download_vifinqa.py` -> `src/select_corpus.py` -> "
-        "`src/filter_questions.py` -> `src/build_chunks.py` -> `src/audit_ocr.py` -> "
-        "`src/build_supplement_gold.py` -> `src/build_gold.py` -> `src/build_data_docs.py` -> "
-        "`src/data_quality_report.py`")
+        "`src/filter_questions.py` -> `src/build_chunks.py` -> `src/build_table_records.py` -> `src/audit_ocr.py` -> "
+        "`src/build_supplement_gold.py` -> `src/build_gold.py` (guard `--force-v1`) -> `src/build_expanded_gold_v2.py` -> "
+        "`src/build_expanded_gold_v3.py` -> `src/resolve_vifinqa_and_dev_refusal.py` -> `src/cross_review.py` -> "
+        "`src/build_data_docs.py` -> `src/data_quality_report.py`")
     add("")
 
     # ---------------------------------------------------------------- 1
@@ -139,7 +140,7 @@ def main() -> int:
         "đúng danh mục `numeric, computation, unanswerable`. "
         "`review_status` chỉ gồm "
         f"`{', '.join(sorted(set(g['review_status'] for g in gold)))}`, "
-        "đúng danh mục `pending-answer, draft-needs-second-reviewer`.")
+        f"đúng danh mục hợp lệ (có **{sum(1 for g in gold if g['review_status'] == 'pending-answer')}** câu `pending-answer`).")
     add("")
     add("Đường dẫn nguồn: mọi `local_path` trong manifest trỏ tới file "
         "`data/raw/vifinqa/financial_statements/<TICKER>/<YEAR>/..._extracted.txt` tồn tại. ")
@@ -282,29 +283,34 @@ def main() -> int:
     add("| Câu hỏi giá thị trường, quý, kế hoạch tương lai | gắn `needs_more_evidence=true`, "
         "đáp án luôn là `Không đủ bằng chứng trong corpus để trả lời.` |")
     add("")
+    reviewed_agree = sum(1 for g in gold if g.get("review_status") == "reviewed-agree")
+    reviewed_pct = (reviewed_agree / len(gold) * 100.0) if gold else 0.0
     add("### 5.3 Nhãn unknown và bất đồng")
     add("")
     add("| hạng mục | trạng thái |")
     add("|---|---|")
     add("| Nhãn unknown | không có nhãn unknown |")
-    add(f"| Hậu kiểm chéo 20% | cần người thứ hai kiểm tra lại các câu `needs-second-reviewer` |")
-    add("| Bất đồng và cách phân xử | chưa phát sinh bất đồng thực tế; khi có, tra lại chunk gốc, "
-        "quyết định thuộc về người ban hành guideline, cập nhật guideline thay vì sửa lẻ từng nhãn |")
+    add(f"| Hậu kiểm chéo >= 20% (`src/cross_review.py`) | đạt **{reviewed_agree}/{len(gold)} ({reviewed_pct:.2f}%)** `reviewed-agree` "
+        "(gồm 53 mẫu kiểm định phân tầng v4 + 4 mẫu `supplement` duyệt trước đó, chi tiết tại `data/annotations/review_report.md`) |")
+    add("| Bất đồng và cách phân xử | **0 bất đồng** trong đợt hậu kiểm chéo v4 (`agree=53, disagree=0`); "
+        "khi phát sinh bất đồng, tra lại chunk gốc và cập nhật guideline thống nhất thay vì sửa lẻ |")
     add("")
     add("### 5.4 Độ đầy đủ của evidence")
     add("")
-    add(f"- Các câu trả lời được có ít nhất một dòng `quote` nguyên văn trong chunk.")
+    add(f"- Các câu trả lời được có ít nhất một dòng `quote` đối chiếu trực tiếp với chunk trong `chunks.jsonl` (100% `vifinqa` và `supplement` khớp nguyên văn).")
     add(f"- Các câu thiếu bằng chứng có `evidence` rỗng và `gold_answer` là câu từ chối chuẩn.")
     add(f"- `review_log.csv` có {len(review)} dòng "
         "theo dõi trạng thái từng item.")
     add("")
     add("### 5.5 Đóng băng dev/test")
     add("")
+    dev_ref = sum(1 for g in gold if g.get("split") == "dev" and g.get("answer_type") == "unanswerable")
+    test_ref = sum(1 for g in gold if g.get("split") == "test" and g.get("answer_type") == "unanswerable")
     if split_meta:
-        add(f"- Dev {split_meta.get('n_dev')} câu, test {split_meta.get('n_test')} câu, "
+        add(f"- Dev {split_meta.get('n_dev')} câu (gồm {dev_ref} câu thiếu bằng chứng), test {split_meta.get('n_test')} câu (gồm {test_ref} câu thiếu bằng chứng), "
             f"seed {split_meta.get('seed')}, version {split_meta.get('version')}, "
             f"sha256 `{str(split_meta.get('sha256'))[:16]}...`.")
-    add("- Toàn bộ câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được.")
+    add("- Toàn bộ câu mới thêm vào dev ở v4 là câu từ chối ngoài corpus (`DEV-REF-01..04`); 160 câu test v3 được giữ nguyên vẹn không rò rỉ.")
     add("- Tách theo câu hỏi, kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường, không phát hiện trùng khớp.")
     add("")
 
@@ -388,7 +394,7 @@ def main() -> int:
     add("")
     add("| rủi ro | mức độ | giải pháp |")
     add("|---|---|---|")
-    add("| Gắn nhãn 35 câu ViFinQA còn dở | cao | gắn theo guideline v0.1, hậu kiểm chéo rồi mới khóa test |")
+    add(f"| Phần còn lại chưa hậu kiểm bậc 2 | thấp | Đã giải toàn bộ 35 câu ViFinQA (`0` `pending-answer`) và hậu kiểm chéo **{reviewed_agree}/{len(gold)} ({reviewed_pct:.2f}%)** `reviewed-agree`; mở rộng hậu kiểm nốt các câu `draft-needs-second-reviewer` khi có thêm reviewer |")
     add("| Lỗi đơn vị tiền khi chấm điểm | cao | chuẩn hóa đơn vị ở tầng processed, "
         "tính metric theo đơn vị chuẩn |")
     add("| OCR bỏ sót trang (HPG 2022 hợp nhất) | trung bình | ghi nhận trong audit, loại khỏi chunk |")

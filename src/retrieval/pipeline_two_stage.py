@@ -36,16 +36,18 @@ METRIC_SYNONYMS: dict[str, list[str]] = {
 }
 
 
-def detect_meta_extended(question: str) -> dict:
+from src.retrieval.table_lookup import detect_report_version, resolve_tickers
+
+def detect_meta_extended(question: str, use_aliases: bool = False) -> dict:
     up = question.upper()
-    tickers = [t for t in TICKERS if re.search(rf"(?<![A-Z]){t}(?![A-Z])", up)]
+    tickers = (
+        resolve_tickers(question)
+        if use_aliases
+        else [t for t in TICKERS if re.search(rf"(?<![A-Z]){t}(?![A-Z])", up)]
+    )
     years = YEAR_RE.findall(question)
     low = question.lower()
-    version = ""
-    if any(k in low for k in ["công ty mẹ", "cong ty me", "bản riêng", "ban rieng", "separate"]):
-        version = "separate"
-    elif any(k in low for k in ["hợp nhất", "hop nhat", "consolidated"]):
-        version = "consolidated"
+    version = detect_report_version(question)
     metric = ""
     for name, pat in METRIC_PATTERNS:
         if re.search(pat, low):

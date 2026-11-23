@@ -39,6 +39,10 @@ E6,dev,CLEAN-T3-HSG-2022-2023-B09,partial_answer,missing_answer,true_answer,Fals
 E6,dev,CLEAN-T3-NKG-2020-2021-B12,partial_answer,missing_answer,true_answer,False,True,,NKG_2021_consolidated#p002
 E6,dev,CLEAN-T3-NKG-2022-2023-B16,partial_answer,missing_answer,true_answer,False,True,,NKG_2022_consolidated#p001
 E6,dev,CLEAN-T3-NKG-2023-2024-B18,partial_answer,missing_answer,true_answer,False,True,,NKG_2023_consolidated#p002
+E6,dev,DEV-REF-01,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2024_consolidated#p031
+E6,dev,DEV-REF-02,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,NKG_2024_separate#p046
+E6,dev,DEV-REF-03,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,MSR_2023_consolidated#p002
+E6,dev,DEV-REF-04,refused,rule_or_empty_evidence,true_refusal,True,True,Không đủ bằng chứng trong corpus để trả lời.,HPG_2024_consolidated#p064
 E6,test,ViFinQA-97,partial_answer,missing_answer,true_answer,False,True,,HPG_2023_separate#p027
 E6,test,ViFinQA-186,ambiguous,conflicting_values,true_answer,False,True,,MSR_2021_separate#p020
 E6,test,ViFinQA-311,partial_answer,missing_answer,true_answer,False,True,,HSG_2024_separate#p056

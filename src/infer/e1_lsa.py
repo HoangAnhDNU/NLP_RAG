@@ -46,6 +46,7 @@ def main() -> int:
 
     cfg = load_config(Path(args.config))
     top_k = int(cfg["retrieval"]["top_k"])
+    save_k = max(top_k, 10)
 
     e0_cfg = load_config(ROOT / "config" / "e0_bm25.yaml")
     stopwords = set(e0_cfg.get("stopwords", []))
@@ -103,7 +104,7 @@ def main() -> int:
     for g in gold:
         q_vec = normalizer.transform(svd.transform(vectorizer.transform([" ".join(tokenize(g["question"]))])))
         scores = (X_dense @ q_vec[0]).tolist()
-        ranked = sorted(range(len(chunks)), key=lambda i: scores[i], reverse=True)[:top_k]
+        ranked = sorted(range(len(chunks)), key=lambda i: scores[i], reverse=True)[:save_k]
         top_chunks = [chunks[i] for i in ranked]
         top1 = top_chunks[0] if top_chunks else {}
         row = {"question_id": g["question_id"], "question": g["question"],

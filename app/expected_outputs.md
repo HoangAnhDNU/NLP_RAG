@@ -1,58 +1,57 @@
-# Kết quả mẫu đã chạy ngày 2026-11-10 (bản engine RAG thuần)
+# Kết quả mẫu đã kiểm chứng trên `app/qa_engine.py` (v4, ngày 2026-11-15)
 
-Chạy bằng Streamlit (`streamlit run app/streamlit_app.py`) hoặc kiểm thử
-`python app/check_demo.py` (môi trường NLP, không cần mô hình ngoài).
-Thanh bên Streamlit có 13 câu mẫu; 4 ví dụ dưới đây minh họa pipeline mới.
-Pipeline: câu hỏi -> trích metadata -> BM25 + điểm metadata ->
-lookup bảng -> ghép CONTEXT -> bộ sinh offline chỉ dùng CONTEXT theo
-`config/answer_policy.yaml` (không đọc thuộc gold).
-Màn hình kết quả giữ đúng 7 mục: 1. câu hỏi, 2. thực thể trích,
-3. trạng thái refusal, 4. top evidence highlight, 5. đường dẫn gốc và số trang,
-6. cảnh báo mâu thuẫn, 7. nút xem bảng gốc từ `table_records.jsonl`
-(kèm khung xem CONTEXT đã ghép).
+Chạy tương tác bằng Streamlit (`.venv\Scripts\streamlit.exe run app/streamlit_app.py`) hoặc kiểm thử tự động:
 
-## 1. Câu hỏi số liệu đầy đủ (S_NEW_07)
+```bash
+.venv\Scripts\python.exe app/check_demo.py
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
 
-Câu hỏi: Biên lợi nhuận gộp về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Tập đoàn Hoa Sen trong năm tài chính kết thúc ngày 30/09/2024 là bao nhiêu phần trăm?
+Pipeline dùng chung `src/retrieval/table_lookup.py` + BM25 + `src/retrieval/answer_policy.py` (không đọc thuộc gold):
+nhận câu hỏi -> trích metadata (`companies`, `years`, `report_version`, `target_unit`) -> BM25 cộng điểm metadata (`[0.0, 1.0]`) -> lookup/tổng hợp bảng (`table_records.jsonl`) -> ghép CONTEXT -> kiểm tra refusal & status.
 
-Trả lời sinh từ pipeline (không đọc thuộc gold): 10.8568 %
+Giao diện **Financial Intelligence** hiển thị: Verdict Card (pill trạng thái, đáp án, hộp phép tính, thẻ chunk), lưới 4 KPI thực thể trích xuất, và 2 tab (`Chứng cứ Top-K & Bảng số liệu gốc` và `CONTEXT gửi bộ sinh & Nhật ký truy hồi`).
 
-Phép tính: Biên gộp = 4.263.666.396.467 đồng / 39.271.893.738.448 đồng x 100 = 10.8568 %.
+## 1. Câu hỏi số liệu đầy đủ (`S_NEW_07`)
 
-Chunk chứng cứ: HSG_2024_consolidated#p009; HSG_2024_consolidated#p009
+- **Câu hỏi:** Biên lợi nhuận gộp về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Tập đoàn Hoa Sen trong năm tài chính kết thúc ngày 30/09/2024 là bao nhiêu phần trăm?
+- **Trạng thái:** `answered` (`refused=False`)
+- **Đáp án từ pipeline:** `10.8568 %`
+- **Phép tính:** `(4263666396467 / 39271893738448) × 100% = 10.8568 %`
+- **Top-5 nguồn trích dẫn (điểm chuẩn hóa `[0.0, 1.0]`):**
+  1. `HSG_2024_consolidated#p009` (trang 9, điểm `1.0`)
+  2. `HSG_2024_consolidated#p052` (trang 52, điểm `1.0`)
+  3. `HSG_2024_consolidated#p045` (trang 45, điểm `0.693`)
+  4. `HSG_2024_consolidated#p021` (trang 21, điểm `0.6168`)
+  5. `HSG_2024_consolidated#p053` (trang 53, điểm `0.6113`)
 
-Top nguồn trích dẫn (chunk chứng cứ được chèn lên top-1 để CONTEXT hiển thị đúng nguồn đã dùng):
+## 2. Câu thiếu bằng chứng (`S_NEW_08`)
 
-1. HSG 2024 consolidated trang 9 [HSG_2024_consolidated#p009] (điểm 999.0, chunk chứng cứ)
-2. HSG 2024 consolidated trang 12 [HSG_2024_consolidated#p012]
-3. HSG 2024 separate trang 44 [HSG_2024_separate#p044]
-4. HSG 2024 consolidated trang 45 [HSG_2024_consolidated#p045]
-5. HSG 2024 separate trang 39 [HSG_2024_separate#p039]
+- **Câu hỏi:** Giá đóng cửa cổ phiếu HPG ngày 31/12/2024 là bao nhiêu đồng?
+- **Trạng thái:** `refused` (`refused=True`)
+- **Trả lời đúng nguyên văn:** `Không đủ bằng chứng trong corpus để trả lời.`
+- **Chứng cứ:** 0 chunk (`check_refusal` từ chối an toàn trước khi sinh số liệu).
 
-Nhận xét: đáp án sinh trực tiếp từ lookup bảng + BM25, không đọc thuộc gold. CONTEXT gồm 5 chunks có citation được ghép trước khi sinh. Đoạn trích là cửa sổ 1200 ký tự quanh từ khóa, kèm nút xem toàn văn trên Streamlit.
+## 3. Câu diễn đạt lại (`PARA_01`)
 
-## 2. Câu thiếu bằng chứng (S_NEW_08)
+- **Câu hỏi:** Biên lợi nhuận gộp của Hoa Sen năm 2024 bao nhiêu phần trăm?
+- **Trạng thái:** `answered` (`refused=False`)
+- **Đáp án từ pipeline:** `10.8568 %`
+- **Phép tính:** `(4263666396467 / 39271893738448) × 100% = 10.8568 %`
+- **Top-1 nguồn trích dẫn:** `HSG_2024_consolidated#p009` (trang 9, điểm `1.0`)
 
-Câu hỏi: Giá đóng cửa cổ phiếu HPG ngày 31/12/2024 là bao nhiêu đồng?
+## 4. Câu ViFinQA đơn vị `%` (`ViFinQA-97`)
 
-Trả lời đúng nguyên văn: `Không đủ bằng chứng trong corpus để trả lời.`
+- **Câu hỏi:** Tỷ lệ sở hữu Công ty CP Gang thép Hòa Phát của HPG đến ngày 31/12/2023 là bao nhiêu %?
+- **Trạng thái:** `answered` (`refused=False`)
+- **Đáp án từ pipeline:** `99.988 %`
+- **Phép tính / nguồn bảng:** `Công ty CP Gang thép Hòa Phát (i): 99.988 %`
+- **Top-1 nguồn trích dẫn:** `HPG_2023_separate#p027` (trang 27, điểm `0.8808`), ưu tiên ô bảng đơn vị `%` thay vì giá gốc `VND`.
 
-## 3. Câu diễn đạt lại (PARA_01)
+## 5. Câu so sánh / chênh lệch hai năm (`T2/T3` qua `table_lookup`)
 
-Câu hỏi: Biên lợi nhuận gộp của Hoa Sen năm 2024 bao nhiêu phần trăm?
-
-Trả lời sinh từ pipeline (không đi tắt qua gold): 10.8568 %.
-
-Phép tính: Biên gộp = 4.263.666.396.467 đồng / 39.271.893.738.448 đồng x 100 = 10.8568 %.
-
-Nhận xét: câu ngắn gọn vẫn trích đúng HSG 2024 consolidated và sinh cùng đáp án với câu đầy đủ, chứng tỏ pipeline dùng bảng chứ không khớp nguyên văn gold. Khi pipeline không chắc chắn mới hiện gợi ý câu gần nhất để chạy lại.
-
-## 4. Câu ViFinQA (ViFinQA-97)
-
-Câu hỏi: Tỷ lệ sở hữu Công ty CP Gang thép Hòa Phát của HPG đến ngày 31/12/2023 là bao nhiêu %?
-
-Trả lời sinh từ pipeline: 99.988 %.
-
-Phép tính: 99,988% (ô bảng, đơn vị %) = 99.988 %. Nguồn HPG_2023_separate#p027 trang 27.
-
-Nhận xét: pipeline ưu tiên ô bảng cùng đơn vị % nên không còn nhầm sang giá gốc VND. CONTEXT gồm 5 chunks đúng vùng HPG, top-1 là chunk chứng cứ. Câu ViFinQA còn lại (ViFinQA-99) sinh 948.3035 tỷ đồng từ NKG_2022_consolidated#p008 theo cùng đường lookup.
+- **Câu hỏi:** Nợ ngắn hạn hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 tăng hay giảm bao nhiêu so với năm 2023 (cùng đơn vị báo cáo)?
+- **Trạng thái:** `answered` (`refused=False`)
+- **Đáp án từ pipeline:** `2.0635 nghìn tỷ đồng`
+- **Phép tính:** `2024: 8.6324 nghìn tỷ đồng - 2023: 6.5689 nghìn tỷ đồng = 2.0635 nghìn tỷ đồng`
+- **Top-1 nguồn trích dẫn:** `HSG_2024_consolidated#p008` (trang 8, điểm `1.0`).

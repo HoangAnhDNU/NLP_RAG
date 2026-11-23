@@ -31,11 +31,16 @@ refusal:
     - "6 tháng"
     - "kế hoạch"
     - "dự báo"
+    - "dự kiến"
     - "giá đóng cửa"
     - "vốn hóa thị trường"
     - "thị giá"
+    - "xếp hạng tín nhiệm"
+    - "cổ tức trên cổ phiếu"
+    - "giá cổ phiếu"
     - "giá bán bình quân"
     - "tổng số cổ đông"
+    - "số lượng cổ đông"
 query:
   normalization: NFC-lower-strip
   use_question_as_is: true

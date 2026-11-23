@@ -19,6 +19,7 @@ Ví dụ:
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
@@ -55,6 +56,25 @@ def norm_question(text: str) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Build v1 synthetic gold QA set and splits.")
+    parser.add_argument(
+        "--force-v1",
+        action="store_true",
+        help="Allow overwriting an existing qa_gold.jsonl with > 50 rows.",
+    )
+    args = parser.parse_args()
+
+    if QA_JSONL.exists():
+        with open(QA_JSONL, encoding="utf-8") as f:
+            existing_count = sum(1 for line in f if line.strip())
+        if existing_count > 50 and not args.force_v1:
+            print(
+                f"Refusing to overwrite {QA_JSONL} ({existing_count} rows > 50). "
+                "Pass --force-v1 to explicitly regenerate v1.",
+                file=sys.stderr,
+            )
+            return 1
+
     matched = list(csv.DictReader(open(PROCESSED / "questions_matched.csv", encoding="utf-8")))
     supplement = [json.loads(line) for line in open(ANNOT / "qa_gold_supplement.jsonl", encoding="utf-8")]
 

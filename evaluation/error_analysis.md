@@ -1,8 +1,8 @@
 # Phân tích lỗi E0/E1/E2 (do script sinh, không chọn tay mẫu đẹp)
 
-Nguồn số liệu: `evaluation/metrics_summary.csv` và 3 file `evaluation/test_predictions/test_predictions_E*.csv` cùng `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test 160 câu, khớp `evaluation/split_freeze.json`, k bằng 5.
+Nguồn số liệu: `evaluation/metrics_summary.csv` và các file `evaluation/test_predictions/test_predictions_E*.csv`, `evaluation/dev_predictions/dev_predictions_E*.csv` (do `src/evaluate/evaluate.py` sinh). Cùng test 160 câu, khớp `evaluation/split_freeze.json`, lưu tối đa 10 chunk (chấm @5 và `ctxP@5`/`ctxR@5` trên top-5, `@10` trên top-10).
 
-Bảng chính (test n=160, 118 câu có evidence; dev n=40, 31 câu có evidence): E0 R@5 bằng 0.0847 MRR@5 bằng 0.0528 cite bằng 0.0424 refusal P/R bằng 0.0/0.0; E1 R@5 bằng 0.0254 MRR@5 bằng 0.0134 cite bằng 0.0085 refusal P/R bằng 0.0/0.0; E2 R@5 bằng 0.1356 MRR@5 bằng 0.0582 cite bằng 0.0085 refusal P/R bằng 1.0/0.75. E0-E2 không sinh đáp án số nên numeric match bằng 0,0 theo thiết kế.
+Bảng chính (test n=160, 144 câu có evidence; dev n=44, 40 câu có evidence): E0 R@5=0.0764 R@10=0.125 MRR@5=0.0502 cite=0.0417 refusal P/R=0.0/0.0; E1 R@5=0.0417 R@10=0.0903 MRR@5=0.022 cite=0.0139 refusal P/R=0.0/0.0; E2 R@5=0.1389 R@10=0.2083 MRR@5=0.065 cite=0.0208 refusal P/R=1.0/1.0. E0-E2 không sinh đáp án số nên numeric match bằng 0,0 theo thiết kế.
 
 Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu từ vựng, sai đơn vị, sai phép tính, thiếu từ chối, nhãn chưa đủ. Đánh giá retrieval và answer riêng: retrieval đúng (Recall@5 bằng 1 ở S_NEW_07) nhưng citation và answer vẫn sai.
 
@@ -10,7 +10,7 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 
 - item_id và loại lỗi: `S_NEW_01`; Nhiễu từ vựng: trang thuyết minh lấn át trang kết quả cùng báo cáo.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Doanh thu thuần về bán hàng và cung cấp dịch vụ hợp nhất của HSG năm tài chính kết thúc 30/09/2024 là bao nhiêu nghìn tỷ đồng. Nguồn đúng: báo cáo hợp nhất HSG 2024, trang kết quả kinh doanh.
-- Gold hoặc đáp án tham chiếu: Gold: `39.2719 nghìn tỷ đồng`, evidence: `HSG_2024_consolidated#p009; HSG_2024_consolidated#p009`
+- Gold hoặc đáp án tham chiếu: Gold: `39.2719 nghìn tỷ đồng`, evidence: `HSG_2024_consolidated#p009`
 - Prediction E0, E1, E2:
 - E0 top-1 `HSG_2024_consolidated#p045` (điểm 35.3326), top-5 `HSG_2024_consolidated#p045;HSG_2024_separate#p044;HSG_2024_separate#p050;HSG_2024_consolidated#p053;NKG_2020_consolidated#p038`, answer: (để trống)
 - E1 top-1 `HSG_2024_consolidated#p045` (điểm 0.8647), top-5 `HSG_2024_consolidated#p045;HSG_2024_separate#p044;HSG_2024_separate#p050;NKG_2024_separate#p042;NKG_2024_consolidated#p043`, answer: (để trống)
@@ -23,7 +23,7 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 
 - item_id và loại lỗi: `S_NEW_02`; Sai công ty và sai năm ở E0, kèm nguy cơ sai đơn vị triệu đồng.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Lợi nhuận sau thuế TNDN hợp nhất của NKG năm 2024 là bao nhiêu triệu đồng. Nguồn đúng: NKG hợp nhất 2024 trang 11.
-- Gold hoặc đáp án tham chiếu: Gold: `453008.1444 triệu đồng`, evidence: `NKG_2024_consolidated#p011; NKG_2024_consolidated#p011`
+- Gold hoặc đáp án tham chiếu: Gold: `453008.1444 triệu đồng`, evidence: `NKG_2024_consolidated#p011`
 - Prediction E0, E1, E2:
 - E0 top-1 `HSG_2020_consolidated#p060` (điểm 25.1327), top-5 `HSG_2020_consolidated#p060;NKG_2024_consolidated#p045;HSG_2020_separate#p060;NKG_2023_consolidated#p043;NKG_2022_consolidated#p044`, answer: (để trống)
 - E1 top-1 `NKG_2024_consolidated#p045` (điểm 0.5818), top-5 `NKG_2024_consolidated#p045;HSG_2024_consolidated#p049;NKG_2023_consolidated#p043;HSG_2020_consolidated#p060;NKG_2023_consolidated#p002`, answer: (để trống)
@@ -36,7 +36,7 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 
 - item_id và loại lỗi: `S_NEW_04`; Sai phiên bản báo cáo: consolidated thay cho separate.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Tiền và các khoản tương đương tiền của công ty mẹ HPG (báo cáo riêng) tại 31/12/2024. Nguồn đúng: HPG separate trang 7.
-- Gold hoặc đáp án tham chiếu: Gold: `319.2579 tỷ đồng`, evidence: `HPG_2024_separate#p007; HPG_2024_separate#p007`
+- Gold hoặc đáp án tham chiếu: Gold: `319.2579 tỷ đồng`, evidence: `HPG_2024_separate#p007`
 - Prediction E0, E1, E2:
 - E0 top-1 `HPG_2024_consolidated#p037` (điểm 25.0293), top-5 `HPG_2024_consolidated#p037;HPG_2024_separate#p019;HSG_2020_separate#p060;HPG_2024_separate#p025;HPG_2023_consolidated#p038`, answer: (để trống)
 - E1 top-1 `HPG_2024_consolidated#p037` (điểm 0.7465), top-5 `HPG_2024_consolidated#p037;HPG_2021_consolidated#p044;HPG_2020_consolidated#p040;HPG_2023_consolidated#p038;MSR_2022_consolidated#p041`, answer: (để trống)
@@ -49,7 +49,7 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 
 - item_id và loại lỗi: `S_NEW_06`; Sai năm: dense LSA trôi 4 năm và top-1 rơi vào trang thuyết minh năm trước.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Lãi cơ bản trên cổ phiếu hợp nhất của NKG năm 2024 là bao nhiêu đồng. Nguồn đúng: NKG hợp nhất 2024 trang 11.
-- Gold hoặc đáp án tham chiếu: Gold: `1434 đồng`, evidence: `NKG_2024_consolidated#p011; NKG_2024_consolidated#p011`
+- Gold hoặc đáp án tham chiếu: Gold: `1434 đồng`, evidence: `NKG_2024_consolidated#p011`
 - Prediction E0, E1, E2:
 - E0 top-1 `NKG_2024_consolidated#p042` (điểm 23.0614), top-5 `NKG_2024_consolidated#p042;NKG_2024_consolidated#p041;NKG_2021_consolidated#p040;NKG_2022_consolidated#p041;NKG_2022_consolidated#p040`, answer: (để trống)
 - E1 top-1 `NKG_2020_consolidated#p037` (điểm 0.7290), top-5 `NKG_2020_consolidated#p037;MSR_2024_consolidated#p073;NKG_2021_consolidated#p040;HPG_2020_consolidated#p068;HSG_2024_consolidated#p044`, answer: (để trống)
@@ -62,37 +62,37 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 
 - item_id và loại lỗi: `S_NEW_07`; Retrieval trúng nhưng citation top-1 sai, kèm sai phép tính biên lợi nhuận.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Biên lợi nhuận gộp hợp nhất của HSG năm tài chính kết thúc 30/09/2024 là bao nhiêu phần trăm. Cần tính từ doanh thu thuần và giá vốn. Nguồn đúng: HSG hợp nhất trang 9.
-- Gold hoặc đáp án tham chiếu: Gold: `10.8568 %`, evidence: `HSG_2024_consolidated#p009; HSG_2024_consolidated#p009`
+- Gold hoặc đáp án tham chiếu: Gold: `10.8568 %`, evidence: `HSG_2024_consolidated#p009`
 - Prediction E0, E1, E2:
 - E0 top-1 `HSG_2024_separate#p050` (điểm 36.2036), top-5 `HSG_2024_separate#p050;HSG_2024_consolidated#p052;HSG_2020_consolidated#p060;HSG_2024_consolidated#p009;HSG_2020_separate#p060`, answer: (để trống)
 - E1 top-1 `HSG_2024_separate#p009` (điểm 0.7523), top-5 `HSG_2024_separate#p009;HSG_2024_consolidated#p045;HSG_2024_consolidated#p009;HSG_2024_separate#p050;HSG_2024_separate#p044`, answer: (để trống)
 - E2 top-1 `HSG_2024_separate#p050` (điểm 1.1246), top-5 `HSG_2024_separate#p050;HSG_2024_consolidated#p009;HSG_2024_consolidated#p052;HSG_2024_separate#p009;NKG_2024_consolidated#p011`, answer: (để trống)
 - Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Trích dẫn và phép tính: cả 3 runs đều có chunk gold trong top-5 (E0 hạng 4, E1 hạng 3, E2 hạng 2) nên Recall@5 bằng 1, nhưng top-1 lại là bản separate thay vì consolidated nên citation correctness vẫn bằng 0.0. Đây là ví dụ điển hình retrieval đúng nhưng citation và đáp án vẫn sai. Ngoài ra cả 3 runs không sinh văn bản nên phép tính biên lợi nhuận gộp chưa từng được thực hiện, numeric match bằng 0.0 theo thiết kế.
 - Ảnh hưởng của lỗi đến người dùng: Hệ thống báo trúng nhưng trích dẫn đầu tiên vẫn sai bản báo cáo. Người dùng kiểm chứng sẽ thấy số liệu bản riêng khác bản hợp nhất. Thiếu phép tính khiến đáp án phần trăm không bao giờ xuất hiện.
-- Đề xuất thay đổi và phép thử kế tiếp: Xếp lại 5 chunk đầu bằng bộ lọc report_version: câu hỏi có hợp nhất thì đẩy consolidated lên trước khi chọn top-1 để trích dẫn. Phép thử: áp dụng lại trên 5 câu test có evidence, sau đó bổ sung bước tính (lợi nhuận gộp chia doanh thu thuần nhân 100).
+- Đề xuất thay đổi và phép thử kế tiếp: Xếp lại 5 chunk đầu bằng bộ lọc report_version: câu hỏi có hợp nhất thì đẩy consolidated lên trước khi chọn top-1 để trích dẫn. Phép thử: áp dụng trên toàn bộ tập test có evidence, sau đó bổ sung bước tính (lợi nhuận gộp chia doanh thu thuần nhân 100).
 
-## 6. S_NEW_03 (dev) - Dense và hybrid thua BM25 trên câu hiếm MSR
+## 6. S_NEW_03 (dev) - Dense và hybrid thua BM25 trên câu dùng tên đầy đủ của MSR
 
-- item_id và loại lỗi: `S_NEW_03 (dev)`; Dense và hybrid thua BM25 trên câu hiếm MSR.
+- item_id và loại lỗi: `S_NEW_03 (dev)`; Dense và hybrid thua BM25 trên câu dùng tên đầy đủ của MSR.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Doanh thu thuần hợp nhất của MSR năm 2024. Nguồn đúng: MSR hợp nhất trang 11.
-- Gold hoặc đáp án tham chiếu: Gold: `14336.3287 tỷ đồng`, evidence: `MSR_2024_consolidated#p011; MSR_2024_consolidated#p011`
+- Gold hoặc đáp án tham chiếu: Gold: `14336.3287 tỷ đồng`, evidence: `MSR_2024_consolidated#p011`
 - Prediction E0, E1, E2:
 - E0 top-1 `HSG_2024_consolidated#p045` (điểm 30.6682), top-5 `HSG_2024_consolidated#p045;NKG_2020_consolidated#p038;NKG_2021_consolidated#p041;HSG_2024_separate#p044;MSR_2024_consolidated#p011`, answer: (để trống)
 - E1 top-1 `HSG_2024_consolidated#p045` (điểm 0.8163), top-5 `HSG_2024_consolidated#p045;HSG_2024_separate#p044;NKG_2024_separate#p042;NKG_2024_consolidated#p043;NKG_2020_consolidated#p038`, answer: (để trống)
 - E2 top-1 `HSG_2024_consolidated#p045` (điểm 1.1500), top-5 `HSG_2024_consolidated#p045;HSG_2024_separate#p044;NKG_2020_consolidated#p038;NKG_2024_separate#p042;NKG_2024_consolidated#p043`, answer: (để trống)
-- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Mô hình: chỉ E0 trúng ở hạng 5 (`MSR_2024_consolidated#p011`), E1 và E2 trật cả top-5 và cùng đổ về `HSG_2024_consolidated#p045`. MSR xuất hiện ít trong corpus (4 trên 40 báo cáo) nên vector LSA của MSR bị lấn át bởi HSG và NKG cùng nghĩa. Giả thuyết E1 sai trên câu này.
-- Ảnh hưởng của lỗi đến người dùng: Chứng minh giả thuyết dense tốt hơn BM25 không đúng với thực thể hiếm. Nếu chọn mô hình bằng dev nhỏ sẽ kết luận sai.
-- Đề xuất thay đổi và phép thử kế tiếp: Cân bằng lại corpus theo công ty hoặc dùng trọng số IDF mạnh hơn cho tên MSR. Phép thử: tăng gấp đôi trọng số token MSR trong query LSA.
+- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Mô hình: nếu E0 không tách tên công ty tiếng Việt hoặc dense/hybrid bỏ sót alias, câu hỏi ghi tên đầy đủ 'CTCP Masan High-Tech Materials' thay vì mã MSR (MSR chiếm 10/40 báo cáo trong corpus) dễ bị nhiễu thực thể giữa HSG và MSR.
+- Ảnh hưởng của lỗi đến người dùng: Chứng minh giả thuyết dense tốt hơn BM25 không đúng khi câu hỏi dùng tên đầy đủ thay vì mã CK. Nếu chọn mô hình bằng dev nhỏ sẽ kết luận sai.
+- Đề xuất thay đổi và phép thử kế tiếp: Dùng `resolve_tickers()` ánh xạ tên tiếng Việt đầy đủ sang mã CK (MSR/HSG/HPG/NKG) trước khi cộng điểm metadata và tính trọng số query.
 
-## 7. S_NEW_05 (dev) - Sai công ty và sai năm: E1 trôi sang HPG_2021
+## 7. S_NEW_05 - Sai công ty và sai năm: E1 trôi sang HPG_2021
 
-- item_id và loại lỗi: `S_NEW_05 (dev)`; Sai công ty và sai năm: E1 trôi sang HPG_2021.
+- item_id và loại lỗi: `S_NEW_05`; Sai công ty và sai năm: E1 trôi sang HPG_2021.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Tiền và các khoản tương đương tiền hợp nhất của HSG tại 30/09/2024. Nguồn đúng: HSG hợp nhất trang 7.
-- Gold hoặc đáp án tham chiếu: Gold: `602.0718 tỷ đồng`, evidence: `HSG_2024_consolidated#p007; HSG_2024_consolidated#p007`
+- Gold hoặc đáp án tham chiếu: Gold: `602.0718 tỷ đồng`, evidence: `HSG_2024_consolidated#p007`
 - Prediction E0, E1, E2:
-- E0 top-1 `` (điểm ), top-5 ``, answer: (để trống)
-- E1 top-1 `` (điểm ), top-5 ``, answer: (để trống)
-- E2 top-1 `` (điểm ), top-5 ``, answer: (để trống)
+- E0 top-1 `HSG_2024_consolidated#p024` (điểm 20.5364), top-5 `HSG_2024_consolidated#p024;HSG_2020_consolidated#p060;HSG_2024_separate#p039;HSG_2022_separate#p021;HSG_2021_consolidated#p025`, answer: (để trống)
+- E1 top-1 `HPG_2021_consolidated#p044` (điểm 0.6939), top-5 `HPG_2021_consolidated#p044;HSG_2021_consolidated#p025;HPG_2024_consolidated#p037;HPG_2020_consolidated#p040;HPG_2023_consolidated#p038`, answer: (để trống)
+- E2 top-1 `HSG_2024_consolidated#p024` (điểm 0.9872), top-5 `HSG_2024_consolidated#p024;HPG_2024_consolidated#p037;HSG_2021_consolidated#p025;HSG_2022_separate#p021;HPG_2023_consolidated#p038`, answer: (để trống)
 - Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Truy hồi: E1 top-1 là `HPG_2021_consolidated#p044`, sai cả HSG thành HPG và 2024 thành 2021. Cụm tiền và các khoản tương đương tiền là tiêu đề bảng phổ biến ở mọi báo cáo nên cosine dense gần như chỉ đo độ dài vector, không giữ được điều kiện thực thể.
 - Ảnh hưởng của lỗi đến người dùng: Top-1 hoàn toàn không liên quan, người dùng mất niềm tin ngay từ kết quả đầu tiên.
 - Đề xuất thay đổi và phép thử kế tiếp: Bắt buộc lọc trước công ty và năm khi câu hỏi có mã CK và năm rõ ràng, rồi mới tính cosine dense. Phép thử: chỉ truy hồi trong 2 báo cáo HSG 2024 rồi mới xếp hạng.
@@ -123,31 +123,31 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 - Ảnh hưởng của lỗi đến người dùng: Hệ thống có thể khiến người dùng tưởng số cả năm là số quý 1 nếu họ tự đọc chunk. Đây là lỗi hiểu lầm đơn vị kỳ báo cáo.
 - Đề xuất thay đổi và phép thử kế tiếp: Bổ sung nhận diện kỳ báo cáo (quý, bán niên, 6 tháng) và đối chiếu với metadata corpus (chỉ có báo cáo năm) để từ chối có giải thích. Phép thử: mở rộng pattern kèm lý do thay vì một câu cứng.
 
-## 10. ViFinQA-368 - Nhãn chưa đầy đủ: câu đa bước không thể chấm bằng chunk một trang
+## 10. ViFinQA-368 - Câu đa bước đa công ty: truy hồi một trang không gom đủ bằng chứng
 
-- item_id và loại lỗi: `ViFinQA-368`; Nhãn chưa đầy đủ: câu đa bước không thể chấm bằng chunk một trang.
+- item_id và loại lỗi: `ViFinQA-368`; Câu đa bước đa công ty: truy hồi một trang không gom đủ bằng chứng.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Năm 2022, trong nhóm HPG, HSG, MSR và NKG, các công ty có hệ số thanh toán nhanh thấp hơn trung vị của nhóm có biên lợi nhuận ròng bình quân là bao nhiêu phần trăm?... (cần lọc nhóm theo trung vị rồi tính bình quân trên nhiều công ty và năm)
-- Gold hoặc đáp án tham chiếu: Gold: `(trống)`, evidence: `(chưa có evidence, pending-answer)`, split: test
+- Gold hoặc đáp án tham chiếu: Gold: `0.5909 %`, evidence: `HSG_2022_consolidated#p006; HSG_2022_consolidated#p008; HSG_2022_consolidated#p009; MSR_2022_consolidated#p009; MSR_2022_consolidated#p011; MSR_2022_consolidated#p012; HPG_2022_consolidated#p007; HPG_2022_consolidated#p009; NKG_2022_consolidated#p008; NKG_2022_consolidated#p010`, status: `reviewed-agree`, split: test
 - Prediction E0, E1, E2:
 - E0 top-1 `MSR_2023_consolidated#p035` (điểm 18.6332), top-5 `MSR_2023_consolidated#p035;HSG_2022_separate#p031;MSR_2021_consolidated#p034;MSR_2023_consolidated#p073;HSG_2021_consolidated#p022`, answer: (để trống)
 - E1 top-1 `HSG_2023_consolidated#p055` (điểm 0.5480), top-5 `HSG_2023_consolidated#p055;HSG_2020_consolidated#p057;HPG_2023_consolidated#p064;HPG_2021_consolidated#p071;HSG_2021_consolidated#p059`, answer: (để trống)
 - E2 top-1 `MSR_2023_consolidated#p035` (điểm 0.9444), top-5 `MSR_2023_consolidated#p035;HSG_2023_consolidated#p055;MSR_2021_consolidated#p034;HPG_2023_consolidated#p064;MSR_2022_consolidated#p069`, answer: (để trống)
-- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Nhãn và truy hồi: 35 câu ViFinQA vẫn ở trạng thái pending-answer, không có evidence nên Recall@k và numeric match không tính được trên nhóm này. Câu này cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG, giai đoạn 2022-2023) trong khi chunk hiện tại là một trang, không có bước tính trung gian.
-- Ảnh hưởng của lỗi đến người dùng: Metric retrieval chỉ tính trên câu có evidence (test 64 câu, dev 16 câu), nhóm ViFinQA pending không đóng góp vào R@5. Người dùng hỏi câu so sánh nhóm sẽ không bao giờ được trả lời đầy đủ với chunk một trang.
-- Đề xuất thay đổi và phép thử kế tiếp: Gán nhãn evidence theo từng bước (đa bước): mỗi bước một chunk kèm công thức. Trước mắt đánh dấu nhóm này là needs_decomposition để không trộn vào metric hiện tại. Phép thử: thử nghiệm trên 3 câu 368, 369, 373 với pipeline 2 bước.
+- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Truy hồi đa bước (trạng thái gold hiện tại: `reviewed-agree`, còn 0 câu ViFinQA `pending-answer`): câu hỏi cần tổng hợp số liệu nhiều báo cáo (HPG, HSG, MSR, NKG) trong khi E0-E2 truy hồi một lượt trên top-5 chunk đơn lẻ, không tách truy vấn con theo từng công ty.
+- Ảnh hưởng của lỗi đến người dùng: Metric retrieval hiện tính trên tập câu có evidence (test 144 câu, dev 40 câu). Với câu so sánh đa công ty, top-5 chunk một lượt thường bỏ sót ít nhất một thực thể.
+- Đề xuất thay đổi và phép thử kế tiếp: Tách truy vấn đa bước theo từng cặp (công ty, năm) rồi tổng hợp trung vị/bình quân; kiểm tra phủ đủ thực thể qua `decide_status()` (`missing_multi_entity_evidence`).
 
-## 11. ViFinQA-97 - Nhãn chưa đầy đủ: câu đơn chỉ tiêu nhưng vẫn thiếu evidence
+## 11. ViFinQA-97 - Câu đơn chỉ tiêu tỷ lệ sở hữu: E0-E2 không trích xuất câu trả lời %
 
-- item_id và loại lỗi: `ViFinQA-97`; Nhãn chưa đầy đủ: câu đơn chỉ tiêu nhưng vẫn thiếu evidence.
+- item_id và loại lỗi: `ViFinQA-97`; Câu đơn chỉ tiêu tỷ lệ sở hữu: E0-E2 không trích xuất câu trả lời %.
 - Đầu vào, nguồn và chứng cứ hợp lệ: Tỷ lệ sở hữu Công ty CP Gang thép Hòa Phát của HPG đến ngày 31/12/2023 là bao nhiêu %?
-- Gold hoặc đáp án tham chiếu: Gold: `(trống)`, evidence: `(chưa có evidence, pending-answer)`, split: test
+- Gold hoặc đáp án tham chiếu: Gold: `99.988 %`, evidence: `HPG_2023_separate#p027`, status: `reviewed-agree`, split: test
 - Prediction E0, E1, E2:
 - E0 top-1 `HPG_2023_separate#p027` (điểm 32.6302), top-5 `HPG_2023_separate#p027;HPG_2021_separate#p030;HPG_2022_separate#p027;HPG_2020_separate#p030;HPG_2023_consolidated#p017`, answer: (để trống)
 - E1 top-1 `HPG_2021_separate#p030` (điểm 0.8317), top-5 `HPG_2021_separate#p030;HPG_2020_separate#p030;HPG_2022_separate#p027;HPG_2024_separate#p036;HPG_2023_separate#p037`, answer: (để trống)
 - E2 top-1 `HPG_2023_separate#p027` (điểm 0.9951), top-5 `HPG_2023_separate#p027;HPG_2021_separate#p030;HPG_2020_separate#p030;HPG_2022_separate#p027;HPG_2023_consolidated#p017`, answer: (để trống)
-- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Nhãn: câu đơn công ty (tỷ lệ sở hữu Gang thép Hòa Phát của HPG 2023) vẫn chưa được gán evidence. Dù truy hồi trả về chunk đúng vùng (`HPG_2023_separate#p027` ở E0 và E2) thì script chấm vẫn bỏ qua vì gold_chunk_ids rỗng.
-- Ảnh hưởng của lỗi đến người dùng: Hệ thống có thể làm đúng nhưng không được cộng điểm trên 35 câu pending này, gây lệch đánh giá thấp hơn năng lực thật ở nhóm ViFinQA. Người dùng không ảnh hưởng trực tiếp nhưng nhóm mất cơ sở chọn mô hình nếu chỉ nhìn R@5.
-- Đề xuất thay đổi và phép thử kế tiếp: Ưu tiên gán nhãn 35 câu ViFinQA đơn thực thể trước, câu đa bước sau. Phép thử: gán thêm 10 câu đơn rồi chạy lại metric để kiểm tra độ nhạy R@5.
+- Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): Truy hồi & trích xuất đơn vị (trạng thái gold hiện tại: `reviewed-agree`): E0 và E2 tìm đúng vùng (`HPG_2023_separate#p027`), nhưng E0-E2 không sinh đáp án, còn pipeline lookup dễ nhầm cột vốn góp VND với cột tỷ lệ sở hữu `%` nếu thiếu lọc `target_unit`.
+- Ảnh hưởng của lỗi đến người dùng: Nếu hệ thống không ưu tiên bản ghi khớp đơn vị `%`, người dùng có thể nhận giá trị VND thô thay cho tỷ lệ phần trăm sở hữu.
+- Đề xuất thay đổi và phép thử kế tiếp: Ưu tiên lọc `target_unit` trong `table_lookup` (khớp `%` trước khi fallback) và kiểm tra đánh giá qua `evaluate.py`.
 
 ## 12. OCR và đơn vị: HSG_2024_consolidated#p009 và NKG_2024_consolidated#p011 - Lỗi OCR làm nhiễu tokenize và rủi ro sai đơn vị tiền
 
@@ -157,6 +157,6 @@ Nhóm lỗi: OCR, sai năm, sai công ty, sai phiên bản báo cáo, nhiễu t�
 - Prediction E0, E1, E2:
 E0, E1, E2 vẫn index cả hai trang, nhưng token từ tiêu đề bảng có thể thừa hoặc mang dấu sai.
 - Nguyên nhân khả dĩ (nhãn, OCR, số, mô hình, truy hồi, prompt): OCR: tiêu đề bảng HSG có dấu sắc đặt sai, trang NKG dính ký tự rác lặp lại hàng chục lần nên tạo token rác. Tokenizer giữ dấu nên từ sai dấu và từ đúng dấu có thể thành 2 token khác nhau, làm giảm điểm BM25 và TF-IDF của tiêu đề bảng. Đơn vị VND thô trong chunk cũng khác đơn vị đã đổi trong gold nên so khớp số nguyên văn sẽ trượt nếu không đổi đơn vị trước.
-- Ảnh hưởng của lỗi đến người dùng: Trực tiếp làm giảm điểm chunk gold, góp phần vào 4 trên 5 câu test trật top-1. Người dùng thấy trích dẫn vẫn đọc được số, nhưng hệ thống khó tìm thấy nó. Sai hệ số đổi đơn vị có thể biến 3,2 phần trăm thành 32 phần trăm.
-- Đề xuất thay đổi và phép thử kế tiếp: Tiền xử lý riêng tiêu đề bảng: chuẩn hóa dấu sai, xóa dãy ký tự rác dài hơn 5 ký tự trước khi index nhưng giữ bản gốc để trích dẫn. Phép thử: đo lại R@5 trên 7 câu có evidence sau khi lọc, kèm kiểm tra đổi đơn vị VND sang nghìn tỷ, triệu đồng và phần trăm.
+- Ảnh hưởng của lỗi đến người dùng: Làm giảm điểm chunk gold trong tập test (144 câu có evidence). Người dùng thấy trích dẫn vẫn đọc được số nhưng hệ thống dễ rơi sang trang thuyết minh, đồng thời nếu không chuẩn hóa đơn vị khi chấm sẽ sinh unsupported claim giả.
+- Đề xuất thay đổi và phép thử kế tiếp: Tiền xử lý riêng tiêu đề bảng (chuẩn hóa dấu sai, xóa chuỗi rác dài) nhưng giữ bản gốc để trích dẫn; dùng quy đổi đơn vị chuẩn trong `table_lookup.py` và `numbers_in_context()`.
 

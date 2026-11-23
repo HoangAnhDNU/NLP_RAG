@@ -51,6 +51,7 @@ def main() -> int:
 
     cfg = load_config(Path(args.config))
     top_k = args.top_k or int(cfg["retrieval"]["top_k"])
+    save_k = max(top_k, 10)
     stopwords = set(cfg.get("stopwords", []))
 
     chunks_path = ROOT / cfg["corpus"]["chunks"]
@@ -89,7 +90,7 @@ def main() -> int:
 
     by_split: dict[str, list[dict]] = {"dev": [], "test": []}
     for g in gold:
-        ranked = retriever.top_k(tokenize(g["question"]), top_k)
+        ranked = retriever.top_k(tokenize(g["question"]), save_k)
         top_chunks = [chunks[i] for i, _ in ranked]
         top1 = top_chunks[0] if top_chunks else {}
         row = {

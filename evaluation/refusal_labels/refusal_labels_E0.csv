@@ -39,6 +39,10 @@ E0,dev,CLEAN-T3-HSG-2022-2023-B09,partial_answer,missing_answer,true_answer,Fals
 E0,dev,CLEAN-T3-NKG-2020-2021-B12,partial_answer,missing_answer,true_answer,False,True,,MSR_2020_consolidated#p020
 E0,dev,CLEAN-T3-NKG-2022-2023-B16,partial_answer,missing_answer,true_answer,False,True,,MSR_2022_consolidated#p022
 E0,dev,CLEAN-T3-NKG-2023-2024-B18,partial_answer,missing_answer,true_answer,False,True,,NKG_2024_separate#p014
+E0,dev,DEV-REF-01,ambiguous,conflicting_values,missed_refusal,True,True,,MSR_2022_consolidated#p031
+E0,dev,DEV-REF-02,partial_answer,missing_answer,missed_refusal,True,True,,NKG_2024_consolidated#p004
+E0,dev,DEV-REF-03,partial_answer,missing_answer,missed_refusal,True,True,,MSR_2023_consolidated#p002
+E0,dev,DEV-REF-04,partial_answer,missing_answer,missed_refusal,True,True,,HPG_2024_consolidated#p031
 E0,test,ViFinQA-97,partial_answer,missing_answer,true_answer,False,True,,HPG_2023_separate#p027
 E0,test,ViFinQA-186,ambiguous,conflicting_values,true_answer,False,True,,MSR_2022_consolidated#p056
 E0,test,ViFinQA-311,ambiguous,conflicting_values,true_answer,False,True,,MSR_2020_consolidated#p068

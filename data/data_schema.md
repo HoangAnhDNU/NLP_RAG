@@ -3,7 +3,7 @@
 Tài liệu này mô tả tên trường, kiểu dữ liệu, tập giá trị hợp lệ và quy ước nhãn
 cho toàn bộ dữ liệu Đề tài 6. Mọi file đọc và ghi bằng `encoding="utf-8"`.
 
-## 1. `data/data_manifest.csv` (bản kê chuẩn, 240 dòng: 40 corpus + 200 gold)
+## 1. `data/data_manifest.csv` (bản kê chuẩn, 244 dòng: 40 corpus + 44 dev + 160 test)
 
 | Trường | Kiểu | Giá trị hợp lệ | Quy ước |
 |---|---|---|---|
@@ -11,14 +11,14 @@ cho toàn bộ dữ liệu Đề tài 6. Mọi file đọc và ghi bằng `encod
 | `document_id` | string, bắt buộc | `<TICKER>_<YEAR>_<consolidated\|separate>` cho báo cáo; với câu gold chưa gắn báo cáo dùng `<COMPANY>_<YEAR>` | Ví dụ `HPG_2024_consolidated` |
 | `source_name` | string | `AIGuruTinix/ViFinQA`, `synthetic-by-team` | Nguồn gốc item |
 | `source_url` | string | URL Hugging Face hoặc rỗng với câu tự tạo | Trỏ đúng đường dẫn file nguồn |
-| `source_version` | string | revision `0450088...` hoặc `annotation-guideline-v0.1` | Ghi revision thực dùng |
+| `source_version` | string | revision `0450088...` hoặc `annotation-guideline-v0.2` | Ghi revision thực dùng |
 | `retrieved_at` | date `YYYY-MM-DD` | ngày tải | Ngày nhóm tải snapshot |
 | `published_at` | string, luôn trống | `""` | Chỉ ghi ngày phát hành thực từ nguồn. Nguồn không công bố nên để trống, không suy ra từ ID hay ngày crawl |
 | `language` | string | `vi` | Toàn bộ corpus là tiếng Việt |
 | `original_category` | string | `financial_statement_ocr`, `vifinqa_question`, `synthetic_question` | Nhãn gốc của nguồn, không đánh đồng với `task_label` |
 | `task_label` | string | `financial_report_chunk`, `qa_gold` | Nhãn nhiệm vụ nhóm dùng cho RAG |
 | `license_status` | string | `unknown_verify_with_teacher` | Chưa xác minh quyền tái phân phối, phải hỏi giảng viên |
-| `split` | string | `corpus`, `dev`, `test` | `corpus` cho 40 báo cáo; `dev` 40 câu; `test` 160 câu |
+| `split` | string | `corpus`, `dev`, `test` | `corpus` cho 40 báo cáo; `dev` 44 câu; `test` 160 câu |
 | `notes` | string | tự do | Với báo cáo ghi `company/year/version/pages/sha256/local`; với câu gold ghi `answer_type/unit/needs_more_evidence/review` |
 
 Quy tắc: `original_category` và `task_label` ghi riêng hai cột, không gộp.
@@ -52,7 +52,7 @@ Mỗi dòng là một trang báo cáo đã chuẩn hóa.
 | `text_chars` | int | độ dài `text` |
 | `local_path` | string | đường dẫn file OCR gốc |
 
-## 3b. `data/processed/table_records.jsonl` (29834 dòng)
+## 3b. `data/processed/table_records.jsonl` (29615 dòng)
 
 Mỗi dòng là một ô số trong bảng HTML đã chuẩn hóa, song song với chunk văn bản.
 
@@ -107,36 +107,37 @@ Tái lập: `python src/build_table_records.py`. E8 lookup trên file này trư�
 
 ## 6. Gold và gắn nhãn (`data/annotations/`)
 
-`qa_gold.jsonl` (200 dòng). Mỗi bản ghi:
+`qa_gold.jsonl` (204 dòng). Mỗi bản ghi:
 
 | Trường | Kiểu | Quy ước |
 |---|---|---|
-| `question_id` | string | `ViFinQA-<n>`, `S_NEW_<nn>` hoặc `CLEAN-T<tầng>-<mã>-<năm>-<số>` |
+| `question_id` | string | `ViFinQA-<n>`, `S_NEW_<nn>`, `CLEAN-T<tầng>-<mã>-<năm>-<số>` hoặc `DEV-REF-<nn>` |
 | `question` | string | nguyên văn câu hỏi, giữ dấu |
-| `gold_answer` | string | đáp án hiển thị kèm đơn vị; câu thiếu bằng chứng luôn là `Không đủ bằng chứng trong corpus để trả lời.`; 35 câu ViFinQA để trống chờ gắn nhãn |
+| `gold_answer` | string | đáp án hiển thị kèm đơn vị; câu thiếu bằng chứng luôn là `Không đủ bằng chứng trong corpus để trả lời.` |
 | `answer_type` | string | `numeric, computation, unanswerable` |
 | `value` | number hoặc `""` | giá trị số sau quy đổi, làm tròn 4 chữ số thập phân |
-| `unit` | string | `nghìn tỷ đồng, tỷ đồng, triệu đồng, đồng, %, lần` hoặc rỗng |
+| `unit` | string | `nghìn tỷ đồng, trăm tỷ đồng, tỷ đồng, triệu đồng, nghìn đồng, đồng, %, điểm phần trăm, lần` hoặc rỗng |
 | `company_id` | string | `HPG, HSG, NKG, MSR` hoặc tổ hợp `HPG\|HSG...` |
 | `fiscal_year` | int hoặc string | năm của câu hỏi |
-| `report_id` | string | `document_id` dùng làm bằng chứng, trống nếu chưa gắn |
-| `evidence` | list | mỗi phần tử `chunk_id, source_page, quote` (quote nguyên văn trong chunk) |
+| `report_id` | string | `document_id` dùng làm bằng chứng, hoặc rỗng với câu đa kỳ / đa doanh nghiệp / từ chối |
+| `evidence` | list | mỗi phần tử `chunk_id, source_page, quote` (`quote` nguyên văn trong chunk với `vifinqa`/`supplement`, hoặc tóm tắt `metric \| raw_value` khớp dòng trong chunk với `table-clean`) |
 | `computation` | string | công thức và số đầu vào nếu có phép tính |
 | `source_page` | int hoặc `""` | trang chứa đáp án |
-| `needs_more_evidence` | bool | `true` với 16 câu thiếu bằng chứng |
-| `reviewer_id` | string | mã người gắn nhãn |
-| `review_status` | string | `pending-answer, draft-needs-second-reviewer` |
-| `source` | string | `vifinqa, supplement, table-clean` |
+| `needs_more_evidence` | bool | `true` với 20 câu thiếu bằng chứng (16 test + 4 dev); `false` với 184 câu còn lại (`0` câu `pending-answer`) |
+| `reviewer_id` | string | mã người gắn nhãn / hậu kiểm (ví dụ `annotator-1`, `annotator-1/reviewer-2`, `member-1/member-2`) |
+| `review_status` | string | `reviewed-agree, draft-needs-second-reviewer` (`57/204 = 27.94%` đạt `reviewed-agree`, `0` câu `pending-answer`) |
+| `unanswerable_reason` | string (tùy chọn) | lý do thiếu bằng chứng khi `answer_type == "unanswerable"` |
+| `source` | string | `vifinqa, supplement, table-clean, dev-refusal` |
 | `split` | string | `dev, test` |
 
-`gold_labels.csv`: bản gọn `question_id, question, company_id, fiscal_year, unit, answer_type, source`.
+`gold_labels.csv`: bản gọn `question_id, question, company_id, fiscal_year, unit, answer_type, source` (204 dòng).
 
-`review_log.csv`: `item_id, gold, reviewer, status, guideline_version, disagreement_note`.
-`status` thuộc `pending-answer, needs-second-reviewer`.
+`review_log.csv`: `item_id, gold, reviewer, status, guideline_version, disagreement_note` (204 dòng).
+`status` thuộc `reviewed-agree, draft-needs-second-reviewer, needs-second-reviewer`.
 
 ## 7. Splits (`data/splits/`)
 
-- `dev.json`: danh sách 40 ID dev.
-- `test.json`: danh sách 160 ID test.
-- `split_meta.json`: `version` (`v2`), `seed` (42), `n_dev`, `n_test`, `dev_ids`, `test_ids`, `rule`, `sha256` (hash của meta để đóng băng).
-- Quy tắc: toàn bộ 16 câu thiếu bằng chứng nằm ở test; dev chỉ gồm câu trả lời được; chống rò rỉ bằng kiểm tra trùng câu hỏi theo chuẩn hóa chữ thường.
+- `dev.json`: danh sách 44 ID dev (40 câu trả lời được + 4 câu từ chối ngoài corpus `DEV-REF-01..04`).
+- `test.json`: danh sách 160 ID test (giữ nguyên hoàn toàn từ `v3`, gồm 16 câu từ chối).
+- `split_meta.json`: `version` (`v4`), `seed` (42), `n_dev` (44), `n_test` (160), `dev_ids`, `test_ids`, `rule`, `sha256` (`0012ebccd6712b44cdd1faf18f020c547c82973db09d37ab2b9e96b0a94a34b4`, bản sao nguyên vẹn tại `evaluation/split_freeze.json`).
+- Quy tắc: chống rò rỉ bằng tách theo câu hỏi và giữ nguyên 160 ID test; mọi thay đổi split đều nâng `version` và cập nhật hash.

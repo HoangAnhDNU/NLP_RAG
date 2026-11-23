@@ -128,17 +128,18 @@ Danh sách từng câu kèm lý do nằm ở `data/processed/questions_dropped.c
 | cần phép tính | 20 câu |
 | về công ty mẹ | 4 câu |
 
-## 5. Khoảng cách với định mức 50 câu gold - đã bù đủ (200 câu)
+## 5. Khoảng cách với định mức 50 câu gold - đã bù đủ (204 câu, split v4)
 
 ViFinQA công khai **không có gold answer, không có evidence, không có split**. Nhóm
-đã tự xây bộ gold và hiện vượt định mức: **200 câu** trong
-`data/annotations/qa_gold.jsonl` (dev 40, test 160).
+đã tự xây, hoàn thiện toàn bộ 35 câu ViFinQA (`0` `pending-answer`) và đóng băng bộ gold **204 câu** trong
+`data/annotations/qa_gold.jsonl` (split `v4`: dev 44 gồm 4 câu từ chối ngoài corpus `DEV-REF-01..04`, test 160 giữ nguyên vẹn từ `v3`).
 
 | nguồn | số câu | ghi chú |
 |---|---|---|
-| vifinqa (35 câu khớp corpus) | 35 | câu gốc ViFinQA đã lọc, giữ nguyên id `ViFinQA-*` |
-| table-clean | 150 | câu hỏi tra cứu chỉ tiêu trực tiếp trong bảng |
-| supplement (`S_NEW_01` đến `S_NEW_15`) | 15 | câu bù có trích dẫn trang, gồm 7 câu số liệu pipeline RAG sinh được và 8 câu thiếu bằng chứng để kiểm tra refusal |
+| vifinqa (35 câu khớp corpus) | 35 | câu gốc ViFinQA đã lọc, giải đầy đủ kèm quote nguyên văn từ `chunks.jsonl` |
+| table-clean | 150 | 55 T1 tra cứu, 44 T2 tăng/giảm, 43 T3 chênh lệch, 8 T5 từ chối |
+| supplement (`S_NEW_01` đến `S_NEW_15`) | 15 | câu bù có trích dẫn trang: 7 câu số liệu và 8 câu thiếu bằng chứng để kiểm tra refusal |
+| dev-refusal (`DEV-REF-01` đến `DEV-REF-04`) | 4 | câu từ chối ngoài corpus bổ sung riêng cho dev để `refusal_den_dev = 4` (0 rò rỉ test) |
 
 Ba cách từng cân nhắc ở bản trước (mở rộng sang 2025, thêm DCM, tự tạo câu mới):
 nhóm đã chốt **cách 3** và giữ nguyên định mức 10-20 báo cáo (40 file OCR thực tế),
