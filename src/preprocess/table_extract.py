@@ -1,10 +1,10 @@
-"""Trich ban ghi so co cau truc tu bang OCR bao cao tai chinh.
+"""Trích bản ghi số có cấu trúc từ bảng OCR báo cáo tài chính.
 
-Moi hang bang duoc gan: ten chi tieu, don vi, ky bao cao, cong ty, nam,
-loai bao cao, statement, gia tri so da chuan hoa. Giu dau tieng Viet (NFC).
+Mỗi hàng bảng được gán: tên chỉ tiêu, đơn vị, kỳ báo cáo, công ty, năm,
+loại báo cáo, statement, giá trị số đã chuẩn hóa. Giữ dấu tiếng Việt (NFC).
 
-Dau vao: file OCR goc co the <table> (qua src/preprocess/vifinqa_parser).
-Dau ra: data/processed/table_records.jsonl, moi dong mot ban ghi:
+Đầu vào: file OCR gốc có thẻ <table> (qua src/preprocess/vifinqa_parser).
+Đầu ra: data/processed/table_records.jsonl, mỗi dòng một bản ghi:
   company, year, period_label, statement, metric, metric_code,
   value, unit, value_raw, page, source_chunk_id, document_id,
   report_version, confidence.
@@ -53,7 +53,7 @@ def clean_metric(text: str) -> str:
 
 def detect_unit(text: str) -> str:
     low = (text or "").lower()
-    # Uu tien dong "don vi tinh: ..." vi trang co the nhac ty dong trong loi van.
+    # Ưu tiên dòng "đơn vị tính: ..." vì trang có thể nhắc tỷ đồng trong lời văn.
     m = re.search(r"đơn vị[^:\n]{0,30}[:：]\s*([^\n,;|]+)", low)
     if not m:
         m = re.search(r"đơn vị tính\s+([^\n,;|]+)", low)
@@ -85,7 +85,7 @@ def detect_statement(page_text: str) -> str:
 
 
 def normalize_table_number(raw: str) -> float | None:
-    """Chuan hoa so bang: 1.234.567 -> 1234567, (983) -> -983, 3,2 -> 3.2."""
+    """Chuẩn hóa số bảng: 1.234.567 -> 1234567, (983) -> -983, 3,2 -> 3.2."""
     if raw is None:
         return None
     value = str(raw).strip().replace(" ", " ").replace("\xa0", " ")
@@ -99,7 +99,7 @@ def normalize_table_number(raw: str) -> float | None:
     is_pct = value.endswith("%")
     if is_pct:
         value = value[:-1]
-    # Percent trong bao cao VN dung dau phay thap phan: 99,988% la 99.988%.
+    # Phần trăm trong báo cáo VN dùng dấu phẩy thập phân: 99,988% là 99.988%.
     if is_pct and "," in value and "." not in value:
         value = value.replace(",", ".")
         value = re.sub(r"\s+", "", value)
@@ -169,15 +169,34 @@ def is_code_cell(cell: str) -> bool:
     return bool(CODE_RE.match((cell or "").strip()))
 
 
+def clean_period_label(text: str) -> str:
+    """Tách đơn vị tiền tệ dính kèm khỏi nhãn kỳ header OCR.
+
+    Ví dụ: "31/12/2023VND" -> "31/12/2023", "2023Nghìn VND" -> "2023",
+    "2021VND'000" -> "2021". Đơn vị nằm ở cột "Đơn vị" riêng, không
+    được lẫn vào cột "Kỳ" trên demo.
+    """
+    t = nfc(text or "").strip()
+    t = re.sub(
+        r"\s*(nghìn|nghin|trăm|tram|triệu|trieu|tỷ|ty)?\s*(vnd|vnđ|đồng|dong)\s*('000|’000)?\s*$",
+        "",
+        t,
+        flags=re.IGNORECASE,
+    )
+    t = re.sub(r"\s*('000|’000)\s*$", "", t)
+    return t.strip(" ,;|")
+
+
 def header_years(header: list[str]) -> list[tuple[int, str]]:
-    """Tim cot ky bao cao tu header: tra ve list (col_index, period_label)."""
+    """Tìm cột kỳ báo cáo từ header: trả về list (col_index, period_label)."""
     out: list[tuple[int, str]] = []
     for idx, cell in enumerate(header):
-        text = cell or ""
+        text = clean_period_label(cell or "")
+        if not text:
+            continue
         m = DATE_RE.search(text)
         if m:
-            year = int(m.group(3))
-            out.append((idx, text.strip()))
+            out.append((idx, m.group(0).strip()))
             continue
         m2 = YEAR_RE.search(text)
         if m2:
@@ -190,7 +209,7 @@ def header_years(header: list[str]) -> list[tuple[int, str]]:
 
 
 def detect_header_count(norm: list[list[str]]) -> int:
-    """Dem so dong header dau bang (1-3 dong, khong chua so lieu lon)."""
+    """Đếm số dòng header đầu bảng (1-3 dòng, không chứa số liệu lớn)."""
     if not norm:
         return 0
     max_h = min(3, len(norm))
@@ -209,7 +228,7 @@ def detect_header_count(norm: list[list[str]]) -> int:
                 "chi tieu", "stt",
             ]
         )
-        # Dong kieu (1) | (2) | (5)=(3)-(4): chi muc cot, khong phai so lieu.
+        # Dòng kiểu (1) | (2) | (5)=(3)-(4): chỉ mục cột, không phải số liệu.
         idx_cells = [
             c for c in norm[i]
             if re.match(r"^\(?\d+\)?(\s*=\s*\(?\d+.*\)?)?$", (c or "").strip())
@@ -230,11 +249,11 @@ def detect_header_count(norm: list[list[str]]) -> int:
 
 
 def collect_periods(norm: list[list[str]], header_count: int) -> list[str]:
-    """Gom nhan ky (chua nam/ngay) tu cac dong header theo thu tu trai-phai."""
+    """Gom nhãn kỳ (chứa năm/ngày) từ các dòng header theo thứ tự trái-phải."""
     periods: list[str] = []
     for r in range(min(header_count, len(norm))):
         for cell in norm[r]:
-            text = (cell or "").strip()
+            text = clean_period_label((cell or "").strip())
             if not text:
                 continue
             if YEAR_LOOSE_RE.search(text) or DATE_RE.search(text):
@@ -244,7 +263,7 @@ def collect_periods(norm: list[list[str]], header_count: int) -> list[str]:
 
 
 def column_unit(norm: list[list[str]], header_count: int, col: int) -> str:
-    """Don vi rieng tung cot: uu tien dau % trong du lieu, roi moi doan header."""
+    """Đơn vị riêng từng cột: ưu tiên dấu % trong dữ liệu, rồi mới đoán header."""
     for r in range(header_count, min(header_count + 5, len(norm))):
         cell = (norm[r][col] or "").strip() if col < len(norm[r]) else ""
         if cell.endswith("%"):
@@ -257,10 +276,10 @@ def column_unit(norm: list[list[str]], header_count: int, col: int) -> str:
 
 
 def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str]], str, int]:
-    """Xac dinh cot gia tri, don vi chung va so dong header cua bang.
+    """Xác định cột giá trị, đơn vị chung và số dòng header của bảng.
 
-    Tra ve cols la list (col_index, period_label, col_unit) de tach
-    cot phan tram va cot VND trong cung bang.
+    Trả về cols là list (col_index, period_label, col_unit) để tách
+    cột phần trăm và cột VND trong cùng bảng.
     """
     if not table:
         return [], "", 1
@@ -276,12 +295,12 @@ def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str
                 unit = found
                 break
     periods = collect_periods(norm, header_count)
-    # Nhan ky theo tung cot: uu tien cot co header chua nam/ngay.
+    # Nhãn kỳ theo từng cột: ưu tiên cột có header chứa năm/ngày.
     col_labels: list[str] = []
     for c in range(width):
         label = ""
         for r in range(header_count):
-            cell = (norm[r][c] or "").strip()
+            cell = clean_period_label((norm[r][c] or "").strip())
             if cell and (YEAR_LOOSE_RE.search(cell) or DATE_RE.search(cell)):
                 label = cell
                 break
@@ -300,8 +319,8 @@ def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str
                     large_counts[c] += 1
     data_rows = max(1, len(norm) - header_count)
     threshold = max(1, data_rows // 3)
-    # Loai cot ma so (01, 10, 20...): nhieu so nhung hau het < 1000.
-    # Giu cot phan tram du gia tri nho (99,988%).
+    # Loại cột mã số (01, 10, 20...): nhiều số nhưng hầu hết < 1000.
+    # Giữ cột phần trăm dù giá trị nhỏ (99,988%).
     value_cands = [
         c for c, n in enumerate(num_counts)
         if n >= threshold and (
@@ -314,16 +333,16 @@ def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str
     ]
     def _col_unit(c: int) -> str:
         return column_unit(norm, header_count, c) or unit
-    # Truoc het giu cot so co nhan ky nam/ngay (loai cot chenh lech tuyet doi/tuong doi).
+    # Trước hết giữ cột số có nhãn kỳ năm/ngày (loại cột chênh lệch tuyệt đối/tương đối).
     period_cols = [c for c in numeric_cols if col_labels[c]]
     cols: list[tuple[int, str, str]] = []
     if period_cols:
-        # Giu tat ca cot co nhan ky rieng (VD bang HPG co 6 cot so:
-        # 2 cot % va 1 cot VND cho moi ky). Khong cat theo len(periods).
+        # Giữ tất cả cột có nhãn kỳ riêng (VD bảng HPG có 6 cột số:
+        # 2 cột % và 1 cột VND cho mỗi kỳ). Không cắt theo len(periods).
         cols = [(c, col_labels[c], _col_unit(c)) for c in sorted(period_cols)]
     elif numeric_cols and periods:
-        # Header bi lech cot (ky nam o cot khac cot gia tri): gan theo thu tu
-        # trai-phai, cot gia tri thu i nhan ky thu i.
+        # Header bị lệch cột (kỳ năm ở cột khác cột giá trị): gán theo thứ tự
+        # trái-phải, cột giá trị thứ i nhận kỳ thứ i.
         ordered = sorted(numeric_cols)
         if len(ordered) == len(periods):
             cols = [(c, p, _col_unit(c)) for c, p in zip(ordered, periods)]
@@ -341,7 +360,7 @@ def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str
             for c in cols_idx:
                 label = ""
                 for r in range(header_count):
-                    cell = (norm[r][c] or "").strip()
+                    cell = clean_period_label((norm[r][c] or "").strip())
                     if cell and (YEAR_LOOSE_RE.search(cell) or DATE_RE.search(cell)):
                         label = cell
                         break
@@ -350,7 +369,7 @@ def find_value_columns(table: list[list[str]]) -> tuple[list[tuple[int, str, str
 
 
 def metric_and_code(row: list[str], value_cols: set[int]) -> tuple[str, str]:
-    """Chon o chi tieu (text dai nhat) va ma so trong hang."""
+    """Chọn ô chỉ tiêu (text dài nhất) và mã số trong hàng."""
     code = ""
     best = ""
     for idx, cell in enumerate(row):
@@ -408,7 +427,7 @@ def extract_records(
                 continue
             year_m = YEAR_LOOSE_RE.findall(period_label or "")
             if year_m:
-                # Nhan ky dang NDTC 2019-2020: lay nam cuoi (nam tai chinh).
+                # Nhãn kỳ dạng NĐTC 2019-2020: lấy năm cuối (năm tài chính).
                 year = int(year_m[-1])
             elif DATE_RE.search(period_label or ""):
                 year = int(DATE_RE.findall(period_label)[-1][2])

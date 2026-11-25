@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.preprocess.normalize import normalize_query, tokenize_vi  # noqa: E402
+from src.preprocess.table_extract import clean_period_label  # noqa: E402
 from src.retrieval.answer_policy import (  # noqa: E402
     citation_complete,
     decide_status,
@@ -85,9 +86,18 @@ def load_table_records() -> list[dict]:
             line = line.strip()
             if line:
                 try:
-                    recs.append(json.loads(line))
+                    r = json.loads(line)
                 except json.JSONDecodeError:
                     continue
+                # Phòng vệ: dữ liệu cũ có nhãn kỳ dính kèm đơn vị tiền tệ
+                # ("31/12/2023VND", "2023Nghìn VND") do OCR gộp ở header.
+                # Đơn vị nằm ở cột "Đơn vị" riêng, cột "Kỳ" chỉ giữ ngày/năm.
+                try:
+                    if r.get("period_label"):
+                        r["period_label"] = clean_period_label(str(r.get("period_label", "")))
+                except Exception:
+                    pass
+                recs.append(r)
     _table_cache["records"] = recs
     return recs
 
@@ -130,8 +140,8 @@ def extract_entities(question: str) -> dict:
 
 
 def highlight_text(snippet: str, question: str) -> str:
-    # Only bold meaningful numbers: thousand groups, decimals, percents.
-    # Skip small ordinal numbers.
+    # Chỉ in đậm các con số có ý nghĩa: nhóm hàng nghìn, số thập phân, phần trăm.
+    # Bỏ qua các số thứ tự nhỏ.
     marked = snippet or ""
     num_pat = r"\(?\d{1,3}(?:[.\s]\d{3})+(?:,\d+)?\)?(?:\s?%)?|\b\d+,\d+\b|\b\d+\.\d+\b|\b\d+\s?%"
     marked = re.sub(f"({num_pat})", r"**\1**", marked)
@@ -142,16 +152,45 @@ def highlight_text(snippet: str, question: str) -> str:
             marked = re.sub(rf"(?i)\b({re.escape(tok)})\b", r"**\1**", marked)
     except Exception:
         pass
-    # Tranh in dam chong nhau qua da
+    # Tránh in đậm chồng nhau quá đà
     marked = marked.replace("****", "")
     marked = re.sub(r"\*{3,}", "**", marked)
     return marked
 
 
-def get_chunk_tables(chunk_id: str, limit: int = 10) -> list[dict]:
+def get_chunk_tables(chunk_id: str, limit: int = 10, question: str = "") -> list[dict]:
     recs = load_table_records()
     rows = [r for r in recs if r.get("source_chunk_id") == chunk_id]
-    rows.sort(key=lambda r: (r.get("table_index", 0), str(r.get("metric_code", ""))))
+    # Loại bản ghi trùng lặp do 2 cột % (sở hữu / biểu quyết) cùng giá trị:
+    # giữ 1 dòng cho mỗi (metric, period_label, unit, value_raw).
+    seen: set[tuple] = set()
+    uniq: list[dict] = []
+    for r in rows:
+        key = (r.get("metric", ""), r.get("period_label", ""), r.get("unit", ""), r.get("value_raw", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        uniq.append(r)
+    rows = uniq
+    if question:
+        # Ưu tiên dòng có chỉ tiêu gần với câu hỏi (VD hỏi Gang thép thì
+        # dòng Gang thép lên trước, thay vì 5 dòng đầu của chunk).
+        try:
+            from src.retrieval.table_lookup import normalize_ocr_vi as _norm
+            qtoks = set(_norm(question or "").split())
+        except Exception:
+            qtoks = set((question or "").lower().split())
+        def _rel(r: dict) -> tuple:
+            try:
+                from src.retrieval.table_lookup import normalize_ocr_vi as _n2
+                mtoks = set(_n2(r.get("metric", "") or "").split())
+            except Exception:
+                mtoks = set((r.get("metric", "") or "").lower().split())
+            overlap = len(qtoks & mtoks)
+            return (-overlap, r.get("table_index", 0), str(r.get("metric_code", "")))
+        rows.sort(key=_rel)
+    else:
+        rows.sort(key=lambda r: (r.get("table_index", 0), str(r.get("metric_code", ""))))
     return rows[:limit]
 
 
@@ -162,8 +201,8 @@ def detect_conflict_warning(question: str, hits: list[dict], entities: dict) -> 
     years = entities.get("years", [])
     version = entities.get("report_version", "")
     top1 = hits[0] if hits else {}
-    # Chi canh bao khi top-1 lech thuc the duoc hoi: sai cong ty, sai nam,
-    # sai ban bao cao, hoac top nguon lan lon nhieu thuc the khac nhau.
+    # Chỉ cảnh báo khi top-1 lệch thực thể được hỏi: sai công ty, sai năm,
+    # sai bản báo cáo, hoặc top nguồn lẫn lộn nhiều thực thể khác nhau.
     if len(tickers) == 1 and len(set(years)) == 1:
         asked_c = tickers[0]
         asked_y = str(years[0])
@@ -295,7 +334,7 @@ def chunk_to_hit(c: dict, question: str, q_toks: list[str], score: float = 0.0) 
         "score": round(float(score), 4),
         "snippet": snip,
         "snippet_highlight": highlight_text(snip, question),
-        "table_rows": get_chunk_tables(c.get("chunk_id", ""), limit=5),
+        "table_rows": get_chunk_tables(c.get("chunk_id", ""), limit=5, question=question),
         "full_text": full,
         "full_len": len(full),
     }
@@ -515,32 +554,32 @@ def enrich(question: str, out: dict) -> dict:
     hits = out.get("hits", [])
     out["entities"] = entities
     out["conflict_warning"] = detect_conflict_warning(question, hits, entities)
-    # Highlight san cho tung hit khi goi truc tiep qua retrieve
+    # Highlight sẵn cho từng hit khi gọi trực tiếp qua retrieve
     for h in hits:
         if "snippet_highlight" not in h:
             h["snippet_highlight"] = highlight_text(h.get("snippet", ""), question)
         if "table_rows" not in h:
-            h["table_rows"] = get_chunk_tables(h.get("chunk_id", ""), limit=5)
+            h["table_rows"] = get_chunk_tables(h.get("chunk_id", ""), limit=5, question=question)
         if "source_path" not in h:
             h["source_path"] = f"{h.get('local_path', '')} :: {h.get('document_id', '')} trang {h.get('page', '')}"
     return out
 
 
 def _should_refuse_unmatched(question: str, hits: list[dict], q_toks: list[str]) -> bool:
-    """Refuse in interactive QA when retrieval has no valid corpus match or targets an outside entity."""
+    """Từ chối trong QA tương tác khi truy hồi không khớp corpus hoặc hỏi thực thể ngoài."""
     if not hits or all(float(h.get("raw_bm25", h.get("score", 0.0))) <= 0.0 for h in hits):
         return True
     tickers = resolve_tickers(question)
     years = extract_years(question)
-    # Explicit unknown ticker outside HPG/HSG/NKG/MSR
+    # Mã ngoài danh sách HPG/HSG/NKG/MSR xuất hiện tường minh trong câu hỏi
     upper_tokens = set(re.findall(r"\b[A-Z]{2,6}\b", question or ""))
     unknown_tickers = upper_tokens - _FINANCIAL_ACRONYMS
     if unknown_tickers and not tickers:
         return True
-    # Years exclusively outside 2020-2024 corpus range
+    # Năm hỏi nằm hoàn toàn ngoài khoảng corpus 2020-2024
     if years and not any(y.isdigit() and int(y) in CORPUS_YEARS for y in years):
         return True
-    # Low query content coverage across top retrieved chunks (off-topic / outside corpus)
+    # Độ phủ nội dung câu hỏi trên top chunk quá thấp (lạc đề / ngoài corpus)
     q_content = [t for t in q_toks if t not in _GENERIC_Q_TOKENS and not t.isdigit() and len(t) > 1]
     if not tickers and not years:
         bctc_domain = {"doanh", "thu", "lợi", "nhuận", "tài", "sản", "nợ", "vốn", "lưu", "chuyển", "tiền", "khấu", "hao", "thuế", "cổ", "tức", "biên", "gộp"}

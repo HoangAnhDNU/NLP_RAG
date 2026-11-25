@@ -9,3 +9,7 @@ __pycache__/
 .venv/
 venv/
 .env
+
+# Quy tac Cursor cuc bo va graph code tu dong sinh, khong commit
+.cursor/rules/
+graphify-out/
