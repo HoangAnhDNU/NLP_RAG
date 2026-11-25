@@ -1,61 +1,61 @@
-# Data Card: ViFinQA-Steel-4Co RAG Corpus & Gold QA Benchmark (v4)
+# Hồ sơ dữ liệu (Data Card): Corpus RAG và Bộ chuẩn Gold QA ViFinQA-Steel-4Co (v4)
 
-## 1. Dataset Summary & Intended Use
+## 1. Tóm tắt tập dữ liệu và Mục đích sử dụng
 
-`ViFinQA-Steel-4Co (v4)` is a Vietnamese financial question-answering and retrieval-augmented generation (RAG) benchmark constructed for CSC4007 Topic 6 (Vietnamese Financial Statement Retrieval-Augmented Generation with Citation & Evidence-Grounded Refusal).
+`ViFinQA-Steel-4Co (v4)` là bộ dữ liệu chuẩn cho bài toán hỏi đáp báo cáo tài chính tiếng Việt và sinh câu trả lời tăng cường truy hồi (RAG), được xây dựng cho đề tài CSC4007 (Hỏi đáp Báo cáo tài chính tiếng Việt có trích dẫn và từ chối dựa trên bằng chứng).
 
-Given a Vietnamese financial query and a fixed corpus of audited annual financial statements, a model retrieves page-level source chunks (`company_id`, `fiscal_year`, `report_version`, `page`, `chunk_id`), computes or extracts the normalized numeric answer with unit conversion, attaches verifiable evidence citations, or outputs the exact refusal string `"Không đủ bằng chứng trong corpus để trả lời."` when corpus evidence is absent.
+Với một câu hỏi tài chính tiếng Việt và một kho báo cáo tài chính kiểm toán năm cố định, mô hình cần truy hồi các đoạn nguồn ở cấp trang (`company_id`, `fiscal_year`, `report_version`, `page`, `chunk_id`), tính toán hoặc trích xuất đáp án số đã chuẩn hóa kèm quy đổi đơn vị, đính kèm trích dẫn bằng chứng có thể kiểm chứng, hoặc trả về đúng nguyên văn câu từ chối `"Không đủ bằng chứng trong corpus để trả lời."` khi corpus không có dữ liệu.
 
-All processed chunks, table records, and gold items preserve Vietnamese (`vi`) in Unicode NFC across four listed companies and fiscal years `2020-2024`, covering both `consolidated` (hợp nhất) and `separate` (riêng / công ty mẹ) audited statements:
+Toàn bộ các `chunk`, bản ghi bảng (`table_records`) và mẫu chuẩn (`qa_gold`) đều bảo toàn tiếng Việt (`vi`) theo chuẩn Unicode NFC trên 4 doanh nghiệp niêm yết giai đoạn `2020-2024`, bao gồm cả hai phiên bản báo cáo `consolidated` (hợp nhất) và `separate` (riêng công ty mẹ):
 
-| Ticker | Company Name | Fiscal Year End | Primary Statement Unit | Versions |
+| Mã CK | Tên doanh nghiệp | Kết thúc năm tài chính | Đơn vị báo cáo gốc | Phiên bản |
 |---|---|---|---|---|
 | `HPG` | CTCP Tập đoàn Hòa Phát | `31/12` | `VND` | `consolidated`, `separate` |
 | `HSG` | CTCP Tập đoàn Hoa Sen | `30/09` | `VND` | `consolidated`, `separate` |
 | `NKG` | CTCP Thép Nam Kim | `31/12` | `VND` | `consolidated`, `separate` |
-| `MSR` | CTCP Masan High-Tech Materials | `31/12` | `Nghìn VND` (1,000x to VND) | `consolidated`, `separate` |
+| `MSR` | CTCP Masan High-Tech Materials | `31/12` | `Nghìn VND` (nhân 1.000 để ra VND) | `consolidated`, `separate` |
 
-The intended use is academic benchmarking and reproducible offline RAG experiments (`E0-E8`), retrieval/citation/refusal evaluation, and interactive demonstration (`app/streamlit_app.py`) within the 4-company `2020-2024` scope. Data and split version is `v4` (`data/splits/split_meta.json` and `evaluation/split_freeze.json`).
+Mục đích sử dụng của bộ dữ liệu là đánh giá chuẩn học thuật, chạy thực nghiệm RAG ngoại tuyến có khả năng tái lập (`E0-E8`), kiểm định truy hồi, trích dẫn, từ chối và minh họa ứng dụng tương tác (`app/streamlit_app.py`) trong phạm vi 4 doanh nghiệp giai đoạn `2020-2024`. Phiên bản dữ liệu và phân chia tập là `v4` (`data/splits/split_meta.json` và `evaluation/split_freeze.json`).
 
-## 2. Dataset Sources & Versions
+## 2. Nguồn dữ liệu và Phiên bản
 
-The primary upstream source is Hugging Face [`AIGuruTinix/ViFinQA`](https://huggingface.co/datasets/AIGuruTinix/ViFinQA/blob/0450088ab22ec946f04f097586967ca405955b3b/), pinned at revision `0450088ab22ec946f04f097586967ca405955b3b` and downloaded locally via `src/download_vifinqa.py` into `data/raw/vifinqa/`. Upstream `ViFinQA` draws 1,973 OCR reports from [`tinixai/ocr_annual_financials`](https://huggingface.co/datasets/tinixai/ocr_annual_financials) (`TiniX Vietnam OCR Annual Financial Statements`), stored as UTF-8 text files with `===== PAGE n =====` page delimiters and inline HTML `<table>` markup.
+Nguồn gốc chính được lấy từ Hugging Face [`AIGuruTinix/ViFinQA`](https://huggingface.co/datasets/AIGuruTinix/ViFinQA/blob/0450088ab22ec946f04f097586967ca405955b3b/), cố định tại revision `0450088ab22ec946f04f097586967ca405955b3b` và tải cục bộ bằng `src/download_vifinqa.py` vào `data/raw/vifinqa/`. Kho `ViFinQA` gốc trích xuất 1.973 báo cáo OCR từ [`tinixai/ocr_annual_financials`](https://huggingface.co/datasets/tinixai/ocr_annual_financials) (`TiniX Vietnam OCR Annual Financial Statements`), lưu dưới dạng tệp văn bản UTF-8 có dấu phân cách trang `===== PAGE n =====` và các thẻ bảng HTML `<table>`.
 
-Initial corpus selection and manifest generation occurred on `2026-11-10`, and the corpus manifest was refreshed during the `v4` pipeline build on `2026-11-15` (`retrieved_at` in `data/processed/corpus_manifest.csv` is `2026-11-15`; gold rows in `data/data_manifest.csv` record `2026-11-10`; `published_at` remains empty `""` because upstream does not publish original filing release dates).
+Quá trình chọn corpus và tạo manifest ban đầu diễn ra vào ngày `2026-11-10`, sau đó manifest của corpus được cập nhật lại khi dựng pipeline bản `v4` vào ngày `2026-11-15` (`retrieved_at` trong `data/processed/corpus_manifest.csv` là `2026-11-15`; các dòng câu hỏi gold trong `data/data_manifest.csv` ghi ngày `2026-11-10`; trường `published_at` để trống `""` do nguồn gốc không công bố ngày phát hành từng báo cáo).
 
-The `204` Gold QA items originate from four sources:
+Bộ `204` câu Gold QA đến từ bốn nguồn:
 
-- `vifinqa` (`35` items): Question prompts filtered from `data/raw/vifinqa/questions/questions.jsonl` (`1,012` prompt-only rows -> `35` matched to the 4-company `2020-2024` scope; `977` dropped). Because upstream `ViFinQA` contains only `id` and `question` with no answers, evidence, or splits, all 35 answers, normalized values, step-by-step computations, and verbatim chunk quotes were authored and verified against the 40-report corpus (`src/resolve_vifinqa_and_dev_refusal.py`).
-- `table-clean` (`150` items): Template-generated single-period lookup (`T1`, 55), comparative year-over-year directional (`T2`, 44), comparative difference (`T3`, 43), and out-of-corpus refusal (`T5`, 8) questions built over clean `consolidated` income-statement and balance-sheet table records (`src/build_expanded_gold_v2.py`, `src/build_expanded_gold_v3.py`).
-- `supplement` (`15` items): Manually authored domain QA (`S_NEW_01..07`) and out-of-corpus refusal probes (`S_NEW_08..15`) (`src/build_supplement_gold.py`).
-- `dev-refusal` (`4` items): Out-of-corpus refusal items (`DEV-REF-01..04`) added exclusively to `dev` in `v4` (`src/resolve_vifinqa_and_dev_refusal.py`) so `dev` refusal evaluation has a non-zero denominator (`refusal_den = 4`) without altering the frozen `test` split.
+- `vifinqa` (`35` câu): tập câu hỏi lọc từ `data/raw/vifinqa/questions/questions.jsonl` (`1.012` dòng chỉ có câu hỏi -> giữ `35` câu khớp phạm vi 4 công ty `2020-2024`; loại `977` câu). Do `ViFinQA` công khai chỉ có `id` và `question`, chưa có đáp án, bằng chứng hay phân chia tập, toàn bộ 35 đáp án, giá trị chuẩn hóa, phép tính từng bước và trích dẫn nguyên văn từ chunk đều được biên soạn và đối chiếu trực tiếp trên corpus 40 báo cáo (`src/resolve_vifinqa_and_dev_refusal.py`).
+- `table-clean` (`150` câu): bộ câu hỏi sinh theo mẫu chuẩn từ các bản ghi bảng `consolidated` sạch thuộc báo cáo kết quả kinh doanh và bảng cân đối kế toán, gồm tra cứu một kỳ (`T1`, 55 câu), so sánh biến động hai năm (`T2`, 44 câu), tính chênh lệch hai năm (`T3`, 43 câu) và từ chối ngoài corpus (`T5`, 8 câu) (`src/build_expanded_gold_v2.py`, `src/build_expanded_gold_v3.py`).
+- `supplement` (`15` câu): các câu hỏi chuyên ngành tự biên soạn có trích dẫn trang (`S_NEW_01..07`) và các câu kiểm tra từ chối ngoài corpus (`S_NEW_08..15`) (`src/build_supplement_gold.py`).
+- `dev-refusal` (`4` câu): bốn câu kiểm tra từ chối ngoài corpus (`DEV-REF-01..04`) bổ sung riêng vào tập `dev` ở bản `v4` (`src/resolve_vifinqa_and_dev_refusal.py`) để mẫu số đánh giá từ chối trên `dev` khác 0 (`refusal_den = 4`) mà không làm thay đổi tập `test` đã đóng băng.
 
-A legacy `v1` snapshot (`50` items) is retained at `data/annotations/qa_gold_v1_50.jsonl` for historical reference.
+Bản chụp lịch sử `v1` (`50` câu) vẫn được lưu tại `data/annotations/qa_gold_v1_50.jsonl` để đối chiếu.
 
-## 3. License & Access
+## 3. Giấy phép và Quyền truy cập
 
-All `40` rows of `data/processed/corpus_manifest.csv` and all `244` rows of `data/data_manifest.csv` record `license_status` as `unknown_verify_with_teacher`. The upstream `data/raw/vifinqa/README.md` states that the underlying `tinixai/ocr_annual_financials` OCR filings carry the Creative Commons Attribution-NonCommercial 4.0 International license (`CC BY-NC 4.0`), while the `ViFinQA` question annotations include no separate license file. Redistribution rights must be confirmed with course instructors before any public release.
+Toàn bộ `40` dòng trong `data/processed/corpus_manifest.csv` và `244` dòng trong `data/data_manifest.csv` đều ghi nhận trường `license_status` là `unknown_verify_with_teacher`. Tài liệu `data/raw/vifinqa/README.md` từ nguồn nêu rõ các báo cáo OCR của `tinixai/ocr_annual_financials` mang giấy phép Creative Commons Attribution-NonCommercial 4.0 International (`CC BY-NC 4.0`), trong khi phần câu hỏi `ViFinQA` không đính kèm tệp giấy phép riêng. Cần xác minh quyền tái phân phối với giảng viên học phần trước khi công bố rộng rãi.
 
-Raw source files under `data/raw/` are excluded from Git via `.gitignore` and are not redistributed inside the repository. Processed artifacts (`chunks.jsonl`, `table_records.jsonl`), manifests, annotations, evaluation outputs, and reproducible build scripts are versioned for academic verification.
+Các tệp nguồn thô trong `data/raw/` được loại trừ khỏi Git qua `.gitignore` và không phân phối lại trong kho mã nguồn. Các dữ liệu đã qua xử lý (`chunks.jsonl`, `table_records.jsonl`), manifest, bộ nhãn, kết quả đánh giá và script tái lập được lưu phiên bản phục vụ kiểm chứng học thuật.
 
-## 4. Data Structure
+## 4. Cấu trúc dữ liệu
 
-All structured files use UTF-8 encoding (`encoding="utf-8"`). Full column definitions appear in `data/data_schema.md`.
+Mọi tệp dữ liệu có cấu trúc đều sử dụng bảng mã UTF-8 (`encoding="utf-8"`). Định nghĩa đầy đủ từng cột được trình bày trong `data/data_schema.md`.
 
-### Core Artifacts
+### Các tệp dữ liệu cốt lõi
 
-| Artifact | Path | Records | Key Fields |
+| Thành phần | Đường dẫn | Số bản ghi | Các trường chính |
 |---|---|---:|---|
-| Master manifest | `data/data_manifest.csv` | 244 | `item_id`, `document_id`, `source_name`, `source_url`, `source_version`, `retrieved_at`, `published_at`, `language`, `original_category`, `task_label`, `license_status`, `split`, `notes` |
-| Corpus manifest | `data/processed/corpus_manifest.csv` | 40 | `document_id`, `company_id`, `fiscal_year`, `report_version`, `n_pages`, `n_chars`, `sha256`, `local_path`, `license_status` |
-| Page chunks | `data/processed/chunks.jsonl` | 2,407 | `chunk_id`, `document_id`, `company_id`, `fiscal_year`, `report_version`, `page`, `n_tables`, `unit`, `text`, `text_chars`, `local_path` |
-| Table records | `data/processed/table_records.jsonl` | 29,615 | `company`, `year`, `period_label`, `statement`, `metric`, `metric_code`, `value`, `unit`, `value_raw`, `page`, `table_index`, `source_chunk_id`, `document_id`, `report_version`, `fiscal_year`, `confidence` |
-| Gold QA (`v4`) | `data/annotations/qa_gold.jsonl` | 204 | `question_id`, `question`, `gold_answer`, `answer_type`, `value`, `unit`, `company_id`, `fiscal_year`, `report_id`, `evidence`, `computation`, `source_page`, `needs_more_evidence`, `reviewer_id`, `review_status`, `source`, `split`, `unanswerable_reason` |
-| Review log | `data/annotations/review_log.csv` | 204 | `item_id`, `gold`, `reviewer`, `status`, `guideline_version`, `disagreement_note` |
+| Bản kê tổng hợp | `data/data_manifest.csv` | 244 | `item_id`, `document_id`, `source_name`, `source_url`, `source_version`, `retrieved_at`, `published_at`, `language`, `original_category`, `task_label`, `license_status`, `split`, `notes` |
+| Bản kê corpus | `data/processed/corpus_manifest.csv` | 40 | `document_id`, `company_id`, `fiscal_year`, `report_version`, `n_pages`, `n_chars`, `sha256`, `local_path`, `license_status` |
+| Chunk cấp trang | `data/processed/chunks.jsonl` | 2.407 | `chunk_id`, `document_id`, `company_id`, `fiscal_year`, `report_version`, `page`, `n_tables`, `unit`, `text`, `text_chars`, `local_path` |
+| Bản ghi bảng số | `data/processed/table_records.jsonl` | 29.615 | `company`, `year`, `period_label`, `statement`, `metric`, `metric_code`, `value`, `unit`, `value_raw`, `page`, `table_index`, `source_chunk_id`, `document_id`, `report_version`, `fiscal_year`, `confidence` |
+| Bộ Gold QA (`v4`) | `data/annotations/qa_gold.jsonl` | 204 | `question_id`, `question`, `gold_answer`, `answer_type`, `value`, `unit`, `company_id`, `fiscal_year`, `report_id`, `evidence`, `computation`, `source_page`, `needs_more_evidence`, `reviewer_id`, `review_status`, `source`, `split`, `unanswerable_reason` |
+| Nhật ký hậu kiểm | `data/annotations/review_log.csv` | 204 | `item_id`, `gold`, `reviewer`, `status`, `guideline_version`, `disagreement_note` |
 
-### Redacted Schema Examples
+### Ví dụ cấu trúc dữ liệu (đã rút gọn)
 
-Example chunk record (`data/processed/chunks.jsonl`, long `text` truncated):
+Ví dụ một bản ghi chunk (`data/processed/chunks.jsonl`, trường `text` dài được rút gọn):
 
 ```json
 {
@@ -73,7 +73,7 @@ Example chunk record (`data/processed/chunks.jsonl`, long `text` truncated):
 }
 ```
 
-Example table record (`data/processed/table_records.jsonl`):
+Ví dụ một bản ghi bảng (`data/processed/table_records.jsonl`):
 
 ```json
 {
@@ -96,7 +96,7 @@ Example table record (`data/processed/table_records.jsonl`):
 }
 ```
 
-Example gold record (`data/annotations/qa_gold.jsonl`):
+Ví dụ một bản ghi Gold QA (`data/annotations/qa_gold.jsonl`):
 
 ```json
 {
@@ -120,175 +120,174 @@ Example gold record (`data/annotations/qa_gold.jsonl`):
 }
 ```
 
-Private personal identifiers and API credentials do not appear in any data or manifest field; named individuals inside raw OCR texts are statutory company officers and auditors named in public financial disclosures.
+Không có thông tin định danh cá nhân riêng tư (PII) hay khóa API nào xuất hiện trong dữ liệu hoặc manifest; tên các cá nhân xuất hiện trong văn bản OCR gốc đều là lãnh đạo doanh nghiệp và kiểm toán viên ký báo cáo tài chính công khai theo quy định pháp luật.
 
-## 5. Composition & Distributions
+## 5. Thành phần và Phân bố dữ liệu
 
-### Corpus Summary
+### Tổng hợp Corpus
 
-| Metric | Verified Count | Path / Notes |
+| Chỉ tiêu | Số lượng đã kiểm chứng | Đường dẫn / Ghi chú |
 |---|---:|---|
-| Audited reports | 40 | 4 companies × 5 years (2020-2024) × 2 versions (`consolidated`, `separate`) |
-| Raw OCR pages | 2,437 | `5,422,578` total characters across 40 `.txt` files (`report/ocr_audit.md`) |
-| Empty OCR pages excluded | 30 | `1.23%` of raw pages (`data/processed/ocr_audit_pages.csv`) |
-| Retrieval chunks | 2,407 | `data/processed/chunks.jsonl` (1 chunk = 1 non-empty page; `1,634` contain tables) |
-| OCR HTML tables parsed | 2,585 | Extracted from non-empty chunks |
-| Structured table records | 29,615 | `data/processed/table_records.jsonl` |
-| Master manifest rows | 244 | `40` corpus + `44` dev + `160` test in `data/data_manifest.csv` |
+| Báo cáo kiểm toán | 40 | 4 công ty x 5 năm (2020-2024) x 2 bản (`consolidated`, `separate`) |
+| Trang OCR thô | 2.437 | Tổng `5.422.578` ký tự trên 40 tệp `.txt` (`report/ocr_audit.md`) |
+| Trang OCR rỗng bị loại | 30 | `1,23%` tổng số trang thô (`data/processed/ocr_audit_pages.csv`) |
+| Chunk dùng truy hồi | 2.407 | `data/processed/chunks.jsonl` (1 chunk = 1 trang khác rỗng; `1.634` chunk có bảng) |
+| Bảng HTML OCR đã phân tích | 2.585 | Trích xuất từ các chunk khác rỗng |
+| Bản ghi bảng có cấu trúc | 29.615 | `data/processed/table_records.jsonl` |
+| Dòng bản kê tổng hợp | 244 | `40` corpus + `44` dev + `160` test trong `data/data_manifest.csv` |
 
-Table records (`n = 29,615`) break down by statement type into `other` (19,904), `balance_sheet` (5,391), `cash_flow` (2,263), and `income_statement` (2,057). By parsed unit, they break down into `đồng` (22,634), `nghìn đồng` (4,912), `%` (1,530), empty `""` (292), `triệu đồng` (234), and `tỷ đồng` (13).
+Phân bố `29.615` bản ghi bảng theo loại báo cáo `statement` gồm `other` (19.904), `balance_sheet` (5.391), `cash_flow` (2.263) và `income_statement` (2.057). Theo đơn vị `unit` phân tích được gồm `đồng` (22.634), `nghìn đồng` (4.912), `%` (1.530), rỗng `""` (292), `triệu đồng` (234) và `tỷ đồng` (13).
 
-At the page chunk level (`n = 2,407`), `unit` is `""` on `1,680` chunks (pages without a table unit header), `đồng` on `478`, `triệu đồng` on `142`, and `tỷ đồng` on `107`. Downstream lookup resolves units from table column headers or page text rather than guessing missing headers.
-At the page chunk level (`n = 2,407`), `unit` is `""` on `1,680` chunks (pages without a table unit header), `đồng` on `478`, `triệu đồng` on `142`, and `tỷ đồng` on `107`. Downstream lookup resolves units from table column headers or page text and does not guess missing headers.
+Ở cấp chunk trang (`n = 2.407`), trường `unit` có giá trị `""` trên `1.680` chunk (các trang không có dòng tiêu đề đơn vị bảng), `đồng` trên `478` chunk, `triệu đồng` trên `142` chunk và `tỷ đồng` trên `107` chunk. Khi tra cứu phía sau, hệ thống phân giải đơn vị từ tiêu đề cột bảng hoặc văn bản trên trang chứ không đoán mò khi thiếu tiêu đề.
 
-### Gold QA Breakdown (`n = 204`)
+### Phân bố bộ Gold QA (`n = 204`)
 
-- Source: `table-clean` **150** (`T1`: 55, `T2`: 44, `T3`: 43, `T5`: 8), `vifinqa` **35**, `supplement` **15** (7 answerable, 8 unanswerable), `dev-refusal` **4** (`DEV-REF-01..04`).
-- Answer type and split: `computation` **94** (`dev`: 21, `test`: 73), `numeric` **90** (`dev`: 19, `test`: 71), and `unanswerable` **20** (`dev`: 4, `test`: 16).
-- Evidence status: `needs_more_evidence=false` **184** (non-empty `evidence`), `needs_more_evidence=true` **20** (empty `evidence` and canonical refusal string).
-- Review status: `reviewed-agree` **57** (`27.94%`), `draft-needs-second-reviewer` **147** (`72.06%`), `pending-answer` **0**.
-- Company ID: single-company `HSG` (**57**), `NKG` (**52**), `MSR` (**36**), `HPG` (**34**); cross-company `HPG|HSG|MSR|NKG` (**22**), `HPG|HSG|NKG` (**2**), `HPG|MSR|HSG` (**1**).
-- Normalized `unit`: `tỷ đồng` (89), `nghìn tỷ đồng` (46), `""` for counts/refusals (21), `triệu đồng` (12), `%` (11), `đồng` (10), `điểm phần trăm` (9), `lần` (4), `nghìn đồng` (1), `trăm tỷ đồng` (1).
+- Theo nguồn (`source`): `table-clean` **150** (`T1`: 55, `T2`: 44, `T3`: 43, `T5`: 8), `vifinqa` **35**, `supplement` **15** (7 câu có đáp án, 8 câu từ chối), `dev-refusal` **4** (`DEV-REF-01..04`).
+- Theo loại đáp án và tập (`answer_type`, `split`): `computation` **94** (`dev`: 21, `test`: 73), `numeric` **90** (`dev`: 19, `test`: 71), và `unanswerable` **20** (`dev`: 4, `test`: 16).
+- Theo trạng thái bằng chứng: `needs_more_evidence=false` **184** (trường `evidence` khác rỗng), `needs_more_evidence=true` **20** (`evidence` rỗng và mang câu từ chối chuẩn).
+- Theo trạng thái hậu kiểm (`review_status`): `reviewed-agree` **57** (`27,94%`), `draft-needs-second-reviewer` **147** (`72,06%`), `pending-answer` **0**.
+- Theo `company_id`: đơn công ty gồm `HSG` (**57**), `NKG` (**52**), `MSR` (**36**), `HPG` (**34**); đa công ty gồm `HPG|HSG|MSR|NKG` (**22**), `HPG|HSG|NKG` (**2**), `HPG|MSR|HSG` (**1**).
+- Theo đơn vị chuẩn hóa (`unit`): `tỷ đồng` (89), `nghìn tỷ đồng` (46), `""` cho câu đếm/từ chối (21), `triệu đồng` (12), `%` (11), `đồng` (10), `điểm phần trăm` (9), `lần` (4), `nghìn đồng` (1), `trăm tỷ đồng` (1).
 
-### Missing Data Summary
+### Tóm tắt dữ liệu khuyết thiếu
 
-In `data/data_manifest.csv` and `data/processed/corpus_manifest.csv`, `published_at` is `""` on every row because upstream `ViFinQA` does not provide original publication dates. In `qa_gold.jsonl`, `report_id` and `source_page` are `""` on the `20` refusal items and multi-company/multi-period synthesis items where no single filing or page holds the aggregated answer (all evidence references remain recorded inside `evidence[]` for answerable items). On `HPG_2022_consolidated`, `24` trailing note pages (`42`, `44-54`, `57-68`) are blank in the upstream OCR snapshot.
+Trong `data/data_manifest.csv` và `data/processed/corpus_manifest.csv`, cột `published_at` là `""` ở mọi dòng do nguồn `ViFinQA` gốc không cung cấp ngày phát hành báo cáo gốc. Trong `qa_gold.jsonl`, các trường `report_id` và `source_page` mang giá trị `""` ở `20` câu từ chối và các câu tổng hợp đa công ty/đa kỳ không nằm gọn trong một báo cáo hoặc một trang duy nhất (toàn bộ bằng chứng thành phần của câu trả lời được vẫn ghi đầy đủ trong `evidence[]`). Riêng báo cáo `HPG_2022_consolidated` bị khuyết `24` trang thuyết minh cuối (`42`, `44-54`, `57-68`) do trang trống trong bản chụp OCR gốc.
 
-## 6. Collection & Sampling
+## 6. Thu thập và Lấy mẫu
 
-Candidate tickers in `ViFinQA` were ranked via `src/select_corpus.py` by matched question density, accounting-template comparability (non-financial firms following Circular `202/2014/TT-BTC`), and OCR table parseability. Selecting `HPG`, `HSG`, `NKG`, and `MSR` across `2020-2024` (excluding banks such as `VCB` and `ACB` whose statement line items differ substantially) yielded **20** company-year pairs and **40** OCR report files (`consolidated` and `separate`). Both statement versions are retained because 4 matched `ViFinQA` questions ask specifically for parent-company (`công ty mẹ`, `separate`) figures while others ask for `consolidated` figures.
+Các mã chứng khoán ứng viên trong `ViFinQA` được xếp hạng qua `src/select_corpus.py` theo mật độ câu hỏi khớp, sự đồng nhất mẫu báo cáo kế toán (các doanh nghiệp phi tài chính theo Thông tư `202/2014/TT-BTC`) và khả năng phân tích bảng HTML OCR. Việc chọn 4 doanh nghiệp `HPG`, `HSG`, `NKG`, `MSR` giai đoạn `2020-2024` (loại trừ khối ngân hàng như `VCB`, `ACB` do hệ thống chỉ tiêu khác biệt hoàn toàn) thu được **20** cặp công ty theo năm và **40** tệp báo cáo OCR (`consolidated` và `separate`). Cả hai phiên bản đều được giữ lại vì trong nhóm câu `ViFinQA` khớp có 4 câu hỏi trực tiếp số liệu công ty mẹ (`separate`), trong khi các câu khác hỏi số hợp nhất.
 
-Using `src/filter_questions.py` and `src/preprocess/company_match.py`, all `1,012` raw questions in `data/raw/vifinqa/questions/questions.jsonl` were matched by parenthesized ticker codes, standalone ticker symbols, and contiguous Vietnamese company-name sequences. Exactly **35** questions matched `{HPG, HSG, NKG, MSR} × {2020..2024}` (`data/processed/questions_matched.csv`: `10` single-company, `25` multi-company; `29` numeric, `6` computation). The other **977** questions are logged with drop reasons in `data/processed/questions_dropped.csv` (`951` out-of-corpus company, `21` out-of-corpus year, `4` unknown company, `1` missing year).
+Qua `src/filter_questions.py` và `src/preprocess/company_match.py`, toàn bộ `1.012` câu hỏi thô trong `data/raw/vifinqa/questions/questions.jsonl` được đối chiếu bằng mã chứng khoán trong ngoặc, mã đứng độc lập và chuỗi tên tiếng Việt liên tiếp. Kết quả giữ lại đúng **35** câu thuộc phạm vi `{HPG, HSG, NKG, MSR} x {2020..2024}` (`data/processed/questions_matched.csv`: `10` câu đơn công ty, `25` câu đa công ty; `29` câu `numeric`, `6` câu `computation`). **977** câu còn lại được ghi lý do loại bỏ vào `data/processed/questions_dropped.csv` (`951` câu doanh nghiệp ngoài corpus, `21` câu năm ngoài corpus, `4` câu không xác định được công ty, `1` câu thiếu năm).
 
-Controlled expansion proceeded across four versions:
-- `v1` (`50` items): `35` `vifinqa` + `15` `supplement` (`S_NEW_01..15`, authored via `src/build_supplement_gold.py`).
-- `v2` (`127` items): added `77` clean consolidated table QA (`T1`, `T2`, `T3`, `T5`) via `src/build_expanded_gold_v2.py` (filtering `confidence >= 0.9`, valid `metric_code`, years `2020-2024`, deduplicating `(company, norm_name, year, source_chunk_id)`).
-- `v3` (`200` items): added `73` additional `table-clean` items (`T1 +26`, `T2 +22`, `T3 +21`, `T5 +4`) via `src/build_expanded_gold_v3.py`.
-- `v4` (`204` items): resolved all `35` `vifinqa` items against the 40-report corpus and appended `4` `dev-refusal` items (`DEV-REF-01..04`) exclusively to `dev` via `src/resolve_vifinqa_and_dev_refusal.py`.
+Quá trình mở rộng bộ chuẩn có kiểm soát trải qua bốn phiên bản:
+- `v1` (`50` câu): `35` câu `vifinqa` + `15` câu `supplement` (`S_NEW_01..15`, biên soạn qua `src/build_supplement_gold.py`).
+- `v2` (`127` câu): bổ sung `77` câu sạch trên bảng `consolidated` (`T1`, `T2`, `T3`, `T5`) qua `src/build_expanded_gold_v2.py` (lọc `confidence >= 0.9`, có `metric_code` hợp lệ, năm `2020-2024`, khử trùng theo bộ `(company, norm_name, year, source_chunk_id)`).
+- `v3` (`200` câu): bổ sung thêm `73` câu `table-clean` (`T1 +26`, `T2 +22`, `T3 +21`, `T5 +4`) qua `src/build_expanded_gold_v3.py`.
+- `v4` (`204` câu): hoàn thiện lời giải và trích dẫn cho toàn bộ `35` câu `vifinqa` đối chiếu trên corpus 40 báo cáo, đồng thời bổ sung `4` câu `dev-refusal` (`DEV-REF-01..04`) riêng vào `dev` qua `src/resolve_vifinqa_and_dev_refusal.py`.
 
-## 7. Preprocessing
+## 7. Tiền xử lý
 
-All preprocessing scripts read from `data/raw/` without altering upstream files and write deterministic UTF-8 outputs to `data/processed/`.
+Mọi script tiền xử lý chỉ đọc từ `data/raw/` mà không sửa tệp gốc, và ghi kết quả tái lập chuẩn UTF-8 vào `data/processed/`.
 
-First, `src/preprocess/vifinqa_parser.py` and `src/build_chunks.py` split each report on `===== PAGE n =====`, parse inline HTML `<table>` elements, normalize text to Unicode `NFC` while preserving all Vietnamese diacritics, strip `1,317` decorative symbols (`○ ● ◎ ...`) across `116` pages, `486` LaTeX expressions across `295` pages, and control characters (`CONTROL_RE`), and exclude **30** empty pages (`1.23%` of `2,437`). Each remaining non-empty page forms one retrieval chunk (`2,407` chunks in `chunks.jsonl`) keyed by `<document_id>#p<NNN>`.
+Thứ nhất, `src/preprocess/vifinqa_parser.py` và `src/build_chunks.py` tách từng báo cáo theo mốc `===== PAGE n =====`, phân tích thẻ HTML `<table>`, chuẩn hóa văn bản về Unicode `NFC` giữ nguyên toàn bộ dấu tiếng Việt, lọc bỏ `1.317` ký tự trang trí (`○ ● ◎ ...`) trên `116` trang, `486` biểu thức LaTeX trên `295` trang cùng ký tự điều khiển (`CONTROL_RE`), và loại **30** trang rỗng (`1,23%` trên `2.437` trang). Mỗi trang còn lại tạo thành một chunk truy hồi (`2.407` chunk trong `chunks.jsonl`) định danh bằng `<document_id>#p<NNN>`.
 
-Second, `corpus_manifest.csv` records per-file `sha256` hashes, confirming 40 distinct reports (`consolidated` and `separate` versions differ in hash and content) with `0` duplicate `document_id` or `chunk_id` identifiers. Question expansion scripts normalize questions with lowercasing and whitespace collapse (`norm_question`) to reject exact or near-duplicate questions.
+Thứ hai, `corpus_manifest.csv` lưu mã băm `sha256` từng tệp nguồn, xác nhận 40 báo cáo riêng biệt (hai bản `consolidated` và `separate` khác nhau cả về nội dung lẫn mã băm) với `0` mã `document_id` hoặc `chunk_id` bị trùng. Các script mở rộng bộ câu hỏi chuẩn hóa câu chữ bằng viết thường và thu gọn khoảng trắng (`norm_question`) để loại trừ câu hỏi trùng hoặc lặp lại nguyên ý.
 
-Third, `normalize_number()`, `src/build_table_records.py`, and `src/preprocess/table_extract.py` preserve raw numeric strings in `value_raw` and chunk texts while normalizing Vietnamese thousands separators (`91.279.041.771.826` -> `91279041771826`), comma decimals (`3,2` -> `3.2`, never multiplied by 100), and parenthetical negatives (`(983.237)` -> `-983237`). Units are inferred from table column headers (`Nghìn VND`, `Triệu VND`, `Tỷ VND`, `VND`, `%`) or page fallback, yielding `29,615` structured table records with `confidence` `0.93` (when `metric_code` exists) or `0.85` (minus `0.1` when the unit is absent).
+Thứ ba, `normalize_number()`, `src/build_table_records.py` và `src/preprocess/table_extract.py` giữ nguyên chuỗi số gốc trong `value_raw` và văn bản chunk để bảo toàn trích dẫn, đồng thời chuẩn hóa dấu chấm phân cách hàng nghìn của tiếng Việt (`91.279.041.771.826` -> `91279041771826`), đổi dấu phẩy thập phân thành dấu chấm (`3,2` -> `3.2`, tuyệt đối không nhân 100) và đổi số âm trong ngoặc đơn thành số âm (`(983.237)` -> `-983237`). Đơn vị được suy ra từ tiêu đề cột (`Nghìn VND`, `Triệu VND`, `Tỷ VND`, `VND`, `%`) hoặc văn bản trên trang, tạo thành `29.615` bản ghi bảng có cấu trúc với `confidence` bằng `0.93` (khi có `metric_code`) hoặc `0.85` (trừ `0.1` nếu thiếu đơn vị).
 
-## 8. Annotation Process
+## 8. Quy trình gắn nhãn
 
-Annotations follow `data/annotations/annotation_guideline.md` (`v0.2`), executed by team annotators (`member-1`, `member-2`, `annotator-1`, `reviewer-2`) alongside deterministic script builders (`auto-builder`). Breakdown by `reviewer_id` across the `204` items: `auto-builder` (120), `auto-builder/reviewer-2` (30), `annotator-1` (23), `annotator-1/reviewer-2` (16), `member-1/reviewer-2` (6), `member-1/member-2` (5), and `member-1` (4).
+Công tác gắn nhãn tuân thủ tài liệu `data/annotations/annotation_guideline.md` (`v0.2`), được thực hiện bởi các thành viên gắn nhãn (`member-1`, `member-2`, `annotator-1`, `reviewer-2`) kết hợp các script dựng tự động có kiểm chứng (`auto-builder`). Phân bố theo `reviewer_id` trên `204` câu: `auto-builder` (120), `auto-builder/reviewer-2` (30), `annotator-1` (23), `annotator-1/reviewer-2` (16), `member-1/reviewer-2` (6), `member-1/member-2` (5) và `member-1` (4).
 
-Four rules govern all gold labels in `v0.2`:
+Bốn quy tắc chi phối toàn bộ bộ nhãn chuẩn `v0.2`:
 
-1. Queries specifying `"công ty mẹ"` or `"riêng"` use `separate` statements; group or unspecified queries use `consolidated`.
-2. Numeric answers come from the target fiscal year column (`2020-2024`, or comparative `"Số đầu năm"`/`"1/1/2020"` in `2020` filings when querying `2019` bases), never from adjacent columns or notes unless the question asks for a note disclosure (`ViFinQA-97`, `ViFinQA-186`, `ViFinQA-311`, `ViFinQA-612`).
-3. Report scales (`VND` vs `Nghìn VND`) are converted to the exact unit requested by the question (`đồng`, `nghìn đồng`, `triệu đồng`, `tỷ đồng`, `trăm tỷ đồng`, `nghìn tỷ đồng`, `%`, `điểm phần trăm`, `lần`) and rounded to at most `4` decimal places (`round(x, 4)`).
-4. Questions whose topic or period has zero coverage across all `2,407` chunks receive `needs_more_evidence: true`, `answer_type: "unanswerable"`, `evidence: []`, the canonical string `"Không đủ bằng chứng trong corpus để trả lời."`, and an explicit `unanswerable_reason` listing the searched phrases that returned `0` hits. Borderline accounting cases (`ViFinQA-97`, `ViFinQA-186`, `ViFinQA-709`) are documented inside `computation` and resolved against the primary statement or specified note per guideline Section 7.
+1. Câu hỏi nêu `"công ty mẹ"` hoặc `"riêng"` sử dụng bản `separate`; câu hỏi cấp tập đoàn hoặc không ghi rõ sử dụng bản `consolidated`.
+2. Đáp án số lấy từ đúng cột năm tài chính mục tiêu (`2020-2024`, hoặc cột so sánh `"Số đầu năm"`/`"1/1/2020"` trên báo cáo `2020` khi câu hỏi hỏi gốc năm `2019`), không lấy nhầm từ cột lân cận hay trang thuyết minh trừ khi câu hỏi hỏi chi tiết thuyết minh (`ViFinQA-97`, `ViFinQA-186`, `ViFinQA-311`, `ViFinQA-612`).
+3. Hệ số đơn vị báo cáo (`VND` so với `Nghìn VND`) được quy đổi về đúng đơn vị mà câu hỏi yêu cầu (`đồng`, `nghìn đồng`, `triệu đồng`, `tỷ đồng`, `trăm tỷ đồng`, `nghìn tỷ đồng`, `%`, `điểm phần trăm`, `lần`) và làm tròn tối đa `4` chữ số thập phân (`round(x, 4)`).
+4. Các câu hỏi có chủ đề hoặc kỳ báo cáo không xuất hiện trên bất kỳ chunk nào trong `2.407` chunk được gắn `needs_more_evidence: true`, `answer_type: "unanswerable"`, `evidence: []`, chuỗi chuẩn `"Không đủ bằng chứng trong corpus để trả lời."` kèm `unanswerable_reason` ghi rõ các cụm từ đã tra cho kết quả `0` hit. Các ca ranh giới kế toán (`ViFinQA-97`, `ViFinQA-186`, `ViFinQA-709`) được ghi chú rõ trong `computation` và phân xử dựa trên báo cáo chính thức hoặc thuyết minh chỉ định theo Mục 7 của guideline.
 
-## 9. Quality Checks
+## 9. Kiểm định chất lượng
 
-Across all `40` reports, `2,437` pages, and `2,585` HTML tables, `src/audit_ocr.py` (`report/ocr_audit.md`) measured `0.0000` `avg_ragged_row_ratio` on every report (zero column-misaligned HTML table rows) and `0` occurrences of the Unicode replacement character (`U+FFFD`). All `30` empty OCR pages are logged in `data/processed/ocr_audit_pages.csv` and excluded from retrieval chunks.
+Trên toàn bộ `40` báo cáo, `2.437` trang và `2.585` bảng HTML, `src/audit_ocr.py` (`report/ocr_audit.md`) đo được `avg_ragged_row_ratio` bằng `0.0000` ở mọi báo cáo (không có hàng bảng HTML lệch cột) và `0` lần xuất hiện ký tự lỗi mã hóa Unicode (`U+FFFD`). Cả `30` trang OCR rỗng đều được ghi nhận trong `data/processed/ocr_audit_pages.csv` và loại khỏi tập chunk truy hồi.
 
-Running `src/data_quality_report.py` (`report/data_quality_report.md`) verified `0` duplicate or empty IDs across `corpus_manifest.csv` (40), `ocr_audit.csv` (40), `questions_matched.csv` (35), `questions_dropped.csv` (977), `data_manifest.csv` (244), `chunks.jsonl` (2,407), and `qa_gold.jsonl` (204), `0` out-of-vocabulary `answer_type` or `review_status` labels, and `0` `pending-answer` items.
+Kết quả chạy `src/data_quality_report.py` (`report/data_quality_report.md`) xác nhận `0` mã ID bị trùng hoặc rỗng trên `corpus_manifest.csv` (40), `ocr_audit.csv` (40), `questions_matched.csv` (35), `questions_dropped.csv` (977), `data_manifest.csv` (244), `chunks.jsonl` (2.407) và `qa_gold.jsonl` (204); đồng thời `0` nhãn `answer_type` hoặc `review_status` nằm ngoài danh mục hợp lệ và `0` câu ở trạng thái `pending-answer`.
 
-`src/cross_review.py` runs two layers of verification:
+Script `src/cross_review.py` thực thi hai lớp kiểm định:
 
-1. Corpus-wide quote integrity (`204/204`): Every `vifinqa` (`35/35`) and answerable `supplement` (`7/7`) `evidence[].quote` matches verbatim inside `chunks.jsonl[chunk_id]["text"]` with `source_page == chunk["page"]`. For all `142` answerable `table-clean` items, both `metric` and `raw_value` tokens from `"metric | raw_value"` co-occur on an actual pipe-delimited line of the cited chunk.
-2. Stratified independent audit (`53/204 = 25.98%`, `seed = 42`, `data/annotations/review_report.md`): Covers `table-clean` (`30`: T1=10, T2=9, T3=9, T5=2), `vifinqa` (`12`), `supplement` (`7`), and `dev-refusal` (`4`) across `dev` (`14`) and `test` (`39`), spanning `25` numeric, `19` computation, and `9` unanswerable items. Re-extracting raw numbers directly from `chunks.jsonl` (without reading `row['computation']`) and running zero-hit phrase probes across all `2,407` chunks produced **0 disagreements** (`agree: 53`, `disagree: 0`), bringing cumulative `reviewed-agree` in `qa_gold.jsonl` and `review_log.csv` to **57 / 204 (27.94%)** (including 4 previously verified `member-1/member-2` `supplement` items outside the random subsample).
+1. Toàn vẹn trích dẫn trên toàn corpus (`204/204`): mọi chuỗi `evidence[].quote` của nhóm `vifinqa` (`35/35`) và `supplement` có đáp án (`7/7`) đều khớp nguyên văn bên trong `chunks.jsonl[chunk_id]["text"]` với `source_page == chunk["page"]`. Với toàn bộ `142` câu `table-clean` có đáp án, cả hai token `metric` và `raw_value` trong tóm tắt `"metric | raw_value"` đều đồng thời xuất hiện trên cùng một dòng phân tách bằng dấu gạch đứng của chunk được trích.
+2. Kiểm toán độc lập phân tầng (`53/204 = 25,98%`, `seed = 42`, `data/annotations/review_report.md`): bao phủ `table-clean` (`30`: T1=10, T2=9, T3=9, T5=2), `vifinqa` (`12`), `supplement` (`7`) và `dev-refusal` (`4`) trên cả `dev` (`14`) và `test` (`39`), gồm `25` câu `numeric`, `19` câu `computation` và `9` câu `unanswerable`. Khi trích xuất lại số thô trực tiếp từ `chunks.jsonl` (không đọc `row['computation']`) và dò toàn văn trên toàn bộ `2.407` chunk cho các câu từ chối, kết quả thu được **0 bất đồng** (`agree: 53`, `disagree: 0`), nâng tổng tích lũy `reviewed-agree` trong `qa_gold.jsonl` và `review_log.csv` lên **57 / 204 (27,94%)** (tính cả 4 mẫu `supplement` do `member-1/member-2` duyệt trước đó ngoài mẫu ngẫu nhiên).
 
-## 10. Splits & Leakage Prevention
+## 10. Phân chia tập dữ liệu và Chống rò rỉ
 
-Split assignments live in `data/splits/dev.json`, `data/splits/test.json`, and `data/splits/split_meta.json`, mirrored identically at `evaluation/split_freeze.json`.
+Phân chia tập được lưu tại `data/splits/dev.json`, `data/splits/test.json` và `data/splits/split_meta.json`, kèm bản sao giống hệt tại `evaluation/split_freeze.json`.
 
-| Property | Value |
+| Thuộc tính | Giá trị |
 |---|---|
 | `version` | `v4` |
 | `seed` | `42` |
-| `n_dev` | `44` (`table-clean`: 30, `vifinqa`: 9, `dev-refusal`: 4, `supplement`: 1; `40` answerable + `4` refusal; `refusal_den = 4`) |
-| `n_test` | `160` (`table-clean`: 120, `vifinqa`: 26, `supplement`: 14; `144` answerable + `16` refusal; `refusal_den = 16`) |
+| `n_dev` | `44` (`table-clean`: 30, `vifinqa`: 9, `dev-refusal`: 4, `supplement`: 1; gồm `40` câu có đáp án + `4` câu từ chối; `refusal_den = 4`) |
+| `n_test` | `160` (`table-clean`: 120, `vifinqa`: 26, `supplement`: 14; gồm `144` câu có đáp án + `16` câu từ chối; `refusal_den = 16`) |
 | `sha256` | `0012ebccd6712b44cdd1faf18f020c547c82973db09d37ab2b9e96b0a94a34b4` |
 
-Full sorted ID lists are stored in `data/splits/dev.json` (`44` IDs, covering `CLEAN-T1-HPG-2020-08` through `CLEAN-T3-NKG-2023-2024-B18`, `DEV-REF-01..04`, `S_NEW_03`, `ViFinQA-99`, and `ViFinQA-373`..`ViFinQA-973`) and `data/splits/test.json` (`160` IDs, covering `CLEAN-T1-HPG-2020-01` through `CLEAN-T5-NKG-2024-07`, `S_NEW_01..02`, `S_NEW_04..15`, and `ViFinQA-97`..`ViFinQA-709`).
+Danh sách đầy đủ mã ID đã sắp xếp nằm trong `data/splits/dev.json` (`44` ID, từ `CLEAN-T1-HPG-2020-08` đến `CLEAN-T3-NKG-2023-2024-B18`, `DEV-REF-01..04`, `S_NEW_03`, `ViFinQA-99`, và `ViFinQA-373`..`ViFinQA-973`) và `data/splits/test.json` (`160` ID, từ `CLEAN-T1-HPG-2020-01` đến `CLEAN-T5-NKG-2024-07`, `S_NEW_01..02`, `S_NEW_04..15`, và `ViFinQA-97`..`ViFinQA-709`).
 
-Four safeguards prevent evaluation leakage:
+Bốn lớp bảo vệ chống rò rỉ đánh giá được áp dụng:
 
-1. All `160` `test` IDs and ground-truth assignments from `v3` remain untouched in `v4`; previously `pending-answer` `vifinqa` rows were populated from corpus evidence without changing split membership, and `DEV-REF-01..04` were added only to `dev`.
-2. All `204` questions are unique after lowercasing and whitespace normalization, preventing duplicate or paraphrased test queries from entering `dev`.
-3. Both `dev` and `test` query the same `40`-report corpus (`2,407` chunks), which is standard for fixed-corpus financial QA and explicitly disclosed in `evaluation/evaluation_protocol.md`. Results do not support generalization claims to unseen companies or years without a company-held-out evaluation.
-4. Prompt rules, retrieval weights, and lookup aliases were tuned on `dev` only, with `test` reserved for final reporting. `src/build_gold.py` exits with status `1` if `qa_gold.jsonl` already has `> 50` non-empty rows unless `--force-v1` is passed.
+1. Toàn bộ `160` ID tập `test` và nhãn đáp án từ `v3` được giữ nguyên vẹn ở `v4`; các dòng `vifinqa` từng ở trạng thái `pending-answer` chỉ được điền đầy đủ đáp án và bằng chứng từ corpus mà không đổi thành phần split, còn `DEV-REF-01..04` chỉ thêm riêng vào `dev`.
+2. Cả `204` câu hỏi đều là duy nhất sau khi viết thường và chuẩn hóa khoảng trắng, loại trừ nguy cơ câu `test` trùng hoặc diễn đạt lại lọt vào `dev`.
+3. Cả `dev` và `test` cùng truy vấn trên kho 40 báo cáo cố định (`2.407` chunk), đúng thông lệ QA trên corpus tài chính cố định và được công bố minh bạch trong `evaluation/evaluation_protocol.md`. Kết quả không dùng để suy rộng sang các doanh nghiệp hay năm ngoài corpus nếu chưa có thực nghiệm tách riêng công ty mới.
+4. Mọi luật nhắc (prompt), trọng số truy hồi và từ điển đồng nghĩa chỉ được tinh chỉnh trên `dev`, còn `test` chỉ dùng để báo cáo kết quả cuối. Script `src/build_gold.py` sẽ dừng với mã thoát `1` nếu `qa_gold.jsonl` đã có hơn `50` dòng khác rỗng mà thiếu cờ `--force-v1`.
 
-## 11. Gold & Evaluation Protocol
+## 11. Nhãn chuẩn Gold và Giao thức đánh giá
 
-Every answerable gold item stores `gold_answer`, `value` (normalized to `unit`, rounded to 4 decimals), `unit`, `evidence[]` (`chunk_id`, `source_page`, `quote`), and `computation` (arithmetic trace for `94` computation items and unit conversions). Every unanswerable gold item stores `"Không đủ bằng chứng trong corpus để trả lời."`, `needs_more_evidence: true`, and `unanswerable_reason`.
+Mỗi câu gold có đáp án đều lưu `gold_answer`, `value` (quy đổi đúng `unit`, làm tròn 4 chữ số thập phân), `unit`, `evidence[]` (`chunk_id`, `source_page`, `quote`), và `computation` (dấu vết phép tính cho `94` câu tính toán và các bước quy đổi đơn vị). Mỗi câu ngoài phạm vi đều lưu `"Không đủ bằng chứng trong corpus để trả lời."`, `needs_more_evidence: true` và `unanswerable_reason`.
 
-`src/evaluate/evaluate.py` (`evaluation/evaluation_protocol.md` v9) computes four metric groups offline over saved top-10 `predicted_chunk_ids`:
+Script `src/evaluate/evaluate.py` (`evaluation/evaluation_protocol.md` v9) tính ngoại tuyến bốn nhóm thước đo trên top-10 `predicted_chunk_ids` đã lưu:
 
-- Retrieval (`evidence_den`: 144 test, 40 dev): `recall_at_3`, `recall_at_5`, `recall_at_10`, `mrr_at_3`, `mrr_at_5`, `mrr_at_10`, `context_precision_at_5`, `context_recall_at_5`.
-- Citation: `citation_precision_top1`, `citation_recall_at_5`, `citation_complete_rate` (`chunk_id`, `page`, `company_id`, `fiscal_year` per `config/answer_policy.yaml`), `page_accuracy`.
-- Answer and financial period: `numeric_match` (tolerance `max(1e-4, |gv| × 1e-6)`), `exact_match`, `company_accuracy`, `year_accuracy`, `version_accuracy`, `period_accuracy` (matching multi-entity `|` sets via `parse_pipe_set()`), `unsupported_claim_rate` (chunk-isolated via `CHUNK_SEP`, unit factors bounded to `1e3..1e12` at `1e-3` relative tolerance, year headers `2020-2025` excluded), `faithfulness_heuristic` (`1 - unsupported_claim_rate`), and `answer_relevancy_heuristic`.
-- Refusal and status (`refusal_den`: 16 test, 4 dev): `decide_status()` assigns `answered`, `partial_answer`, `refused`, or `ambiguous`; `refusal_precision`, `refusal_recall`, `false_answer_rate`, and per-item labels (`true_refusal`, `missed_refusal`, `false_refusal`, `true_answer`) are exported to `evaluation/refusal_labels/refusal_labels_E*.csv`.
+- Truy hồi (`evidence_den`: 144 test, 40 dev): `recall_at_3`, `recall_at_5`, `recall_at_10`, `mrr_at_3`, `mrr_at_5`, `mrr_at_10`, `context_precision_at_5`, `context_recall_at_5`.
+- Trích dẫn: `citation_precision_top1`, `citation_recall_at_5`, `citation_complete_rate` (yêu cầu đủ `chunk_id`, `page`, `company_id`, `fiscal_year` theo `config/answer_policy.yaml`), `page_accuracy`.
+- Đáp án số và kỳ tài chính: `numeric_match` (sai số `max(1e-4, |gv| * 1e-6)`), `exact_match`, `company_accuracy`, `year_accuracy`, `version_accuracy`, `period_accuracy` (so khớp tập đa thực thể phân cách bởi `|` qua `parse_pipe_set()`), `unsupported_claim_rate` (cô lập từng chunk bằng `CHUNK_SEP`, quy đổi đơn vị trong dải `1e3..1e12` với dung sai tương đối `1e-3`, loại bỏ số năm tiêu đề `2020-2025`), `faithfulness_heuristic` (`1 - unsupported_claim_rate`) và `answer_relevancy_heuristic`.
+- Từ chối và trạng thái (`refusal_den`: 16 test, 4 dev): `decide_status()` gán nhãn `answered`, `partial_answer`, `refused` hoặc `ambiguous`; các chỉ số `refusal_precision`, `refusal_recall`, `false_answer_rate` và nhãn từng câu (`true_refusal`, `missed_refusal`, `false_refusal`, `true_answer`) được xuất ra `evaluation/refusal_labels/refusal_labels_E*.csv`.
 
-Two portions remain unannotated by design or for future review: `147 / 204` (`72.06%`) items remain `draft-needs-second-reviewer` for a second human reviewer (while passing automated chunk-quote verification with `0` `pending-answer` items), and multi-hop `ViFinQA` questions (such as `ViFinQA-368`, spanning 4 companies and 10 chunks) have verified final gold values and evidence chunks without intermediate sub-step gold labels (`needs_decomposition` noted in `evaluation/pilot_advanced.md`).
+Hai phần còn để mở theo thiết kế hoặc chờ hậu kiểm tiếp: `147 / 204` (`72,06%`) mẫu vẫn đang giữ trạng thái `draft-needs-second-reviewer` chờ người kiểm định thứ hai rà soát thủ công (dù đã qua 100% bước đối chiếu tự động câu trích trên chunk với `0` mẫu `pending-answer`), và các câu `ViFinQA` đa bước (như `ViFinQA-368`, trải rộng 4 công ty và 10 chunk) đã có đáp án cuối cùng và chứng cứ chuẩn nhưng chưa gắn nhãn từng bước trung gian (`needs_decomposition` ghi trong `evaluation/pilot_advanced.md`).
 
-## 12. Biases, Ethics & Risks
+## 12. Thiên lệch, Đạo đức và Rủi ro
 
-The `40` filings cover only 4 industrial, steel, and materials firms (`HPG`, `HSG`, `NKG`, `MSR`) across `2020-2024`, a period marked by post-2021 steel margin compression and `MSR` net losses in `2023-2024`. Models or rules tuned on these Circular `202/2014/TT-BTC` line items will not transfer directly to banks, insurers, or other accounting standards.
+Bộ `40` báo cáo chỉ bao phủ 4 doanh nghiệp ngành công nghiệp, thép và vật liệu (`HPG`, `HSG`, `NKG`, `MSR`) trong giai đoạn `2020-2024`, giai đoạn biên lợi nhuận ngành thép thu hẹp sau năm 2021 và `MSR` ghi nhận lỗ ròng giai đoạn `2023-2024`. Các mô hình hoặc bộ luật tinh chỉnh trên khoản mục Thông tư `202/2014/TT-BTC` này không thể áp dụng trực tiếp cho ngân hàng, bảo hiểm hoặc chuẩn mực kế toán khác.
 
-Upstream OCR texts preserve genuine auditor formatting differences, including `HSG` 2024 (PwC) printing expenses in parentheses `(35.008.227.341.981)` versus `HSG` 2020-2023 (KPMG) printing positive expense lines, and `MSR` reporting in `Nghìn VND` while `HPG`, `HSG`, and `NKG` report in `VND`. Occasional Vietnamese diacritic OCR typos (`"doanh thu thuân"`, `"NỢ PHÀI TRẢ"`) remain verbatim in chunks.
+Văn bản OCR gốc giữ nguyên sự khác biệt trình bày của đơn vị kiểm toán, bao gồm việc PwC trên `HSG` năm 2024 ghi chi phí giá vốn trong ngoặc âm `(35.008.227.341.981)` trái ngược với KPMG giai đoạn `2020-2023` ghi số dương, hay `MSR` hạch toán bằng `Nghìn VND` trong khi `HPG`, `HSG` và `NKG` ghi theo `VND`. Một số lỗi mất dấu tiếng Việt cục bộ từ OCR (`"doanh thu thuân"`, `"NỢ PHÀI TRẢ"`) vẫn tồn tại nguyên văn trong văn bản chunk.
 
-The filings contain only statutory corporate disclosures (including names of corporate executives, board chairs, and signing auditors already published by listed companies). Automated scans confirm `0` private consumer PII entries and `0` API keys or credentials inside `src/`, `app/`, `config/`, and `tests/`. Because `license_status` is `unknown_verify_with_teacher`, raw OCR filings under `data/raw/` must remain excluded from public Git commits until instructor confirmation.
+Corpus chỉ chứa công bố thông tin doanh nghiệp bắt buộc theo luật định (bao gồm họ tên ban điều hành, chủ tịch HĐQT và kiểm toán viên đã công bố công khai). Quét tự động xác nhận `0` dữ liệu PII cá nhân người tiêu dùng và `0` khóa API hay thông tin mật trong `src/`, `app/`, `config/`, `tests/`. Vì `license_status` là `unknown_verify_with_teacher`, các tệp OCR thô trong `data/raw/` tiếp tục bị loại trừ khỏi các commit công khai cho đến khi giảng viên xác nhận.
 
-## 13. Limitations & Inappropriate Uses
+## 13. Giới hạn và Các trường hợp sử dụng không phù hợp
 
-1. `HPG_2022_consolidated` has `24` blank trailing pages (`42`, `44-54`, `57-68`) in the upstream OCR snapshot, so note-level queries outside pages `1-41` cannot be answered from those missing notes (primary statements on earlier pages remain intact).
-2. The `150` `table-clean` items inherited from `v2/v3` format `evidence[].quote` as two-column `"metric | raw_value"` pipe summaries rather than contiguous substrings; `src/cross_review.py` verifies both tokens on an actual pipe-delimited line of the cited chunk, whereas `vifinqa` (`35`) and answerable `supplement` (`7`) items store strict verbatim chunk substrings.
-2. The `150` `table-clean` items inherited from `v2/v3` store `evidence[].quote` as two-column `"metric | raw_value"` pipe summaries instead of contiguous substrings; `src/cross_review.py` verifies both tokens on an actual pipe-delimited line of the cited chunk, whereas `vifinqa` (`35`) and answerable `supplement` (`7`) items store strict verbatim chunk substrings.
-3. Multi-year comparisons can reflect inter-year note reclassifications (documented in `computation` and `data/annotations/review_report.md` for `ViFinQA-97`, `ViFinQA-186`, and `ViFinQA-709`).
-4. On `dev`, `refusal_den = 4` (`test` holds `16`), so each individual refusal prediction shifts `dev` refusal precision/recall by `25` percentage points.
-5. Do not use this benchmark or demo for live financial or investment decisions, do not extrapolate answers beyond `2020-2024` or outside `{HPG, HSG, NKG, MSR}`, and do not claim generalization to unseen companies or banking filings without an out-of-company test split.
+1. Báo cáo `HPG_2022_consolidated` bị trống `24` trang thuyết minh cuối (`42`, `44-54`, `57-68`) trong bản chụp OCR gốc, nên các câu hỏi chi tiết nằm ngoài trang `1-41` sẽ không tìm được lời giải từ các trang thiếu này (các báo cáo tài chính chính ở các trang đầu vẫn nguyên vẹn).
+2. Nhóm `150` câu `table-clean` kế thừa từ `v2/v3` lưu `evidence[].quote` ở dạng tóm tắt hai cột `"metric | raw_value"` thay vì chuỗi con liên tục; `src/cross_review.py` kiểm chứng cả hai token này cùng nằm trên một dòng gạch đứng thực tế trong chunk được trích, trong khi `35` câu `vifinqa` và `7` câu `supplement` có đáp án lưu đúng chuỗi trích nguyên văn liên tiếp.
+3. Các phép so sánh nhiều năm có thể chịu ảnh hưởng từ việc phân loại lại số liệu thuyết minh giữa các năm (đã ghi chú rõ trong trường `computation` và `data/annotations/review_report.md` cho `ViFinQA-97`, `ViFinQA-186` và `ViFinQA-709`).
+4. Trên tập `dev`, mẫu số từ chối chỉ là `refusal_den = 4` (tập `test` có `16`), nên mỗi dự đoán sai/đúng đơn lẻ sẽ làm thay đổi `refusal_precision` hoặc `refusal_recall` trên `dev` tới `25` điểm phần trăm.
+5. Không sử dụng bộ dữ liệu hoặc bản demo này để ra quyết định đầu tư hay tài chính thực tế, không suy diễn kết quả vượt ngoài giai đoạn `2020-2024` hoặc ngoài nhóm `{HPG, HSG, NKG, MSR}`, và không khẳng định khả năng tổng quát hóa sang doanh nghiệp lạ hay báo cáo ngân hàng nếu chưa kiểm thử trên một tập chia tách riêng theo công ty.
 
-## 14. Reproducibility & Access Instructions
+## 14. Hướng dẫn tái lập và Truy cập
 
-The pipeline runs offline on CPU using Python `3.10.22` (`.venv`) and dependencies pinned in `requirements.txt` (`scikit-learn==1.7.2`, `pandas==2.3.3`, `numpy==2.2.6`, `scipy==1.15.3`, `PyYAML==6.0.3`, `streamlit==1.65.0`, `huggingface_hub==1.30.0`, `matplotlib==3.10.9`, `Pillow==12.3.0`).
+Pipeline chạy hoàn toàn ngoại tuyến trên CPU trong môi trường **Anaconda** (Python `3.10`, đã kiểm chứng trên phiên bản `3.10.22`) cùng các thư viện được khóa phiên bản trong `requirements.txt` (`scikit-learn==1.7.2`, `pandas==2.3.3`, `numpy==2.2.6`, `scipy==1.15.3`, `PyYAML==6.0.3`, `streamlit==1.65.0`, `huggingface_hub==1.30.0`, `matplotlib==3.10.9`, `Pillow==12.3.0`).
 
-Install dependencies:
+Tạo môi trường Anaconda và cài đặt phụ thuộc (chạy trong **Anaconda Prompt** hoặc PowerShell đã cấu hình `conda`):
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+conda create -n nlp_rag python=3.10 -y
+conda activate nlp_rag
+pip install -r requirements.txt
 ```
 
-Download upstream data locally (`data/raw/` is excluded from Git):
+Tải dữ liệu nguồn về cục bộ (`data/raw/` bị loại trừ khỏi Git):
 
 ```powershell
-.\.venv\Scripts\python.exe src\download_vifinqa.py --mode questions --revision 0450088ab22ec946f04f097586967ca405955b3b
-.\.venv\Scripts\python.exe src\download_vifinqa.py --mode corpus --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --revision 0450088ab22ec946f04f097586967ca405955b3b
+python src\download_vifinqa.py --mode questions --revision 0450088ab22ec946f04f097586967ca405955b3b
+python src\download_vifinqa.py --mode corpus --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --revision 0450088ab22ec946f04f097586967ca405955b3b
 ```
 
-Rebuild processed chunks, table records, `v4` gold (`seed = 42`), stratified cross-review, and data documentation:
+Dựng lại các chunk đã xử lý, bản ghi bảng, bộ Gold `v4` (`seed = 42`), hậu kiểm phân tầng và tài liệu dữ liệu:
 
 ```powershell
-.\.venv\Scripts\python.exe src\select_corpus.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --versions consolidated separate
-.\.venv\Scripts\python.exe src\filter_questions.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
-.\.venv\Scripts\python.exe src\audit_ocr.py
-.\.venv\Scripts\python.exe src\build_chunks.py
-.\.venv\Scripts\python.exe src\build_table_records.py
-.\.venv\Scripts\python.exe src\build_supplement_gold.py
-.\.venv\Scripts\python.exe src\build_gold.py --force-v1
-.\.venv\Scripts\python.exe src\build_expanded_gold_v2.py
-.\.venv\Scripts\python.exe src\build_expanded_gold_v3.py
-.\.venv\Scripts\python.exe src\resolve_vifinqa_and_dev_refusal.py
-.\.venv\Scripts\python.exe src\cross_review.py
-.\.venv\Scripts\python.exe src\build_data_docs.py
-.\.venv\Scripts\python.exe src\data_quality_report.py
+python src\select_corpus.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --versions consolidated separate
+python src\filter_questions.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
+python src\audit_ocr.py
+python src\build_chunks.py
+python src\build_table_records.py
+python src\build_supplement_gold.py
+python src\build_gold.py --force-v1
+python src\build_expanded_gold_v2.py
+python src\build_expanded_gold_v3.py
+python src\resolve_vifinqa_and_dev_refusal.py
+python src\cross_review.py
+python src\build_data_docs.py
+python src\data_quality_report.py
 ```
 
-Run evaluation (`E0-E8`), `35` unit tests, and `4` demo verification checks:
+Chạy đánh giá (`E0-E8`), bộ `35` unit test và `4` kiểm thử ứng dụng demo:
 
 ```powershell
-foreach ($r in "E0","E1","E2","E3","E4","E5","E6","E7","E8") { .\.venv\Scripts\python.exe src\evaluate\evaluate.py --run $r }
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe app\check_demo.py
+foreach ($r in "E0","E1","E2","E3","E4","E5","E6","E7","E8") { python src\evaluate\evaluate.py --run $r }
+python -m unittest discover -s tests -v
+python app\check_demo.py
 ```

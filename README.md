@@ -9,13 +9,9 @@ khi thiếu bằng chứng.
 
 - **Nguồn:** `AIGuruTinix/ViFinQA`, revision `0450088ab22ec946f04f097586967ca405955b3b` (giấy phép trong manifest: `unknown_verify_with_teacher`).
 - **Corpus thực dùng:** 4 mã `HPG`, `HSG`, `NKG`, `MSR`, giai đoạn `2020-2024`,
-- Nguồn: `AIGuruTinix/ViFinQA`, revision `0450088ab22ec946f04f097586967ca405955b3b` (giấy phép trong manifest: `unknown_verify_with_teacher`).
-- Corpus thực dùng: 4 mã `HPG`, `HSG`, `NKG`, `MSR`, giai đoạn `2020-2024`,
   40 báo cáo gồm cả 2 bản `consolidated` và `separate` (tổng 2.437 trang OCR, 2.585 bảng HTML).
 - **Chunk & Bảng số:** **2.407** chunk trong `data/processed/chunks.jsonl` (1 chunk = 1 trang không rỗng, loại 30 trang rỗng OCR, văn bản chuẩn NFC giữ dấu tiếng Việt) và **29.615** bản ghi bảng số chuẩn hóa trong `data/processed/table_records.jsonl`.
 - **Gold (`v4`):** **204** câu trong `data/annotations/qa_gold.jsonl` (`0` `pending-answer`):
-- Chunk và Bảng số: **2.407** chunk trong `data/processed/chunks.jsonl` (1 chunk = 1 trang không rỗng, loại 30 trang rỗng OCR, văn bản chuẩn NFC giữ dấu tiếng Việt) và **29.615** bản ghi bảng số chuẩn hóa trong `data/processed/table_records.jsonl`.
-- Gold (`v4`): **204** câu trong `data/annotations/qa_gold.jsonl` (`0` `pending-answer`):
   - **35** câu `vifinqa` đã được giải đầy đủ kèm phép tính và trích dẫn `quote` nguyên văn từ `chunks.jsonl`;
   - **15** câu `supplement` (`S_NEW_01..07` số liệu kiểm chứng, `S_NEW_08..15` từ chối);
   - **150** câu `table-clean` (`55` T1 tra cứu, `44` T2 thời gian, `43` T3 chênh lệch, `8` T5 ngoài corpus);
@@ -23,17 +19,21 @@ khi thiếu bằng chứng.
   Bản v1 giữ tại `data/annotations/qa_gold_v1_50.jsonl` để đối chiếu.
   Hậu kiểm chéo phân tầng qua `src/cross_review.py` (`data/annotations/review_report.md`): kiểm tra độc lập **53/204 (25.98%)** câu đạt **0 bất đồng** (tổng cộng **57/204 = 27.94%** đạt `reviewed-agree`).
 - **Split `v4`:** `dev` **44** câu (40 trả lời được + 4 câu thiếu bằng chứng `dev-refusal`), `test` **160** câu (144 câu có evidence + 16 câu thiếu bằng chứng, giữ nguyên vẹn 100% từ `v3`), `seed = 42`, khóa tại `data/splits/split_meta.json` và bản sao nguyên vẹn tại `evaluation/split_freeze.json` (`sha256`: `0012ebccd6712b44cdd1faf18f020c547c82973db09d37ab2b9e96b0a94a34b4`). Chỉ tuning trên `dev`, chỉ công bố số liệu cuối trên `test`.
-- Split `v4`: `dev` **44** câu (40 trả lời được + 4 câu thiếu bằng chứng `dev-refusal`), `test` **160** câu (144 câu có evidence + 16 câu thiếu bằng chứng, giữ nguyên vẹn 100% từ `v3`), `seed = 42`, khóa tại `data/splits/split_meta.json` và bản sao nguyên vẹn tại `evaluation/split_freeze.json` (`sha256`: `0012ebccd6712b44cdd1faf18f020c547c82973db09d37ab2b9e96b0a94a34b4`). Chỉ tuning trên `dev`, chỉ công bố số liệu cuối trên `test`.
 
-## 2. Môi trường
+## 2. Môi trường (Anaconda)
 
-Sử dụng Python virtual environment `.venv` trên Windows (khuyến nghị PowerShell):
+Dự án được phát triển và chạy trong môi trường **Anaconda** (Python `3.10`) trên Windows (dùng **Anaconda Prompt** hoặc PowerShell đã cấu hình `conda`).
+
+Khởi tạo môi trường Conda, cài đặt thư viện trong `requirements.txt` và kiểm tra phiên bản:
 
 ```powershell
-.\.venv\Scripts\python.exe -c "import sys, sklearn, streamlit; print(sys.version.split()[0], sklearn.__version__, streamlit.__version__)"
+conda create -n nlp_rag python=3.10 -y
+conda activate nlp_rag
+pip install -r requirements.txt
+python -c "import sys, sklearn, streamlit; print(sys.version.split()[0], sklearn.__version__, streamlit.__version__)"
 ```
 
-Phiên bản đã kiểm chứng trong `.venv` (ngày `2026-11-15`; chạy hoàn toàn trên CPU với thư viện nhẹ, không yêu cầu framework deep learning nặng):
+Phiên bản đã kiểm chứng trong môi trường Anaconda (ngày `2026-11-15`; chạy hoàn toàn trên CPU với thư viện nhẹ, không yêu cầu framework deep learning nặng):
 
 | Thư viện | Phiên bản | Vai trò |
 |---|---|---|
@@ -48,41 +48,33 @@ Phiên bản đã kiểm chứng trong `.venv` (ngày `2026-11-15`; chạy hoàn
 | matplotlib | 3.10.9 | Vẽ biểu đồ (`report/figures/`) |
 | Pillow | 12.3.0 | Xử lý ảnh biểu đồ |
 
-Cài đặt sạch toàn bộ phụ thuộc cốt lõi:
-Cài đặt các thư viện trong `requirements.txt`:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
 Mọi script đọc và ghi file bằng `encoding="utf-8"`.
 
 ## 3. Tái lập dữ liệu
 
-Thư mục `data/raw/` **không được commit lên Git** (chỉ lưu snapshot cục bộ khi chạy pipeline). Nếu clone mới chưa có dữ liệu thô, tải từ Hugging Face trước:
+Đảm bảo đã kích hoạt môi trường (`conda activate nlp_rag`) trước khi chạy các lệnh bên dưới. Thư mục `data/raw/` **không được commit lên Git** (chỉ lưu snapshot cục bộ khi chạy pipeline). Nếu clone mới chưa có dữ liệu thô, tải từ Hugging Face trước:
 
 ```powershell
-.\.venv\Scripts\python.exe src\download_vifinqa.py --mode questions
-.\.venv\Scripts\python.exe src\download_vifinqa.py --mode corpus --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
+python src\download_vifinqa.py --mode questions
+python src\download_vifinqa.py --mode corpus --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
 ```
 
 Tái lập corpus, chunk, bảng số, bộ gold `v4`, hậu kiểm chéo và tài liệu dữ liệu:
 
 ```powershell
-.\.venv\Scripts\python.exe src\select_corpus.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --versions consolidated separate
-.\.venv\Scripts\python.exe src\filter_questions.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
-.\.venv\Scripts\python.exe src\audit_ocr.py
-.\.venv\Scripts\python.exe src\build_chunks.py
-.\.venv\Scripts\python.exe src\build_table_records.py
-.\.venv\Scripts\python.exe src\build_supplement_gold.py
-.\.venv\Scripts\python.exe src\build_gold.py --force-v1   # Mặc định khóa không cho ghi đè qa_gold.jsonl > 50 dòng nếu thiếu --force-v1
-.\.venv\Scripts\python.exe src\build_expanded_gold_v2.py
-.\.venv\Scripts\python.exe src\build_expanded_gold_v3.py
-.\.venv\Scripts\python.exe src\resolve_vifinqa_and_dev_refusal.py
-.\.venv\Scripts\python.exe src\cross_review.py
-.\.venv\Scripts\python.exe src\build_data_docs.py
-.\.venv\Scripts\python.exe src\data_quality_report.py
+python src\select_corpus.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024 --versions consolidated separate
+python src\filter_questions.py --tickers HPG HSG NKG MSR --years 2020 2021 2022 2023 2024
+python src\audit_ocr.py
+python src\build_chunks.py
+python src\build_table_records.py
+python src\build_supplement_gold.py
+python src\build_gold.py --force-v1   # Mặc định khóa không cho ghi đè qa_gold.jsonl > 50 dòng nếu thiếu --force-v1
+python src\build_expanded_gold_v2.py
+python src\build_expanded_gold_v3.py
+python src\resolve_vifinqa_and_dev_refusal.py
+python src\cross_review.py
+python src\build_data_docs.py
+python src\data_quality_report.py
 ```
 
 Kết quả chính: `data/processed/chunks.jsonl` (`2.407` chunk), `data/processed/table_records.jsonl` (`29.615` bản ghi), `data/processed/questions_matched.csv` (`35` câu), `data/processed/questions_dropped.csv` (`977` câu), `data/annotations/qa_gold.jsonl` (`204` câu `v4`), `data/data_manifest.csv` (`244` dòng), `data/data_schema.md`, `data/README.md`, `report/data_quality_report.md`.
@@ -102,15 +94,15 @@ Kết quả chính: `data/processed/chunks.jsonl` (`2.407` chunk), `data/process
 | E8 | Lookup & tổng hợp có cấu trúc (`src/retrieval/table_lookup.py`, gồm so sánh T2/T3) + hybrid RAG | `config/e8_table_lookup.yaml` | Trả lời số trực tiếp kèm chứng cứ gốc |
 
 ```powershell
-.\.venv\Scripts\python.exe src\infer\e0_bm25.py
-.\.venv\Scripts\python.exe src\infer\e1_lsa.py
-.\.venv\Scripts\python.exe src\infer\e2_hybrid.py
-.\.venv\Scripts\python.exe src\infer\e3_filter.py
-.\.venv\Scripts\python.exe src\infer\e4_rerank.py
-.\.venv\Scripts\python.exe src\infer\e5_query_rewrite.py
-.\.venv\Scripts\python.exe src\infer\e6_table_index.py
-.\.venv\Scripts\python.exe src\infer\e7_contextual.py
-.\.venv\Scripts\python.exe src\infer\e8_table_lookup.py
+python src\infer\e0_bm25.py
+python src\infer\e1_lsa.py
+python src\infer\e2_hybrid.py
+python src\infer\e3_filter.py
+python src\infer\e4_rerank.py
+python src\infer\e5_query_rewrite.py
+python src\infer\e6_table_index.py
+python src\infer\e7_contextual.py
+python src\infer\e8_table_lookup.py
 ```
 
 Mỗi script suy luận lưu đủ **top-10** `predicted_chunk_ids` vào `evaluation/dev_predictions/dev_predictions_E*.csv` (`n=44`) và `evaluation/test_predictions/test_predictions_E*.csv` (`n=160`).
@@ -120,11 +112,11 @@ Mỗi script suy luận lưu đủ **top-10** `predicted_chunk_ids` vào `evalua
 Chạy chấm metric, tổng hợp, phân tích lỗi và bộ 35 unit test trong `tests/`:
 
 ```powershell
-foreach ($r in "E0","E1","E2","E3","E4","E5","E6","E7","E8") { .\.venv\Scripts\python.exe src\evaluate\evaluate.py --run $r }
-.\.venv\Scripts\python.exe src\evaluate\compare_runs.py
-.\.venv\Scripts\python.exe src\evaluate\seed_check_e1.py
-.\.venv\Scripts\python.exe src\evaluate\build_error_analysis.py
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+foreach ($r in "E0","E1","E2","E3","E4","E5","E6","E7","E8") { python src\evaluate\evaluate.py --run $r }
+python src\evaluate\compare_runs.py
+python src\evaluate\seed_check_e1.py
+python src\evaluate\build_error_analysis.py
+python -m unittest discover -s tests -v
 ```
 
 ### Số liệu `test` chuẩn (`evaluation/metrics_summary.csv`, `n=160`, `evidence_den=144`, `refusal_den=16`)
@@ -150,18 +142,18 @@ Chi tiết đầy đủ xem tại `evaluation/comparison_E0_E1_E2.md`, `evaluati
 ## 6. Chạy demo Streamlit (Financial Intelligence UI)
 
 ```powershell
-.\.venv\Scripts\streamlit.exe run app\streamlit_app.py
+streamlit run app\streamlit_app.py
 ```
 
 Giao diện Streamlit thiết kế theo **Financial Intelligence** sử dụng chung `src/retrieval/table_lookup.py` + `app/qa_engine.py`:
-- Header với 4 corpus chips (`4 doanh nghiệp`, `40 báo cáo`, `2.407 Chunks`, `29.615 Table Records`), thanh bên 13 câu mẫu chia 4 nhóm và 4 nút Preset nhanh.
+- Header với 4 corpus chips (`4 doanh nghiệp`, `40 báo cáo`, `2.407 Chunks`, `29.615 Table Records`) và thanh bên 13 câu mẫu chia 4 nhóm.
 - **Verdict Card** hiển thị trạng thái (`answered`, `partial_answer`, `refused`, `ambiguous`), đáp án, hộp phép tính/nguồn, thẻ `chunk_id` chứng cứ; lưới 4 **KPI thực thể** (`Doanh nghiệp`, `Năm tài chính`, `Phiên bản BCTC`, `Đơn vị & Chỉ tiêu`); và 2 tab (**Chứng cứ Top-K & Bảng số liệu gốc** với điểm chuẩn hóa `[0.0, 1.0]` và **CONTEXT gửi bộ sinh & Nhật ký truy hồi**).
 
 Kiểm thử demo & unit test:
 
 ```powershell
-.\.venv\Scripts\python.exe app\check_demo.py
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+python app\check_demo.py
+python -m unittest discover -s tests -v
 ```
 
 4 ca trong `app/check_demo.py` đạt (refusal nguyên văn, đáp án kèm phép tính `10.8568 %`, snippet > 300 ký tự, paraphrase `10.8568 %`); kết quả mẫu chi tiết xem tại `app/expected_outputs.md` và `app/README.md`.
@@ -171,8 +163,8 @@ Kiểm thử demo & unit test:
 ```text
 .
 ├── README.md                              # file này
-├── data_card.md                           # hồ sơ dữ liệu chuẩn v4
-├── requirements.txt                       # khóa phiên bản thư viện cốt lõi (.venv)
+├── data_card.md                           # hồ sơ dữ liệu chuẩn v4 (tiếng Việt)
+├── requirements.txt                       # khóa phiên bản thư viện cốt lõi (Anaconda / pip)
 ├── config/
 │   ├── answer_policy.yaml                 # quy tắc trích dẫn & từ chối
 │   ├── e0_bm25.yaml .. e8_table_lookup.yaml
@@ -234,9 +226,9 @@ Kiểm thử demo & unit test:
 
 ## 8. Hồ sơ nộp và kiểm chứng
 
-- `data_card.md`: hồ sơ dữ liệu chuẩn `v4` đủ 14 mục theo Mục 7 Hướng dẫn BTL (40 báo cáo, 2.407 chunks, 29.615 table records, split `v4`, hậu kiểm 57/204 `reviewed-agree`, OCR audit, giấy phép `unknown_verify_with_teacher`, giới hạn).
+- `data_card.md`: hồ sơ dữ liệu chuẩn `v4` (bản tiếng Việt) đủ 14 mục theo Mục 7 Hướng dẫn BTL (40 báo cáo, 2.407 chunks, 29.615 table records, split `v4`, hậu kiểm 57/204 `reviewed-agree`, OCR audit, giấy phép `unknown_verify_with_teacher`, giới hạn).
 - `report/Bao_cao_BTL.md`, `report/Bao_cao_BTL.docx`, `report/Bao_cao_BTL.pdf`: báo cáo học phần hoàn chỉnh theo mẫu báo cáo (2 trang bìa chuẩn, Lời nói đầu, Mục lục tự động, Bảng từ viết tắt, Chương 1-3, Kết luận 3 đoạn và Tài liệu tham khảo `[1]..[9]`), sinh tự động từ `src/evaluate/build_report_docx.py`.
 - `report/data_quality_report.md`, `report/corpus_selection.md`, `report/ocr_audit.md`: kiểm định chất lượng dữ liệu, tiêu chí chọn corpus và audit OCR.
 - `report/figures/`: `01_corpus_ocr_overview.png` .. `11_streamlit_ui_context_and_trace.png` (`10_pipeline_and_error_taxonomy.png` minh họa kiến trúc và phân rã lỗi; `11_streamlit_ui_context_and_trace.png` chụp tab CONTEXT và nhật ký truy hồi trên `ViFinQA-97`).
 - `evaluation/pilot_advanced.md`: báo cáo pilot nâng cao sinh bởi `src/evaluate/pilot_advanced.py`.
-- `requirements.txt` đã khóa đúng phiên bản `.venv`, không phụ thuộc thư viện nặng dư thừa, không lộ API key hay PII.
+- `requirements.txt` đã khóa đúng phiên bản thư viện cho môi trường Anaconda, không phụ thuộc thư viện nặng dư thừa, không lộ API key hay PII.

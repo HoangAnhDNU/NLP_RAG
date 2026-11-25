@@ -791,23 +791,23 @@ with st.sidebar:
     chunks_dot = f"{len(chunks):,}".replace(",", ".")
     st.caption(f"Đã nạp **{chunks_dot}** chunk · Config: `config/e0_bm25.yaml` & `config/e2_hybrid.yaml`.")
     st.divider()
-    st.markdown("### Bộ câu mẫu kiểm thử (13 câu)")
-    st.caption("Bấm vào một câu mẫu để nạp và chạy pipeline ngay.")
+    with st.expander(f"Bộ câu mẫu kiểm thử ({len(samples)} câu)", expanded=False):
+        st.caption("Bấm vào một câu mẫu để nạp và chạy pipeline ngay.")
 
-    current_group = None
-    for s in samples:
-        if s["group"] != current_group:
-            current_group = s["group"]
-            st.markdown(f"**{GROUP_TITLES[current_group]}**")
-        label = s.get("label", s.get("qid", ""))
-        short_lbl = label.split(" - ", 1)[-1] if " - " in label else label
-        qid = s.get("qid", "")
-        st.button(
-            f"{qid} · {short_lbl}",
-            key=f"sample_{qid}",
-            on_click=select_question,
-            args=(s["question"], qid),
-        )
+        current_group = None
+        for s in samples:
+            if s["group"] != current_group:
+                current_group = s["group"]
+                st.markdown(f"**{GROUP_TITLES[current_group]}**")
+            label = s.get("label", s.get("qid", ""))
+            short_lbl = label.split(" - ", 1)[-1] if " - " in label else label
+            qid = s.get("qid", "")
+            st.button(
+                f"{qid} · {short_lbl}",
+                key=f"sample_{qid}",
+                on_click=select_question,
+                args=(s["question"], qid),
+            )
 
 # ---------------------------------------------------------------------
 # Main Workspace
@@ -822,26 +822,7 @@ with st.container():
         height=88,
         placeholder="Ví dụ: Biên lợi nhuận gộp về bán hàng và cung cấp dịch vụ hợp nhất của CTCP Tập đoàn Hoa Sen năm 2024 là bao nhiêu phần trăm?",
     )
-    act_col1, act_col2, act_col3, act_col4, act_col5 = st.columns([1.4, 1.3, 1.3, 1.3, 1.2])
-    with act_col1:
-        ask = st.button("Truy vấn & Trích dẫn", type="primary", use_container_width=True)
-    quick_presets = {
-        "S_NEW_07": "Mẫu: Biên gộp HSG",
-        "S_NEW_08": "Mẫu: Từ chối (Giá CP)",
-        "PARA_01": "Mẫu: Diễn đạt lại",
-        "ViFinQA-97": "Mẫu: ViFinQA HPG %",
-    }
-    by_qid = {s["qid"]: s for s in samples}
-    for col, (pqid, plabel) in zip((act_col2, act_col3, act_col4, act_col5), quick_presets.items()):
-        with col:
-            if pqid in by_qid:
-                st.button(
-                    plabel,
-                    key=f"quick_{pqid}",
-                    use_container_width=True,
-                    on_click=select_question,
-                    args=(by_qid[pqid]["question"], pqid),
-                )
+    ask = st.button("Truy vấn & Trích dẫn", type="primary")
 
 if ask:
     st.session_state["run_query"] = True
@@ -971,4 +952,4 @@ if should_run and question.strip():
 elif should_run and not question.strip():
     st.error("Vui lòng nhập câu hỏi trước khi bấm Truy vấn & Trích dẫn.")
 else:
-    st.info("Chọn một câu mẫu ở thanh bên trái (hoặc bấm nút Mẫu ở trên) rồi hệ thống sẽ tự động truy hồi, đối chiếu bảng số liệu và hiển thị chứng cứ trích dẫn.")
+    st.info("Chọn một câu mẫu ở thanh bên trái hoặc nhập câu hỏi rồi bấm Truy vấn & Trích dẫn để hệ thống truy hồi, đối chiếu bảng số liệu và hiển thị chứng cứ trích dẫn.")
